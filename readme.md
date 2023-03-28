@@ -1,5 +1,11 @@
 # zegocloud_sdk_demos
 
+
+[![](https://img.shields.io/badge/chat-on%20discord-7289da.svg)](https://discord.gg/EtNRATttyp)
+
+> If you have any questions regarding bugs and feature requests, visit the [ZEGOCLOUD community](https://discord.gg/EtNRATttyp) .
+
+
 ## Description
 
 This repository contains demo projects for the ZEGOCLOUD SDK, which is a cloud-based video communication solution. The demos demonstrate the capabilities of the ZEGOCLOUD SDK, such as real-time audio and video transmission, screen sharing, and interactive whiteboard functions.

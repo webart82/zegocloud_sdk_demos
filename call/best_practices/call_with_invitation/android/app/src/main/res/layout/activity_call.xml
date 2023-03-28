@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  android:background="#aaaaaa"
+  tools:context=".call.CallingActivity">
+
+  <com.zegocloud.demo.callwithinvitation.components.ZEGOVideoView
+    android:id="@+id/full_video_view"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" />
+
+  <com.zegocloud.demo.callwithinvitation.components.ZEGOVideoView
+    android:id="@+id/small_video_view"
+    android:layout_width="96dp"
+    android:layout_height="128dp"
+    android:layout_marginStart="12dp"
+    android:layout_marginTop="48dp"
+    android:layout_marginEnd="12dp"
+    android:layout_marginBottom="72dp"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintTop_toTopOf="parent" />
+
+  <com.zegocloud.demo.callwithinvitation.components.SwitchCameraButton
+    android:id="@+id/call_camera_switch_btn"
+    android:layout_width="48dp"
+    android:layout_height="48dp"
+    android:layout_marginStart="32dp"
+    android:layout_marginBottom="36dp"
+    android:src="@drawable/call_icon_camera_flip"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintEnd_toStartOf="@+id/call_camera_btn"
+    app:layout_constraintHorizontal_bias="0.5"
+    app:layout_constraintHorizontal_chainStyle="spread_inside"
+    app:layout_constraintStart_toStartOf="parent" />
+
+  <com.zegocloud.demo.callwithinvitation.components.ToggleCameraButton
+    android:id="@+id/call_camera_btn"
+    android:layout_width="48dp"
+    android:layout_height="48dp"
+    android:layout_marginBottom="36dp"
+    android:background="@drawable/call_icon_camera_on"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintEnd_toStartOf="@+id/call_hangup_btn"
+    app:layout_constraintHorizontal_bias="0.5"
+    app:layout_constraintStart_toEndOf="@+id/call_camera_switch_btn" />
+
+  <ImageView
+    android:id="@+id/call_hangup_btn"
+    android:layout_width="52dp"
+    android:layout_height="52dp"
+    android:layout_marginBottom="36dp"
+    android:background="@drawable/call_icon_hangup"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintEnd_toStartOf="@+id/call_mic_btn"
+    app:layout_constraintHorizontal_bias="0.5"
+    app:layout_constraintStart_toEndOf="@+id/call_camera_btn" />
+
+  <com.zegocloud.demo.callwithinvitation.components.ToggleMicrophoneButton
+    android:id="@+id/call_mic_btn"
+    android:layout_width="48dp"
+    android:layout_height="48dp"
+    android:layout_marginBottom="36dp"
+    android:background="@drawable/call_icon_mic_on"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintEnd_toStartOf="@+id/call_speaker_btn"
+    app:layout_constraintHorizontal_bias="0.5"
+    app:layout_constraintStart_toEndOf="@+id/call_hangup_btn" />
+
+  <com.zegocloud.demo.callwithinvitation.components.SpeakerButton
+    android:id="@+id/call_speaker_btn"
+    android:layout_width="48dp"
+    android:layout_height="48dp"
+    android:layout_marginEnd="32dp"
+    android:layout_marginBottom="36dp"
+    android:background="@drawable/call_icon_speaker"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintHorizontal_bias="0.5"
+    app:layout_constraintStart_toEndOf="@+id/call_mic_btn" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

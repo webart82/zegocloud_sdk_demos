@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  tools:context=".call.CallWaitingActivity">
+
+  <com.zegocloud.demo.callwithinvitation.components.ZEGOVideoView
+    android:id="@+id/video_view"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" />
+
+  <ImageView
+    android:id="@+id/outgoing_call_cancel_button"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="48dp"
+    android:src="@drawable/icon_hangup"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent" />
+
+  <ImageView
+    android:id="@+id/incoming_call_reject_button"
+    android:layout_width="48dp"
+    android:layout_height="48dp"
+    android:layout_marginBottom="48dp"
+    android:src="@drawable/call_icon_dialog_decline"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintEnd_toStartOf="@+id/incoming_call_accept_button"
+    app:layout_constraintHorizontal_bias="0.5"
+    app:layout_constraintStart_toStartOf="parent" />
+
+  <ImageView
+    android:id="@+id/incoming_call_accept_button"
+    android:layout_width="48dp"
+    android:layout_height="48dp"
+    android:layout_marginBottom="48dp"
+    android:src="@drawable/icon_video_accept"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintHorizontal_bias="0.5"
+    app:layout_constraintStart_toEndOf="@+id/incoming_call_reject_button" />
+</androidx.constraintlayout.widget.ConstraintLayout>

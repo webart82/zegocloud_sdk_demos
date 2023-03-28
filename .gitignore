@@ -142,4 +142,5 @@
 **/iOSInjectionProject/
 **/Pods
 **/Podfile.lock
-
+!gitignore.sh
+call/advanced_features/call_with_invitation/flutter/macos/Runner.xcworkspace

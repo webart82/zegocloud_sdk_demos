@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="21507" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+    <device id="retina6_12" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21505"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <scenes>
+        <!--View Controller-->
+        <scene sceneID="tne-QT-ifu">
+            <objects>
+                <viewController id="BYZ-38-t0r" customClass="ViewController" customModule="ZegoCallWithInvitationDemo" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="CkU-gi-M0f">
+                                <rect key="frame" x="19.999999999999996" y="99" width="42.666666666666657" height="25"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="25" id="PC1-wF-wrr"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" weight="medium" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Make a direct call:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Xlf-As-fS1">
+                                <rect key="frame" x="20" y="154" width="138" height="20"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="20" id="RDV-wG-u7v"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="User ID" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="P7j-Mg-20s">
+                                <rect key="frame" x="20" y="199" width="57" height="20"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="20" id="WQu-gh-FnG"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="line" placeholder="invitee's User ID" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="da0-zl-ktu">
+                                <rect key="frame" x="20" y="229" width="233" height="30"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="30" id="KNz-7S-rHS"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <textInputTraits key="textInputTraits"/>
+                            </textField>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="dGz-fM-RzQ">
+                                <rect key="frame" x="283" y="224" width="40" height="40"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="40" id="gNU-8N-8x8"/>
+                                    <constraint firstAttribute="width" constant="40" id="neV-eE-eTd"/>
+                                </constraints>
+                                <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                                <state key="normal" title="voice" image="user_phone_icon"/>
+                                <connections>
+                                    <action selector="voiceCallClick:" destination="BYZ-38-t0r" eventType="touchUpInside" id="1ty-mQ-Fea"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="wQC-af-hou">
+                                <rect key="frame" x="333" y="224" width="40" height="40"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="40" id="33R-JJ-13j"/>
+                                    <constraint firstAttribute="width" constant="40" id="biE-Rq-Gby"/>
+                                </constraints>
+                                <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                                <state key="normal" title="video" image="user_video_icon"/>
+                                <connections>
+                                    <action selector="videoCallClick:" destination="BYZ-38-t0r" eventType="touchUpInside" id="yH0-1y-DOn"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="wQC-af-hou" secondAttribute="trailing" constant="20" id="D0Z-wj-1sJ"/>
+                            <constraint firstItem="da0-zl-ktu" firstAttribute="top" secondItem="P7j-Mg-20s" secondAttribute="bottom" constant="10" id="Mcf-6r-Wss"/>
+                            <constraint firstItem="wQC-af-hou" firstAttribute="leading" secondItem="dGz-fM-RzQ" secondAttribute="trailing" constant="10" id="R5g-2X-gIi"/>
+                            <constraint firstItem="CkU-gi-M0f" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="40" id="YBR-I9-8hZ"/>
+                            <constraint firstItem="wQC-af-hou" firstAttribute="centerY" secondItem="da0-zl-ktu" secondAttribute="centerY" id="gxk-qC-2dw"/>
+                            <constraint firstItem="P7j-Mg-20s" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="20" id="khJ-qd-9LZ"/>
+                            <constraint firstItem="dGz-fM-RzQ" firstAttribute="leading" secondItem="da0-zl-ktu" secondAttribute="trailing" constant="30" id="m3I-AM-wPR"/>
+                            <constraint firstItem="P7j-Mg-20s" firstAttribute="top" secondItem="Xlf-As-fS1" secondAttribute="bottom" constant="25" id="mOW-mN-Vkd"/>
+                            <constraint firstItem="Xlf-As-fS1" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="20" id="qVq-0n-73G"/>
+                            <constraint firstItem="CkU-gi-M0f" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="20" id="tK1-PR-TJ2"/>
+                            <constraint firstItem="dGz-fM-RzQ" firstAttribute="centerY" secondItem="da0-zl-ktu" secondAttribute="centerY" id="you-cI-AX4"/>
+                            <constraint firstItem="da0-zl-ktu" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="20" id="zBm-NY-zQI"/>
+                            <constraint firstItem="Xlf-As-fS1" firstAttribute="top" secondItem="CkU-gi-M0f" secondAttribute="bottom" constant="30" id="zr7-aw-hj3"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="inviteeUserIDTextField" destination="da0-zl-ktu" id="pTL-yr-2Nh"/>
+                        <outlet property="userIDDisplayLabel" destination="CkU-gi-M0f" id="wpK-Wf-pKD"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="176" y="-28"/>
+        </scene>
+    </scenes>
+    <resources>
+        <image name="user_phone_icon" width="25" height="25"/>
+        <image name="user_video_icon" width="25" height="25"/>
+        <systemColor name="systemBackgroundColor">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+    </resources>
+</document>
