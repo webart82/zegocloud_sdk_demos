@@ -44,8 +44,8 @@ class ZegoResponseInvitationResult {
   String toString() => '{error: $error}';
 }
 
-class ZegoJoinRoomResult {
-  const ZegoJoinRoomResult({
+class ZegoLoginRoomResult {
+  const ZegoLoginRoomResult({
     this.error,
   });
 

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:math';
+import 'dart:convert' as covert;
 import 'package:call_with_invitation/call/CallWaitPage.dart';
 import 'package:call_with_invitation/call/CallingPage.dart';
 import 'package:call_with_invitation/interal/im/zim_service_defines.dart';
@@ -101,20 +102,26 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void onReceiveCall(ZIMReveiveCallEvent event) {
+    Map<String, dynamic> extendedDataMap =
+        covert.jsonDecode(event.extendedData);
+    ZegoCallType type = (extendedDataMap['type'] as String) == '1'
+        ? ZegoCallType.video
+        : ZegoCallType.voice;
+    String inviterName = extendedDataMap['inviterName'] as String;
     // show call dialog
     showTopModalSheet(
       context,
       GestureDetector(
         onTap: onInvitationTopSheetEmptyClicked,
         child: ZegoCallInvitationDialog(
-          invitationData: ZegoCallData(inviter: ZegoUserInfo(userID: myUserID
-          , userName: myUserName), invitee: ZegoUserInfo(userID: '23', userName: '232'), callType: ZegoCallType.video, callID: '2131'),
-          onAcceptCallback: (){
-            
-          },
-          onRefuseCallback: () {
-
-          },
+          invitationData: ZegoCallData(
+              inviter:
+                  ZegoUserInfo(userID: event.inviter, userName: inviterName),
+              invitee: ZegoUserInfo(userID: myUserID, userName: myUserName),
+              callType: type,
+              callID: event.callID),
+          onAcceptCallback: () {},
+          onRefuseCallback: () {},
         ),
       ),
       barrierDismissible: false,
@@ -150,32 +157,23 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void onInvitationTopSheetEmptyClicked() {
     hideInvitationTopSheet();
-
-    if (ZegoCallDataManager.shared.callData?.callType == ZegoCallType.voice) {
-      //callingMachine.stateCallingWithVoice.enter();
-    } else {
-      //callingMachine.stateCallingWithVideo.enter();
-    }
+    pushToCallWaitingPage();
   }
 
   void hideInvitationTopSheet() {
     Navigator.of(context).pop();
-    // if (invitationTopSheetVisibility) {
-      
-
-    //   invitationTopSheetVisibility = false;
-    // }
   }
 
   void onCancelCall(ZIMCancelCallEvent event) {
-    // remobe call dialog
+    // remote call dialog
+    hideInvitationTopSheet();
   }
 
   Future<void> startVoiceCall() async {
-    String extendedData = '{"type": "1"}';
+    String extendedData = '{"type": "0", "inviterName": "$myUserName"}';
     final ZegoSendInvitationResult result = await ZegoSDKManager.shared
         .sendInvitation(
-            invitees: [myController.text],
+            invitees: [myController.text],callType: ZegoCallType.voice,
             extendedData: extendedData); // send call invitation
     if (result.error == null || result.error?.code == '0') {
       final ZegoRoomLoginResult loginResult = await ZegoSDKManager.shared
@@ -185,12 +183,7 @@ class _MyHomePageState extends State<MyHomePage> {
           //user is not noline
           return;
         }
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                fullscreenDialog: true,
-                builder: (context) => CallWaitPage(
-                    callData: ZegoCallDataManager.shared.callData)));
+        pushToCallWaitingPage();
       } else {
         // join room fail
       }
@@ -200,29 +193,35 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> startVideoCall() async {
-    String extendedData = '{"type": "1"}';
+    String extendedData = '{"type": "1", "inviterName": "$myUserName"}';
     final ZegoSendInvitationResult result = await ZegoSDKManager.shared
-        .sendInvitation(invitees: [myController.text]);
+        .sendInvitation(
+            invitees: [myController.text], callType: ZegoCallType.video,extendedData: extendedData);
     if (result.error == null || result.error?.code == '0') {
+      if (result.errorInvitees.keys.contains(myController.text)) {
+        //user is not noline
+        ZegoCallDataManager.shared.clear();
+        return;
+      }
       final ZegoRoomLoginResult loginResult = await ZegoSDKManager.shared
           .joinRoom(result.invitationID); // join express room
       if (loginResult.errorCode == 0) {
-        if (result.errorInvitees.containsValue(myController.text)) {
-          //user is not noline
-          return;
-        }
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                fullscreenDialog: true,
-                builder: (context) => CallWaitPage(
-                    callData: ZegoCallDataManager.shared.callData)));
+        pushToCallWaitingPage();
       } else {
         // join room fail
       }
     } else {
       // show error
     }
+  }
+
+  void pushToCallWaitingPage() {
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            fullscreenDialog: true,
+            builder: (context) =>
+                CallWaitPage(callData: ZegoCallDataManager.shared.callData)));
   }
 }
 

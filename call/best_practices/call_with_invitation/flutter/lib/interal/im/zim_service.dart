@@ -58,6 +58,7 @@ class ZIMService with ZIMServiceEvent {
   Future<ZegoSendInvitationResult> sendInvitation({
     required List<String> invitees,
     required int timeout,
+    required ZegoCallType callType,
     String extendedData = '',
   }) async {
     final config = ZIMCallInviteConfig()
@@ -67,13 +68,14 @@ class ZIMService with ZIMServiceEvent {
         .getInstance()!
         .callInvite(invitees, config)
         .then((ZIMCallInvitationSentResult zimResult) {
-      ZegoCallDataManager.shared.callData = ZegoCallData(
-          inviter: ZegoUserInfo(
+      ZegoCallDataManager.shared.createCall(
+          zimResult.callID,
+          ZegoUserInfo(
               userID: zimUserInfo?.userID ?? '',
               userName: zimUserInfo?.userName ?? ''),
-          invitee: ZegoUserInfo(userID: invitees.first, userName: ''),
-          callType: ZegoCallType.video,
-          callID: zimResult.callID);
+          ZegoUserInfo(userID: invitees.first, userName: ''),
+          ZegoCallUserState.inviting,
+          callType);
       return ZegoSendInvitationResult(
         invitationID: zimResult.callID,
         errorInvitees: {
@@ -157,15 +159,24 @@ class ZIMService with ZIMServiceEvent {
       refuseInvitation(invitationID: callID);
       return;
     }
-    Map<String, dynamic> callInfoMap = json.decode(info.extendedData);
-    ZegoCallType type = callInfoMap['type'];
-    ZegoCallDataManager.shared.callData = ZegoCallData(
-        inviter: ZegoUserInfo(userID: info.inviter, userName: ''),
-        invitee: ZegoUserInfo(
+    Map<String, dynamic> callInfoMap = {};
+    try {
+      callInfoMap = json.decode(info.extendedData) as Map<String, dynamic>;
+    } on FormatException catch (e) {
+      print('The info.extendedData is not valid JSON');
+    }
+    ZegoCallType type = (callInfoMap['type'] as String) == '1'
+        ? ZegoCallType.video
+        : ZegoCallType.voice;
+    String inviterName = callInfoMap['inviterName'] as String;
+    ZegoCallDataManager.shared.createCall(
+        callID,
+        ZegoUserInfo(userID: info.inviter, userName: inviterName),
+        ZegoUserInfo(
             userID: zimUserInfo?.userID ?? '',
             userName: zimUserInfo?.userName ?? ''),
-        callType: type,
-        callID: callID);
+        ZegoCallUserState.received,
+        type);
     receiveCallStreamCtrl.add(ZIMReveiveCallEvent(
       callID,
       info.inviter,

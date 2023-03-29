@@ -1,5 +1,6 @@
 import 'dart:ffi';
 
+import 'package:call_with_invitation/interal/im/zim_service_enum.dart';
 import 'package:call_with_invitation/zego_user_Info.dart';
 import 'package:flutter/material.dart';
 import 'package:zego_express_engine/zego_express_engine.dart';
@@ -61,10 +62,11 @@ class ZegoSDKManager {
 
   Future<ZegoSendInvitationResult> sendInvitation({
     required List<String> invitees,
+    required ZegoCallType callType,
     int timeout = 60,
     String extendedData = '',
   }) async {
-    return zimService.sendInvitation(invitees: invitees, timeout: timeout, extendedData: extendedData);
+    return await zimService.sendInvitation(invitees: invitees, timeout: timeout, callType: callType, extendedData: extendedData);
   }
 
   Future<ZegoCancelInvitationResult> cancelInvitation({

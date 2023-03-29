@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:ffi';
 
+import 'package:call_with_invitation/interal/im/zim_service_defines.dart';
+
 import 'zego_express_service_event.dart';
 import 'zego_express_service_core.dart';
 
@@ -52,13 +54,20 @@ class ZegoExpressService with ZegoExpressServiceEvent {
       ZegoUser(core.localUser.userID, core.localUser.userName),
       config: ZegoRoomConfig(0, true, ''),
     );
+    if (joinRoomResult.errorCode == 0) {
+      core.room = roomID;
+    }
     return joinRoomResult;
   }
 
   Future<ZegoRoomLogoutResult> leaveRoom() async {
     final leaveResult = await ZegoExpressEngine.instance.logoutRoom();
-    if (leaveResult.errorCode != 0) {}
-
+    if (leaveResult.errorCode == 0) {
+      core.room = '';
+      core.localVideoView.value = null;
+      core.remoteVideoView.value = null;
+      core.stopPreview();
+    }
     return leaveResult;
   }
 

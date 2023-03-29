@@ -30,6 +30,7 @@ class CallingPage extends StatefulWidget {
 
 class _CallingPageState extends State<CallingPage> {
   List<StreamSubscription<dynamic>?> subscriptions = [];
+  List<String>streamIDList = [];
 
   bool micIsOn = true;
   bool cameraIsOn = true;
@@ -51,6 +52,8 @@ class _CallingPageState extends State<CallingPage> {
     subscriptions
     ..add(ZegoSDKManager.shared.expressService.core.streamListUpdateStreamCtrl.stream.listen(onStreamListUpdate))
     ..add(ZegoSDKManager.shared.expressService.core.roomUserListUpdateStreamCtrl.stream.listen(onRoomUserListUpdate));
+    // start publishing stream
+    ZegoSDKManager.shared.expressService.core.startPublishingStream();
   }
 
   @override
@@ -144,6 +147,12 @@ class _CallingPageState extends State<CallingPage> {
         height: 50,
         child: ZegoCancelButton(
           onPressed: () {
+            for (String streamID in streamIDList) {
+              ZegoSDKManager.shared.expressService.stopPlayingStream(streamID);
+            }
+            ZegoSDKManager.shared.expressService.core.stopPreview();
+            ZegoSDKManager.shared.expressService.core.stopPublishingStream();
+            ZegoSDKManager.shared.expressService.leaveRoom();
             Navigator.pop(context);
           },
         ),
@@ -213,8 +222,10 @@ class _CallingPageState extends State<CallingPage> {
   void onStreamListUpdate(ZegoRoomStreamListUpdateEvent event) {
     for (var stream in event.streamList) {
       if (event.updateType == ZegoUpdateType.Add) {
+        streamIDList.add(stream.streamID);
         ZegoSDKManager.shared.expressService.startPlayingStream(stream.streamID);
       } else {
+        streamIDList.remove(stream.streamID);
         ZegoSDKManager.shared.expressService.stopPlayingStream(stream.streamID);
       }  
     }

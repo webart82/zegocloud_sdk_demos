@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/rendering.dart';
+import 'package:zego_express_engine/zego_express_engine.dart';
 
 import '../interal/im/zim_service_defines.dart';
 
@@ -30,25 +31,39 @@ class _CallWaitPageState extends State<CallWaitPage> {
     super.initState();
 
     subscriptions
-    ..add(ZegoSDKManager.shared.zimService.rejectCallStreamCtrl.stream.listen(onRejectCall))
-    ..add(ZegoSDKManager.shared.zimService.acceptCallStreamCtrl.stream.listen(onAcceptCall))
-    ..add(ZegoSDKManager.shared.zimService.cancelCallStreamCtrl.stream.listen(onCancelCall));
-    
+      ..add(ZegoSDKManager.shared.zimService.rejectCallStreamCtrl.stream
+          .listen(onRejectCall))
+      ..add(ZegoSDKManager.shared.zimService.acceptCallStreamCtrl.stream
+          .listen(onAcceptCall))
+      ..add(ZegoSDKManager.shared.zimService.cancelCallStreamCtrl.stream
+          .listen(onCancelCall));
+
+    ZegoSDKManager.shared.expressService.core.startPreview();
   }
 
   void onRejectCall(ZIMRejectCallEvent event) {
     Navigator.pop(context);
   }
 
-  void onAcceptCall(ZIMAcceptCallEvent event) {
+  Future<void> onAcceptCall(ZIMAcceptCallEvent event) async {
     //show calling page
-    
+    if (widget.callData != null) {
+      ZegoResponseInvitationResult result = await ZegoSDKManager
+          .shared.zimService
+          .acceptInvitation(invitationID: widget.callData!.callID);
+      if (result.error == null || result.error?.code == '0') {
+        //join room
+        ZegoRoomLoginResult result =
+            await ZegoSDKManager.shared.joinRoom(widget.callData!.callID);
+        if (result.errorCode == 0) {
+        } else {}
+      }
+    }
   }
 
   void onCancelCall(ZIMCancelCallEvent event) {
     Navigator.pop(context);
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -65,14 +80,13 @@ class _CallWaitPageState extends State<CallWaitPage> {
   }
 
   Widget buttonView() {
-    if (widget.callData?.inviter.userID !=
+    if (widget.callData?.inviter.userID ==
         ZegoSDKManager.shared.localUser.userID) {
       return LayoutBuilder(builder: (context, containers) {
         return Padding(
           padding: EdgeInsets.only(
               left: 0, right: 0, top: containers.maxHeight - 70),
           child: Container(
-            color: Colors.blue,
             padding: const EdgeInsets.only(left: 0, right: 0, bottom: 0),
             height: 70,
             child: Row(
@@ -90,7 +104,6 @@ class _CallWaitPageState extends State<CallWaitPage> {
           padding: EdgeInsets.only(
               left: 0, right: 0, top: containers.maxHeight - 70),
           child: Container(
-            color: Colors.blue,
             padding: const EdgeInsets.only(left: 0, right: 0, bottom: 0),
             height: 70,
             child: Row(
@@ -107,10 +120,18 @@ class _CallWaitPageState extends State<CallWaitPage> {
   }
 
   Widget videoView() {
-    return Container(
-      padding: const EdgeInsets.all(0),
-      color: Colors.red,
-    );
+    return ValueListenableBuilder<Widget?>(
+        valueListenable: ZegoSDKManager.shared.getVideoViewNotifier(null),
+        builder: (context, view, _) {
+          if (view != null) {
+            return view;
+          } else {
+            return Container(
+              padding: const EdgeInsets.all(0),
+              color: Colors.black,
+            );
+          }
+        });
   }
 
   Widget cancelCallButton() {
@@ -150,11 +171,9 @@ class _CallWaitPageState extends State<CallWaitPage> {
         .acceptInvitation(invitationID: widget.callData?.callID ?? '');
     if (result.error?.code == '0') {
       // join room
-      final ZegoJoinRoomResult joinRoomResult = (await ZegoSDKManager.shared
-          .joinRoom(widget.callData?.callID ?? '')) as ZegoJoinRoomResult;
-      if (joinRoomResult.error?.code == '0') {
-
-      }
+      final ZegoRoomLoginResult joinRoomResult =
+          await ZegoSDKManager.shared.joinRoom(widget.callData?.callID ?? '');
+      if (joinRoomResult.errorCode == 0) {}
     } else {}
   }
 

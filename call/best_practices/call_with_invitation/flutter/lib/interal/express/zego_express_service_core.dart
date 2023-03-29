@@ -53,11 +53,13 @@ class ZegoExpressServiceCore {
 
   Future<void> stopPreview() async {
     localVideoView.value = null;
+    localViewID = 0;
     ZegoExpressEngine.instance.stopPreview();
   }
 
 
-  Future<void> startPublishingStream(String streamID) async {
+  Future<void> startPublishingStream() async {
+    String streamID = "${room}_${localUser.userID}"; 
     ZegoExpressEngine.instance.startPublishingStream(streamID);
   }
 
