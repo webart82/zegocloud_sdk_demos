@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 
 import 'zego_defines.dart';
 
@@ -24,10 +25,14 @@ class ZegoToggleMicrophoneButton extends StatefulWidget {
   final Size? buttonSize;
 
   @override
-  State<ZegoToggleMicrophoneButton> createState() => _ZegoToggleMicrophoneButtonState();
+  State<ZegoToggleMicrophoneButton> createState() =>
+      _ZegoToggleMicrophoneButtonState();
 }
 
-class _ZegoToggleMicrophoneButtonState extends State<ZegoToggleMicrophoneButton> {
+class _ZegoToggleMicrophoneButtonState
+    extends State<ZegoToggleMicrophoneButton> {
+  ValueNotifier<bool> micStateNoti = ValueNotifier<bool>(false);
+
   @override
   void initState() {
     super.initState();
@@ -38,26 +43,34 @@ class _ZegoToggleMicrophoneButtonState extends State<ZegoToggleMicrophoneButton>
     final containerSize = widget.buttonSize ?? Size(96, 96);
     final sizeBoxSize = widget.iconSize ?? Size(56, 56);
 
-    return GestureDetector(
-      onTap: () {
-        if (widget.onPressed != null) {
-          widget.onPressed!();
-        }
-      },
-      child: Container(
-        width: containerSize.width,
-        height: containerSize.height,
-        decoration: BoxDecoration(
-          color: widget.icon?.backgroundColor ??
-              Color(0xff2C2F3E).withOpacity(0.6),
-          shape: BoxShape.circle,
-        ),
-        child: SizedBox.fromSize(
-          size: sizeBoxSize,
-          child: widget.icon?.icon ??
-              Image(image: AssetImage('assets/icons/toolbar_mic_normal.png')),
-        ),
-      ),
-    );
+    return ValueListenableBuilder<bool>(
+        valueListenable: micStateNoti,
+        builder: (context, micState, _) {
+          return GestureDetector(
+            onTap: () {
+              if (widget.onPressed != null) {
+                micStateNoti.value = !micStateNoti.value;
+                widget.onPressed!();
+              }
+            },
+            child: Container(
+              width: containerSize.width,
+              height: containerSize.height,
+              decoration: BoxDecoration(
+                color: micState ? Colors.white : Color.fromARGB(255, 51, 52, 56).withOpacity(0.6),
+                shape: BoxShape.circle,
+              ),
+              child: SizedBox.fromSize(
+                size: sizeBoxSize,
+                child: micState
+                    ? Image(
+                        image: AssetImage('assets/icons/toolbar_mic_off.png'))
+                    : Image(
+                        image:
+                            AssetImage('assets/icons/toolbar_mic_normal.png')),
+              ),
+            ),
+          );
+        });
   }
 }

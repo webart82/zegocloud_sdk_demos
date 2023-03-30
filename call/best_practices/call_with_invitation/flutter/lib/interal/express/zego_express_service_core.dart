@@ -39,9 +39,10 @@ class ZegoExpressServiceCore {
   }
 
   Future<void> startPreview() async {
-    localVideoView.value = await ZegoExpressEngine.instance.createCanvasView((viewID) => {
-          localViewID = viewID,
-        });
+    localVideoView.value =
+        await ZegoExpressEngine.instance.createCanvasView((viewID) => {
+              localViewID = viewID,
+            });
 
     final previewCanvas = ZegoCanvas(
       localViewID,
@@ -54,12 +55,11 @@ class ZegoExpressServiceCore {
   Future<void> stopPreview() async {
     localVideoView.value = null;
     localViewID = 0;
-    ZegoExpressEngine.instance.stopPreview();
+    await ZegoExpressEngine.instance.stopPreview();
   }
 
-
   Future<void> startPublishingStream() async {
-    String streamID = "${room}_${localUser.userID}"; 
+    String streamID = "${room}_${localUser.userID}";
     ZegoExpressEngine.instance.startPublishingStream(streamID);
   }
 
@@ -68,10 +68,12 @@ class ZegoExpressServiceCore {
   }
 
   Future<void> startPlayingStream(String streamID) async {
-    remoteVideoView.value = await ZegoExpressEngine.instance.createCanvasView((viewID) => {
-      remoteViewID = viewID,
-    });
-    ZegoCanvas canvas = ZegoCanvas(remoteViewID,viewMode: ZegoViewMode.AspectFill);
+    remoteVideoView.value =
+        await ZegoExpressEngine.instance.createCanvasView((viewID) => {
+              remoteViewID = viewID,
+            });
+    ZegoCanvas canvas =
+        ZegoCanvas(remoteViewID, viewMode: ZegoViewMode.AspectFill);
     ZegoExpressEngine.instance.startPlayingStream(streamID, canvas: canvas);
   }
 
@@ -82,6 +84,13 @@ class ZegoExpressServiceCore {
   //MARK: - Express Listen
   Future<void> onRoomStreamUpdate(String roomID, ZegoUpdateType updateType,
       List<ZegoStream> streamList, Map<String, dynamic> extendedData) async {
+    for (ZegoStream stream in streamList) {
+      if (updateType == ZegoUpdateType.Add) {
+        startPlayingStream(stream.streamID);
+      } else {
+        stopPlayingStream(stream.streamID);
+      }
+    }
     streamListUpdateStreamCtrl.add(ZegoRoomStreamListUpdateEvent(
         roomID, updateType, streamList, extendedData));
   }

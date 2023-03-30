@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'dart:math';
+import 'package:call_with_invitation/call/CallingPage.dart';
 import 'package:call_with_invitation/components/zego_accept_button.dart';
 import 'package:call_with_invitation/components/zego_cancel_button.dart';
+import 'package:call_with_invitation/components/zego_defines.dart';
 import 'package:call_with_invitation/components/zego_refuse_button.dart';
 import 'package:call_with_invitation/interal/im/zim_service_call_data_manager.dart';
 import 'package:call_with_invitation/interal/im/zim_service_enum.dart';
@@ -13,6 +15,7 @@ import 'package:flutter/rendering.dart';
 import 'package:zego_express_engine/zego_express_engine.dart';
 
 import '../interal/im/zim_service_defines.dart';
+import '../zego_user_Info.dart';
 
 class CallWaitPage extends StatefulWidget {
   const CallWaitPage({this.callData, super.key});
@@ -48,21 +51,20 @@ class _CallWaitPageState extends State<CallWaitPage> {
   Future<void> onAcceptCall(ZIMAcceptCallEvent event) async {
     //show calling page
     if (widget.callData != null) {
-      ZegoResponseInvitationResult result = await ZegoSDKManager
-          .shared.zimService
-          .acceptInvitation(invitationID: widget.callData!.callID);
-      if (result.error == null || result.error?.code == '0') {
-        //join room
-        ZegoRoomLoginResult result =
-            await ZegoSDKManager.shared.joinRoom(widget.callData!.callID);
-        if (result.errorCode == 0) {
-        } else {}
-      }
+      pushToCallingPage();
     }
   }
 
   void onCancelCall(ZIMCancelCallEvent event) {
     Navigator.pop(context);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    for (final subscription in subscriptions) {
+      subscription?.cancel();
+    }
   }
 
   @override
@@ -160,6 +162,11 @@ class _CallWaitPageState extends State<CallWaitPage> {
         width: 50,
         height: 50,
         child: ZegoAcceptButton(
+          icon: ButtonIcon(
+            icon: (widget.callData!.callType == ZegoCallType.video)
+                ? Image(image: AssetImage('assets/icons/invite_video.png'))
+                : Image(image: AssetImage('assets/icons/invite_voice.png')),
+          ),
           onPressed: acceptCall,
         ),
       );
@@ -169,11 +176,13 @@ class _CallWaitPageState extends State<CallWaitPage> {
   Future<void> acceptCall() async {
     final ZegoResponseInvitationResult result = await ZegoSDKManager.shared
         .acceptInvitation(invitationID: widget.callData?.callID ?? '');
-    if (result.error?.code == '0') {
+    if (result.error == null || result.error?.code == '0') {
       // join room
       final ZegoRoomLoginResult joinRoomResult =
           await ZegoSDKManager.shared.joinRoom(widget.callData?.callID ?? '');
-      if (joinRoomResult.errorCode == 0) {}
+      if (joinRoomResult.errorCode == 0) {
+        pushToCallingPage();
+      }
     } else {}
   }
 
@@ -193,5 +202,24 @@ class _CallWaitPageState extends State<CallWaitPage> {
     await ZegoSDKManager.shared
         .refuseInvitation(invitationID: widget.callData?.callID ?? '');
     Navigator.pop(context);
+  }
+
+  void pushToCallingPage() {
+    ZegoSDKManager.shared.expressService.core.stopPreview();
+    if (ZegoCallDataManager.shared.callData != null) {
+      ZegoUserInfo otherUser;
+      if (ZegoCallDataManager.shared.callData!.inviter.userID !=
+          ZegoSDKManager.shared.localUser.userID) {
+        otherUser = ZegoCallDataManager.shared.callData!.inviter;
+      } else {
+        otherUser = ZegoCallDataManager.shared.callData!.invitee;
+      }
+      Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+              builder: (context) => CallingPage(
+                  callData: ZegoCallDataManager.shared.callData!,
+                  otherUserInfo: otherUser)));
+    }
   }
 }

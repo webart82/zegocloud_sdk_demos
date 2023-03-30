@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 
 import 'zego_defines.dart';
 
@@ -28,6 +29,8 @@ class ZegoToggleCameraButton extends StatefulWidget {
 }
 
 class _ZegoToggleCameraButtonState extends State<ZegoToggleCameraButton> {
+  ValueNotifier<bool> cameraStateNoti = ValueNotifier<bool>(false);
+
   @override
   void initState() {
     super.initState();
@@ -38,26 +41,35 @@ class _ZegoToggleCameraButtonState extends State<ZegoToggleCameraButton> {
     final containerSize = widget.buttonSize ?? Size(96, 96);
     final sizeBoxSize = widget.iconSize ?? Size(56, 56);
 
-    return GestureDetector(
-      onTap: () {
-        if (widget.onPressed != null) {
-          widget.onPressed!();
-        }
-      },
-      child: Container(
-        width: containerSize.width,
-        height: containerSize.height,
-        decoration: BoxDecoration(
-          color: widget.icon?.backgroundColor ??
-              Color(0xff2C2F3E).withOpacity(0.6),
-          shape: BoxShape.circle,
-        ),
-        child: SizedBox.fromSize(
-          size: sizeBoxSize,
-          child: widget.icon?.icon ??
-              Image(image: AssetImage('assets/icons/toolbar_camera_normal.png')),
-        ),
-      ),
-    );
+    return ValueListenableBuilder<bool>(
+        valueListenable: cameraStateNoti,
+        builder: ((context, cameraState, _) {
+          return GestureDetector(
+            onTap: () {
+              if (widget.onPressed != null) {
+                cameraStateNoti.value = !cameraStateNoti.value;
+                widget.onPressed!();
+              }
+            },
+            child: Container(
+              width: containerSize.width,
+              height: containerSize.height,
+              decoration: BoxDecoration(
+                color: cameraState ? Colors.white : Color.fromARGB(255, 51, 52, 56).withOpacity(0.6),
+                shape: BoxShape.circle,
+              ),
+              child: SizedBox.fromSize(
+                size: sizeBoxSize,
+                child: cameraState
+                    ? Image(
+                        image:
+                            AssetImage('assets/icons/toolbar_camera_off.png'))
+                    : Image(
+                        image: AssetImage(
+                            'assets/icons/toolbar_camera_normal.png')),
+              ),
+            ),
+          );
+        }));
   }
 }

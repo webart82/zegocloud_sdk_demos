@@ -5,6 +5,7 @@ import 'package:call_with_invitation/call/CallWaitPage.dart';
 import 'package:call_with_invitation/call/CallingPage.dart';
 import 'package:call_with_invitation/interal/im/zim_service_defines.dart';
 import 'package:call_with_invitation/interal/im/zim_service_enum.dart';
+import 'package:call_with_invitation/utils/permission_io.dart';
 import 'package:call_with_invitation/zego_sdk_key_center.dart';
 import 'package:call_with_invitation/zego_sdk_manager.dart';
 import 'package:call_with_invitation/zego_user_Info.dart';
@@ -53,6 +54,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
+    requestPermission();
     ZegoSDKManager.shared.init(SDKKeyCenter.appID, SDKKeyCenter.appSign);
     ZegoSDKManager.shared.connectUser(myUserID, myUserName);
     subscriptions
@@ -120,12 +122,26 @@ class _MyHomePageState extends State<MyHomePage> {
               invitee: ZegoUserInfo(userID: myUserID, userName: myUserName),
               callType: type,
               callID: event.callID),
-          onAcceptCallback: () {},
-          onRefuseCallback: () {},
+          onAcceptCallback: acceptCall,
+          onRefuseCallback: () {
+            ZegoSDKManager.shared.zimService.refuseInvitation(invitationID: event.callID);
+            hideInvitationTopSheet();
+          },
         ),
       ),
       barrierDismissible: false,
     );
+  }
+
+  Future<void> acceptCall() async {
+    hideInvitationTopSheet();
+    ZegoResponseInvitationResult result = await ZegoSDKManager.shared.zimService.acceptInvitation(invitationID: ZegoCallDataManager.shared.callData?.callID ?? '');
+    if (result.error == null || result.error?.code == '0') {
+      ZegoRoomLoginResult joinRoomResult = await ZegoSDKManager.shared.joinRoom(ZegoCallDataManager.shared.callData?.callID ?? '');
+      if (joinRoomResult.errorCode == 0) {
+        pushToCallingPage();
+      }
+    }
   }
 
   Future<T?> showTopModalSheet<T>(BuildContext context, Widget widget,
@@ -173,7 +189,8 @@ class _MyHomePageState extends State<MyHomePage> {
     String extendedData = '{"type": "0", "inviterName": "$myUserName"}';
     final ZegoSendInvitationResult result = await ZegoSDKManager.shared
         .sendInvitation(
-            invitees: [myController.text],callType: ZegoCallType.voice,
+            invitees: [myController.text],
+            callType: ZegoCallType.voice,
             extendedData: extendedData); // send call invitation
     if (result.error == null || result.error?.code == '0') {
       final ZegoRoomLoginResult loginResult = await ZegoSDKManager.shared
@@ -196,7 +213,9 @@ class _MyHomePageState extends State<MyHomePage> {
     String extendedData = '{"type": "1", "inviterName": "$myUserName"}';
     final ZegoSendInvitationResult result = await ZegoSDKManager.shared
         .sendInvitation(
-            invitees: [myController.text], callType: ZegoCallType.video,extendedData: extendedData);
+            invitees: [myController.text],
+            callType: ZegoCallType.video,
+            extendedData: extendedData);
     if (result.error == null || result.error?.code == '0') {
       if (result.errorInvitees.keys.contains(myController.text)) {
         //user is not noline
@@ -222,6 +241,23 @@ class _MyHomePageState extends State<MyHomePage> {
             fullscreenDialog: true,
             builder: (context) =>
                 CallWaitPage(callData: ZegoCallDataManager.shared.callData)));
+  }
+
+  void pushToCallingPage() {
+    if (ZegoCallDataManager.shared.callData != null) {
+      ZegoUserInfo otherUser;
+      if (ZegoCallDataManager.shared.callData!.inviter.userID != ZegoSDKManager.shared.localUser.userID) {
+        otherUser = ZegoCallDataManager.shared.callData!.inviter;
+      } else {
+        otherUser = ZegoCallDataManager.shared.callData!.invitee;
+      }
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+            fullscreenDialog: true,
+            builder: (context) =>
+                CallingPage(callData: ZegoCallDataManager.shared.callData!,otherUserInfo: otherUser)));
+    }
   }
 }
 

@@ -98,7 +98,7 @@ class ZegoCallInvitationDialogState extends State<ZegoCallInvitationDialog> {
       width: 40,
       height: 40,
       child: ZegoAcceptButton(
-        icon: widget.invitationData.callType == ZegoCallType.voice
+        icon: (widget.invitationData.callType == ZegoCallType.video)
             ? ButtonIcon(
                 icon: const Image(image: AssetImage('assets/icons/invite_video.png')))
             : ButtonIcon(
