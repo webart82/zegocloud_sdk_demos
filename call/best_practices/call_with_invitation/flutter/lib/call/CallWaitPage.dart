@@ -41,7 +41,9 @@ class _CallWaitPageState extends State<CallWaitPage> {
       ..add(ZegoSDKManager.shared.zimService.cancelCallStreamCtrl.stream
           .listen(onCancelCall));
 
-    ZegoSDKManager.shared.expressService.core.startPreview();
+    if (widget.callData?.callType == ZegoCallType.video) {
+      ZegoSDKManager.shared.expressService.core.startPreview();
+    }
   }
 
   void onRejectCall(ZIMRejectCallEvent event) {
@@ -69,13 +71,20 @@ class _CallWaitPageState extends State<CallWaitPage> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        body: Stack(
-          children: [
-            videoView(),
-            buttonView(),
-          ],
+    return WillPopScope(
+      onWillPop: () async {
+        return false;
+      },
+      child: SafeArea(
+        child: Scaffold(
+          body: Stack(
+            children: (widget.callData?.callType == ZegoCallType.video)
+                ? [
+                    videoView(),
+                    buttonView(),
+                  ]
+                : [buttonView()],
+          ),
         ),
       ),
     );

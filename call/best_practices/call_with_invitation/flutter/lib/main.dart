@@ -51,6 +51,8 @@ class _MyHomePageState extends State<MyHomePage> {
   List<StreamSubscription<dynamic>?> subscriptions = [];
   final myController = TextEditingController();
 
+  bool dialogIsShow = false;
+
   @override
   void initState() {
     super.initState();
@@ -111,6 +113,7 @@ class _MyHomePageState extends State<MyHomePage> {
         : ZegoCallType.voice;
     String inviterName = extendedDataMap['inviterName'] as String;
     // show call dialog
+    dialogIsShow = true;
     showTopModalSheet(
       context,
       GestureDetector(
@@ -124,7 +127,8 @@ class _MyHomePageState extends State<MyHomePage> {
               callID: event.callID),
           onAcceptCallback: acceptCall,
           onRefuseCallback: () {
-            ZegoSDKManager.shared.zimService.refuseInvitation(invitationID: event.callID);
+            ZegoSDKManager.shared.zimService
+                .refuseInvitation(invitationID: event.callID);
             hideInvitationTopSheet();
           },
         ),
@@ -135,9 +139,12 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future<void> acceptCall() async {
     hideInvitationTopSheet();
-    ZegoResponseInvitationResult result = await ZegoSDKManager.shared.zimService.acceptInvitation(invitationID: ZegoCallDataManager.shared.callData?.callID ?? '');
+    ZegoResponseInvitationResult result = await ZegoSDKManager.shared.zimService
+        .acceptInvitation(
+            invitationID: ZegoCallDataManager.shared.callData?.callID ?? '');
     if (result.error == null || result.error?.code == '0') {
-      ZegoRoomLoginResult joinRoomResult = await ZegoSDKManager.shared.joinRoom(ZegoCallDataManager.shared.callData?.callID ?? '');
+      ZegoRoomLoginResult joinRoomResult = await ZegoSDKManager.shared
+          .joinRoom(ZegoCallDataManager.shared.callData?.callID ?? '');
       if (joinRoomResult.errorCode == 0) {
         pushToCallingPage();
       }
@@ -177,7 +184,10 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void hideInvitationTopSheet() {
-    Navigator.of(context).pop();
+    if (dialogIsShow) {
+      dialogIsShow = false;
+      Navigator.of(context).pop();
+    }
   }
 
   void onCancelCall(ZIMCancelCallEvent event) {
@@ -246,17 +256,19 @@ class _MyHomePageState extends State<MyHomePage> {
   void pushToCallingPage() {
     if (ZegoCallDataManager.shared.callData != null) {
       ZegoUserInfo otherUser;
-      if (ZegoCallDataManager.shared.callData!.inviter.userID != ZegoSDKManager.shared.localUser.userID) {
+      if (ZegoCallDataManager.shared.callData!.inviter.userID !=
+          ZegoSDKManager.shared.localUser.userID) {
         otherUser = ZegoCallDataManager.shared.callData!.inviter;
       } else {
         otherUser = ZegoCallDataManager.shared.callData!.invitee;
       }
       Navigator.push(
-        context,
-        MaterialPageRoute(
-            fullscreenDialog: true,
-            builder: (context) =>
-                CallingPage(callData: ZegoCallDataManager.shared.callData!,otherUserInfo: otherUser)));
+          context,
+          MaterialPageRoute(
+              fullscreenDialog: true,
+              builder: (context) => CallingPage(
+                  callData: ZegoCallDataManager.shared.callData!,
+                  otherUserInfo: otherUser)));
     }
   }
 }
