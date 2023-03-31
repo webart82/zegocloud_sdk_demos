@@ -7,6 +7,17 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		8E1B926029DACBF00097C9ED /* ExpressServiceDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E1B925F29DACBF00097C9ED /* ExpressServiceDelegate.swift */; };
+		8E1B926229DACEAF0097C9ED /* ExpressService+Stream.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E1B926129DACEAF0097C9ED /* ExpressService+Stream.swift */; };
+		8E1B926429DACEE00097C9ED /* ExpressService+Device.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E1B926329DACEE00097C9ED /* ExpressService+Device.swift */; };
+		8E1B926629DAD0160097C9ED /* ExpressService+Room.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E1B926529DAD0160097C9ED /* ExpressService+Room.swift */; };
+		8E1B926829DAD2CF0097C9ED /* ExpressService+EventHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E1B926729DAD2CF0097C9ED /* ExpressService+EventHandler.swift */; };
+		8E1B926B29DBD1260097C9ED /* VideoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E1B926A29DBD1250097C9ED /* VideoView.swift */; };
+		8E1B928D29DE64510097C9ED /* ExpressService+Command.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E1B928C29DE64510097C9ED /* ExpressService+Command.swift */; };
+		8E1B928F29DE6D900097C9ED /* Dictionary+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E1B928E29DE6D900097C9ED /* Dictionary+Extension.swift */; };
+		8E1B929129DE6FEC0097C9ED /* ExpressDefine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E1B929029DE6FEC0097C9ED /* ExpressDefine.swift */; };
+		8E1B929429DE70A20097C9ED /* CustomCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E1B929329DE70A20097C9ED /* CustomCommand.swift */; };
+		8E1B929729DEB4E10097C9ED /* Toast in Frameworks */ = {isa = PBXBuildFile; productRef = 8E1B929629DEB4E10097C9ED /* Toast */; };
 		8E318D7029D573D4001596F3 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E318D6F29D573D4001596F3 /* AppDelegate.swift */; };
 		8E318D7229D573D4001596F3 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E318D7129D573D4001596F3 /* SceneDelegate.swift */; };
 		8E318D7429D573D4001596F3 /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E318D7329D573D4001596F3 /* LoginViewController.swift */; };
@@ -17,9 +28,23 @@
 		8E318D8A29D5802F001596F3 /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E318D8929D5802F001596F3 /* Utils.swift */; };
 		8E318D8C29D586D6001596F3 /* HomeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E318D8B29D586D6001596F3 /* HomeViewController.swift */; };
 		8E318D8E29D681FC001596F3 /* KeyCenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E318D8D29D681FC001596F3 /* KeyCenter.swift */; };
+		8EAE31F029D6898E00305045 /* LiveStreamingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EAE31EF29D6898E00305045 /* LiveStreamingViewController.swift */; };
+		8EAE31F229D6C3F800305045 /* ZegoSDKManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EAE31F129D6C3F800305045 /* ZegoSDKManager.swift */; };
+		8EAE31F629D6C58700305045 /* ExpressService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EAE31F529D6C58700305045 /* ExpressService.swift */; };
+		8EAE31F929D6D78000305045 /* UserInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EAE31F829D6D78000305045 /* UserInfo.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		8E1B925F29DACBF00097C9ED /* ExpressServiceDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressServiceDelegate.swift; sourceTree = "<group>"; };
+		8E1B926129DACEAF0097C9ED /* ExpressService+Stream.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ExpressService+Stream.swift"; sourceTree = "<group>"; };
+		8E1B926329DACEE00097C9ED /* ExpressService+Device.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ExpressService+Device.swift"; sourceTree = "<group>"; };
+		8E1B926529DAD0160097C9ED /* ExpressService+Room.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ExpressService+Room.swift"; sourceTree = "<group>"; };
+		8E1B926729DAD2CF0097C9ED /* ExpressService+EventHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ExpressService+EventHandler.swift"; sourceTree = "<group>"; };
+		8E1B926A29DBD1250097C9ED /* VideoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoView.swift; sourceTree = "<group>"; };
+		8E1B928C29DE64510097C9ED /* ExpressService+Command.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ExpressService+Command.swift"; sourceTree = "<group>"; };
+		8E1B928E29DE6D900097C9ED /* Dictionary+Extension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Dictionary+Extension.swift"; sourceTree = "<group>"; };
+		8E1B929029DE6FEC0097C9ED /* ExpressDefine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressDefine.swift; sourceTree = "<group>"; };
+		8E1B929329DE70A20097C9ED /* CustomCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomCommand.swift; sourceTree = "<group>"; };
 		8E318D6C29D573D4001596F3 /* ZegoLiveStreamingCohostingDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ZegoLiveStreamingCohostingDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8E318D6F29D573D4001596F3 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		8E318D7129D573D4001596F3 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -31,6 +56,10 @@
 		8E318D8929D5802F001596F3 /* Utils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
 		8E318D8B29D586D6001596F3 /* HomeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewController.swift; sourceTree = "<group>"; };
 		8E318D8D29D681FC001596F3 /* KeyCenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyCenter.swift; sourceTree = "<group>"; };
+		8EAE31EF29D6898E00305045 /* LiveStreamingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveStreamingViewController.swift; sourceTree = "<group>"; };
+		8EAE31F129D6C3F800305045 /* ZegoSDKManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZegoSDKManager.swift; sourceTree = "<group>"; };
+		8EAE31F529D6C58700305045 /* ExpressService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressService.swift; sourceTree = "<group>"; };
+		8EAE31F829D6D78000305045 /* UserInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserInfo.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -38,6 +67,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8E1B929729DEB4E10097C9ED /* Toast in Frameworks */,
 				8E318D8829D576AB001596F3 /* ZegoExpressEngine in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -45,6 +75,25 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		8E1B926929DBD1030097C9ED /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				8E1B926A29DBD1250097C9ED /* VideoView.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		8E1B929229DE707E0097C9ED /* Defines */ = {
+			isa = PBXGroup;
+			children = (
+				8E1B925F29DACBF00097C9ED /* ExpressServiceDelegate.swift */,
+				8EAE31F829D6D78000305045 /* UserInfo.swift */,
+				8E1B929029DE6FEC0097C9ED /* ExpressDefine.swift */,
+				8E1B929329DE70A20097C9ED /* CustomCommand.swift */,
+			);
+			path = Defines;
+			sourceTree = "<group>";
+		};
 		8E318D6329D573D4001596F3 = {
 			isa = PBXGroup;
 			children = (
@@ -64,18 +113,45 @@
 		8E318D6E29D573D4001596F3 /* ZegoLiveStreamingCohostingDemo */ = {
 			isa = PBXGroup;
 			children = (
+				8E1B926929DBD1030097C9ED /* Components */,
+				8EAE31F429D6C41800305045 /* Express */,
+				8EAE31F329D6C40900305045 /* Utils */,
+				8EAE31F129D6C3F800305045 /* ZegoSDKManager.swift */,
 				8E318D6F29D573D4001596F3 /* AppDelegate.swift */,
 				8E318D7129D573D4001596F3 /* SceneDelegate.swift */,
 				8E318D8D29D681FC001596F3 /* KeyCenter.swift */,
 				8E318D7329D573D4001596F3 /* LoginViewController.swift */,
 				8E318D8B29D586D6001596F3 /* HomeViewController.swift */,
-				8E318D8929D5802F001596F3 /* Utils.swift */,
+				8EAE31EF29D6898E00305045 /* LiveStreamingViewController.swift */,
 				8E318D7529D573D4001596F3 /* Main.storyboard */,
 				8E318D7829D573D5001596F3 /* Assets.xcassets */,
 				8E318D7A29D573D5001596F3 /* LaunchScreen.storyboard */,
 				8E318D7D29D573D5001596F3 /* Info.plist */,
 			);
 			path = ZegoLiveStreamingCohostingDemo;
+			sourceTree = "<group>";
+		};
+		8EAE31F329D6C40900305045 /* Utils */ = {
+			isa = PBXGroup;
+			children = (
+				8E318D8929D5802F001596F3 /* Utils.swift */,
+				8E1B928E29DE6D900097C9ED /* Dictionary+Extension.swift */,
+			);
+			path = Utils;
+			sourceTree = "<group>";
+		};
+		8EAE31F429D6C41800305045 /* Express */ = {
+			isa = PBXGroup;
+			children = (
+				8E1B929229DE707E0097C9ED /* Defines */,
+				8EAE31F529D6C58700305045 /* ExpressService.swift */,
+				8E1B926129DACEAF0097C9ED /* ExpressService+Stream.swift */,
+				8E1B926329DACEE00097C9ED /* ExpressService+Device.swift */,
+				8E1B926529DAD0160097C9ED /* ExpressService+Room.swift */,
+				8E1B928C29DE64510097C9ED /* ExpressService+Command.swift */,
+				8E1B926729DAD2CF0097C9ED /* ExpressService+EventHandler.swift */,
+			);
+			path = Express;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -96,6 +172,7 @@
 			name = ZegoLiveStreamingCohostingDemo;
 			packageProductDependencies = (
 				8E318D8729D576AB001596F3 /* ZegoExpressEngine */,
+				8E1B929629DEB4E10097C9ED /* Toast */,
 			);
 			productName = ZegoLiveStreamingCohostingDemo;
 			productReference = 8E318D6C29D573D4001596F3 /* ZegoLiveStreamingCohostingDemo.app */;
@@ -127,6 +204,7 @@
 			mainGroup = 8E318D6329D573D4001596F3;
 			packageReferences = (
 				8E318D8629D576AB001596F3 /* XCRemoteSwiftPackageReference "express-video-ios" */,
+				8E1B929529DEB4E10097C9ED /* XCRemoteSwiftPackageReference "Toast-Swift" */,
 			);
 			productRefGroup = 8E318D6D29D573D4001596F3 /* Products */;
 			projectDirPath = "";
@@ -156,11 +234,25 @@
 			buildActionMask = 2147483647;
 			files = (
 				8E318D8C29D586D6001596F3 /* HomeViewController.swift in Sources */,
+				8E1B926629DAD0160097C9ED /* ExpressService+Room.swift in Sources */,
+				8E1B926829DAD2CF0097C9ED /* ExpressService+EventHandler.swift in Sources */,
+				8EAE31F229D6C3F800305045 /* ZegoSDKManager.swift in Sources */,
 				8E318D7429D573D4001596F3 /* LoginViewController.swift in Sources */,
+				8EAE31F029D6898E00305045 /* LiveStreamingViewController.swift in Sources */,
+				8E1B926229DACEAF0097C9ED /* ExpressService+Stream.swift in Sources */,
 				8E318D7029D573D4001596F3 /* AppDelegate.swift in Sources */,
+				8E1B926029DACBF00097C9ED /* ExpressServiceDelegate.swift in Sources */,
 				8E318D7229D573D4001596F3 /* SceneDelegate.swift in Sources */,
+				8E1B926429DACEE00097C9ED /* ExpressService+Device.swift in Sources */,
+				8EAE31F629D6C58700305045 /* ExpressService.swift in Sources */,
+				8E1B926B29DBD1260097C9ED /* VideoView.swift in Sources */,
 				8E318D8E29D681FC001596F3 /* KeyCenter.swift in Sources */,
+				8E1B929129DE6FEC0097C9ED /* ExpressDefine.swift in Sources */,
+				8EAE31F929D6D78000305045 /* UserInfo.swift in Sources */,
+				8E1B929429DE70A20097C9ED /* CustomCommand.swift in Sources */,
+				8E1B928F29DE6D900097C9ED /* Dictionary+Extension.swift in Sources */,
 				8E318D8A29D5802F001596F3 /* Utils.swift in Sources */,
+				8E1B928D29DE64510097C9ED /* ExpressService+Command.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -310,6 +402,8 @@
 				DEVELOPMENT_TEAM = PN83KX5U85;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = ZegoLiveStreamingCohostingDemo/Info.plist;
+				INFOPLIST_KEY_NSCameraUsageDescription = "We need to use your camera to help you join the live interaction.";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "We need to use your mic to help you join the live interaction.";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
@@ -339,6 +433,8 @@
 				DEVELOPMENT_TEAM = PN83KX5U85;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = ZegoLiveStreamingCohostingDemo/Info.plist;
+				INFOPLIST_KEY_NSCameraUsageDescription = "We need to use your camera to help you join the live interaction.";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "We need to use your mic to help you join the live interaction.";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
@@ -382,6 +478,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		8E1B929529DEB4E10097C9ED /* XCRemoteSwiftPackageReference "Toast-Swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/scalessec/Toast-Swift";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.0.0;
+			};
+		};
 		8E318D8629D576AB001596F3 /* XCRemoteSwiftPackageReference "express-video-ios" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/zegolibrary/express-video-ios";
@@ -393,6 +497,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		8E1B929629DEB4E10097C9ED /* Toast */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8E1B929529DEB4E10097C9ED /* XCRemoteSwiftPackageReference "Toast-Swift" */;
+			productName = Toast;
+		};
 		8E318D8729D576AB001596F3 /* ZegoExpressEngine */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 8E318D8629D576AB001596F3 /* XCRemoteSwiftPackageReference "express-video-ios" */;

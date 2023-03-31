@@ -6,7 +6,6 @@
 //
 
 import UIKit
-import ZegoExpressEngine
 
 class LoginViewController: UIViewController {
     
@@ -29,14 +28,11 @@ class LoginViewController: UIViewController {
         super.viewDidAppear(animated)
         
         // logout
-        
+        ZegoSDKManager.shared.disconnectUser()
     }
     
-    func initData() {
-        let profile = ZegoEngineProfile()
-        profile.appID = APP_ID
-        profile.appSign = APP_SIGN
-        ZegoExpressEngine.createEngine(with: profile, eventHandler: nil)
+    func initData() {        
+        ZegoSDKManager.shared.initWith(appID: APP_ID, appSign: APP_SIGN)
     }
 
 
@@ -47,6 +43,12 @@ class LoginViewController: UIViewController {
         // save user id and user name.
         UserDefaults.standard.set(userID, forKey: "userID")
         UserDefaults.standard.set(userName, forKey: "userName")
+        
+        ZegoSDKManager.shared.connectUser(userID: userID, userName: userName) { code in
+            if code == 0 {
+                self.performSegue(withIdentifier: "login", sender: sender)
+            }
+        }
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
