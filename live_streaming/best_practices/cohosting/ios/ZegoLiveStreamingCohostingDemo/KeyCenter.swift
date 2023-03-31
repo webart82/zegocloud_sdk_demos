@@ -6,3 +6,6 @@
 //
 
 import Foundation
+
+let APP_ID: UInt32 =
+let APP_SIGN: String = 
