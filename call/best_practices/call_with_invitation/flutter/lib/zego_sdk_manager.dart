@@ -1,31 +1,28 @@
-import 'dart:ffi';
-
-import 'package:call_with_invitation/interal/im/zim_service_enum.dart';
+import 'package:call_with_invitation/interal/zim/zim_service_enum.dart';
 import 'package:call_with_invitation/zego_user_Info.dart';
 import 'package:flutter/material.dart';
 import 'package:zego_express_engine/zego_express_engine.dart';
 
 import 'interal/express/zego_express_service.dart';
-import 'interal/im/zim_service.dart';
-import 'interal/im/zim_service_defines.dart';
+import 'interal/zim/zim_service.dart';
+import 'interal/zim/zim_service_defines.dart';
 
-class ZegoSDKManager { 
-
+class ZegoSDKManager {
   ZegoSDKManager._internal();
-  static final ZegoSDKManager shared = ZegoSDKManager._internal();
+  static final ZegoSDKManager instance = ZegoSDKManager._internal();
 
-  ZegoExpressService expressService = ZegoExpressService.shared;
-  ZIMService zimService = ZIMService.shared;
-  ZegoUserInfo localUser = ZegoExpressService.shared.core.localUser;
+  ZegoExpressService expressService = ZegoExpressService.instance;
+  ZIMService zimService = ZIMService.instance;
+  ZegoUserInfo localUser = ZegoExpressService.instance.core.localUser;
 
-  void init(int appID, String appSign) {
-    expressService.init(appID: appID, appSign: appSign);
-    zimService.init(appID: appID, appSign: appSign);
+  Future<void> init(int appID, String appSign) async {
+    await expressService.init(appID: appID, appSign: appSign);
+    await zimService.init(appID: appID, appSign: appSign);
   }
 
   Future<void> connectUser(String userID, String userName) async {
-    expressService.connectUser(userID, userName);
-    zimService.connectUser(userID, userName);
+    await expressService.connectUser(userID, userName);
+    await zimService.connectUser(userID, userName);
   }
 
   Future<ZegoRoomLoginResult> joinRoom(String roomID) async {
@@ -66,7 +63,8 @@ class ZegoSDKManager {
     int timeout = 60,
     String extendedData = '',
   }) async {
-    return await zimService.sendInvitation(invitees: invitees, timeout: timeout, callType: callType, extendedData: extendedData);
+    return await zimService.sendInvitation(
+        invitees: invitees, timeout: timeout, callType: callType, extendedData: extendedData);
   }
 
   Future<ZegoCancelInvitationResult> cancelInvitation({
@@ -81,7 +79,7 @@ class ZegoSDKManager {
     required String invitationID,
     String extendedData = '',
   }) {
-    return zimService.refuseInvitation(invitationID: invitationID,extendedData: extendedData);
+    return zimService.refuseInvitation(invitationID: invitationID, extendedData: extendedData);
   }
 
   Future<ZegoResponseInvitationResult> acceptInvitation({
@@ -90,5 +88,4 @@ class ZegoSDKManager {
   }) {
     return zimService.acceptInvitation(invitationID: invitationID, extendedData: extendedData);
   }
-
 }

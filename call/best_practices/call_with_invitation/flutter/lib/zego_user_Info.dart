@@ -1,5 +1,4 @@
 class ZegoUserInfo {
-
   ZegoUserInfo({
     required this.userID,
     required this.userName,

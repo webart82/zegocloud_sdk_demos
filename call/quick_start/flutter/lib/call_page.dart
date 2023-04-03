@@ -80,7 +80,7 @@ class _CallPageState extends State<CallPage> {
     );
   }
 
-  void loginRoom() {
+  Future<ZegoRoomLoginResult> loginRoom() async {
     // The value of `userID` is generated locally and must be globally unique.
     final user = ZegoUser(widget.localUserID, widget.localUserName);
 
@@ -95,7 +95,9 @@ class _CallPageState extends State<CallPage> {
     }
     // log in to a room
     // Users must log in to the same room to call each other.
-    ZegoExpressEngine.instance.loginRoom(roomID, user, config: roomConfig).then((ZegoRoomLoginResult loginRoomResult) {
+    return ZegoExpressEngine.instance
+        .loginRoom(roomID, user, config: roomConfig)
+        .then((ZegoRoomLoginResult loginRoomResult) {
       debugPrint('loginRoom: errorCode:${loginRoomResult.errorCode}, extendedData:${loginRoomResult.extendedData}');
       if (loginRoomResult.errorCode == 0) {
         startPreview();
@@ -104,6 +106,7 @@ class _CallPageState extends State<CallPage> {
         ScaffoldMessenger.of(context)
             .showSnackBar(SnackBar(content: Text('loginRoom failed: ${loginRoomResult.errorCode}')));
       }
+      return loginRoomResult;
     });
   }
 
@@ -175,15 +178,15 @@ class _CallPageState extends State<CallPage> {
     }
   }
 
-  void startPublish() {
+  Future<void> startPublish() async {
     // After calling the `loginRoom` method, call this method to publish streams.
     // The StreamID must be unique in the room.
     String streamID = '${widget.roomID}_${widget.localUserID}_call';
-    ZegoExpressEngine.instance.startPublishingStream(streamID);
+    return ZegoExpressEngine.instance.startPublishingStream(streamID);
   }
 
   Future<void> stopPublish() async {
-    await ZegoExpressEngine.instance.stopPublishingStream();
+    return ZegoExpressEngine.instance.stopPublishingStream();
   }
 
   Future<void> startPlayStream(String streamID) async {

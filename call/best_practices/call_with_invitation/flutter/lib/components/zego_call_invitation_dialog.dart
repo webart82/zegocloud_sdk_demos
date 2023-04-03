@@ -1,8 +1,8 @@
 import 'package:call_with_invitation/components/zego_accept_button.dart';
 import 'package:call_with_invitation/components/zego_defines.dart';
 import 'package:call_with_invitation/components/zego_refuse_button.dart';
-import 'package:call_with_invitation/interal/im/zim_service_call_data_manager.dart';
-import 'package:call_with_invitation/interal/im/zim_service_enum.dart';
+import 'package:call_with_invitation/interal/zim/zim_service_call_data_manager.dart';
+import 'package:call_with_invitation/interal/zim/zim_service_enum.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 

@@ -8,8 +8,7 @@ import 'package:zego_express_engine/zego_express_engine.dart';
 class ZegoExpressServiceCore {
   StreamController<ZegoCameraStateChangeEvent> cameraStateUpdateStreamCtrl =
       StreamController<ZegoCameraStateChangeEvent>.broadcast();
-  StreamController<ZegoMicrophoneStateChangeEvent>
-      microphoneStateUpdateStreamCtrl =
+  StreamController<ZegoMicrophoneStateChangeEvent> microphoneStateUpdateStreamCtrl =
       StreamController<ZegoMicrophoneStateChangeEvent>.broadcast();
   StreamController<ZegoRoomUserListUpdateEvent> roomUserListUpdateStreamCtrl =
       StreamController<ZegoRoomUserListUpdateEvent>.broadcast();
@@ -24,12 +23,10 @@ class ZegoExpressServiceCore {
   ValueNotifier<Widget?> remoteVideoView = ValueNotifier<Widget?>(null);
   int remoteViewID = 0;
 
-  ZegoUserInfo connectUser(String id, String name) {
+  Future<void> connectUser(String id, String name) async {
     localUser
       ..userID = id
       ..userName = name;
-
-    return localUser;
   }
 
   void logout() {
@@ -39,10 +36,9 @@ class ZegoExpressServiceCore {
   }
 
   Future<void> startPreview() async {
-    localVideoView.value =
-        await ZegoExpressEngine.instance.createCanvasView((viewID) => {
-              localViewID = viewID,
-            });
+    localVideoView.value = await ZegoExpressEngine.instance.createCanvasView((viewID) => {
+          localViewID = viewID,
+        });
 
     final previewCanvas = ZegoCanvas(
       localViewID,
@@ -68,12 +64,10 @@ class ZegoExpressServiceCore {
   }
 
   Future<void> startPlayingStream(String streamID) async {
-    remoteVideoView.value =
-        await ZegoExpressEngine.instance.createCanvasView((viewID) => {
-              remoteViewID = viewID,
-            });
-    ZegoCanvas canvas =
-        ZegoCanvas(remoteViewID, viewMode: ZegoViewMode.AspectFill);
+    remoteVideoView.value = await ZegoExpressEngine.instance.createCanvasView((viewID) => {
+          remoteViewID = viewID,
+        });
+    ZegoCanvas canvas = ZegoCanvas(remoteViewID, viewMode: ZegoViewMode.AspectFill);
     ZegoExpressEngine.instance.startPlayingStream(streamID, canvas: canvas);
   }
 
@@ -82,8 +76,8 @@ class ZegoExpressServiceCore {
   }
 
   //MARK: - Express Listen
-  Future<void> onRoomStreamUpdate(String roomID, ZegoUpdateType updateType,
-      List<ZegoStream> streamList, Map<String, dynamic> extendedData) async {
+  Future<void> onRoomStreamUpdate(
+      String roomID, ZegoUpdateType updateType, List<ZegoStream> streamList, Map<String, dynamic> extendedData) async {
     for (ZegoStream stream in streamList) {
       if (updateType == ZegoUpdateType.Add) {
         startPlayingStream(stream.streamID);
@@ -91,8 +85,7 @@ class ZegoExpressServiceCore {
         stopPlayingStream(stream.streamID);
       }
     }
-    streamListUpdateStreamCtrl.add(ZegoRoomStreamListUpdateEvent(
-        roomID, updateType, streamList, extendedData));
+    streamListUpdateStreamCtrl.add(ZegoRoomStreamListUpdateEvent(roomID, updateType, streamList, extendedData));
   }
 
   void onRoomUserUpdate(
@@ -100,8 +93,7 @@ class ZegoExpressServiceCore {
     ZegoUpdateType updateType,
     List<ZegoUser> userList,
   ) {
-    roomUserListUpdateStreamCtrl
-        .add(ZegoRoomUserListUpdateEvent(roomID, updateType, userList));
+    roomUserListUpdateStreamCtrl.add(ZegoRoomUserListUpdateEvent(roomID, updateType, userList));
   }
 
   void onRemoteCameraStateUpdate(String streamID, ZegoRemoteDeviceState state) {
@@ -112,6 +104,6 @@ class ZegoExpressServiceCore {
     microphoneStateUpdateStreamCtrl.add(ZegoMicrophoneStateChangeEvent(state));
   }
 
-  void onRoomStateChanged(String roomID, ZegoRoomStateChangedReason reason,
-      int errorCode, Map<String, dynamic> extendedData) {}
+  void onRoomStateChanged(
+      String roomID, ZegoRoomStateChangedReason reason, int errorCode, Map<String, dynamic> extendedData) {}
 }

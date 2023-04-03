@@ -1,21 +1,14 @@
 import 'dart:async';
-import 'dart:ffi';
-
-import 'package:call_with_invitation/interal/im/zim_service_defines.dart';
 
 import 'zego_express_service_event.dart';
 import 'zego_express_service_core.dart';
-
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 import 'package:zego_express_engine/zego_express_engine.dart';
 
 class ZegoExpressService with ZegoExpressServiceEvent {
   ZegoExpressService._internal();
 
-  static final ZegoExpressService shared = ZegoExpressService._internal();
+  static final ZegoExpressService instance = ZegoExpressService._internal();
 
   ZegoExpressServiceCore core = ZegoExpressServiceCore();
 
@@ -24,7 +17,7 @@ class ZegoExpressService with ZegoExpressServiceEvent {
   Future<void> init({
     required int appID,
     String appSign = '',
-    ZegoScenario scenario = ZegoScenario.Default,
+    ZegoScenario scenario = ZegoScenario.StandardVideoCall,
   }) async {
     isInit = true;
 
@@ -44,8 +37,8 @@ class ZegoExpressService with ZegoExpressServiceEvent {
     await ZegoExpressEngine.destroyEngine();
   }
 
-  void connectUser(String id, String name) {
-    core.connectUser(id, name);
+  Future<void> connectUser(String id, String name) async {
+    await core.connectUser(id, name);
   }
 
   Future<ZegoRoomLoginResult> joinRoom(String roomID) async {
@@ -60,8 +53,8 @@ class ZegoExpressService with ZegoExpressServiceEvent {
     return joinRoomResult;
   }
 
-  Future<ZegoRoomLogoutResult> leaveRoom() async {
-    final leaveResult = await ZegoExpressEngine.instance.logoutRoom();
+  Future<ZegoRoomLogoutResult> leaveRoom(String roomID) async {
+    final leaveResult = await ZegoExpressEngine.instance.logoutRoom(roomID);
     if (leaveResult.errorCode == 0) {
       core.room = '';
       core.localVideoView.value = null;
@@ -77,9 +70,7 @@ class ZegoExpressService with ZegoExpressServiceEvent {
 
   void enableVideoMirroring(bool isVideoMirror) {
     ZegoExpressEngine.instance.setVideoMirrorMode(
-      isVideoMirror
-          ? ZegoVideoMirrorMode.BothMirror
-          : ZegoVideoMirrorMode.NoMirror,
+      isVideoMirror ? ZegoVideoMirrorMode.BothMirror : ZegoVideoMirrorMode.NoMirror,
     );
   }
 

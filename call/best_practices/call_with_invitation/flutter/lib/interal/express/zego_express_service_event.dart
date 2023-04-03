@@ -11,20 +11,14 @@ mixin ZegoExpressServiceEvent {
   }
 
   void initEventHandle() {
-    ZegoExpressEngine.onRoomStreamUpdate =
-        ZegoExpressService.shared.core.onRoomStreamUpdate;
+    ZegoExpressEngine.onRoomStreamUpdate = ZegoExpressService.instance.core.onRoomStreamUpdate;
 
-    ZegoExpressEngine.onRoomUserUpdate =
-        ZegoExpressService.shared.core.onRoomUserUpdate;
+    ZegoExpressEngine.onRoomUserUpdate = ZegoExpressService.instance.core.onRoomUserUpdate;
 
-    ZegoExpressEngine.onRemoteCameraStateUpdate =
-        ZegoExpressService.shared.core.onRemoteCameraStateUpdate;
+    ZegoExpressEngine.onRemoteCameraStateUpdate = ZegoExpressService.instance.core.onRemoteCameraStateUpdate;
 
-    ZegoExpressEngine.onRemoteMicStateUpdate =
-        ZegoExpressService.shared.core.onRemoteMicStateUpdate;
+    ZegoExpressEngine.onRemoteMicStateUpdate = ZegoExpressService.instance.core.onRemoteMicStateUpdate;
 
-    ZegoExpressEngine.onRoomStateChanged =
-        ZegoExpressService.shared.core.onRoomStateChanged;
-
+    ZegoExpressEngine.onRoomStateChanged = ZegoExpressService.instance.core.onRoomStateChanged;
   }
 }

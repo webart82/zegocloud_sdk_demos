@@ -1,5 +1,3 @@
-class SDKKeyCenter {
-  static const int appID = ;
-  static const String secret = ;
-  static const String appSign = ;
-}
+const appID = ;
+const appSign = ;
+const serverSecret = ;

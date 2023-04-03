@@ -1,26 +1,19 @@
 import 'dart:async';
-import 'dart:math';
 import 'package:call_with_invitation/components/zego_cancel_button.dart';
 import 'package:call_with_invitation/components/zego_speaker_button.dart';
 import 'package:call_with_invitation/components/zego_switch_camera_button.dart';
 import 'package:call_with_invitation/components/zego_toggle_camera_button.dart';
 import 'package:call_with_invitation/components/zego_toggle_microphone_button.dart';
-import 'package:call_with_invitation/interal/im/zim_service_call_data_manager.dart';
-import 'package:call_with_invitation/interal/im/zim_service_enum.dart';
+import 'package:call_with_invitation/interal/zim/zim_service_call_data_manager.dart';
+import 'package:call_with_invitation/interal/zim/zim_service_enum.dart';
 import 'package:call_with_invitation/zego_sdk_manager.dart';
 import 'package:call_with_invitation/zego_user_Info.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/rendering.dart';
 import 'package:zego_express_engine/zego_express_engine.dart';
-
-import '../components/zego_accept_button.dart';
 import '../interal/express/zego_express_service_defines.dart';
 
 class CallingPage extends StatefulWidget {
-  const CallingPage(
-      {required this.callData, required this.otherUserInfo, super.key});
+  const CallingPage({required this.callData, required this.otherUserInfo, super.key});
 
   final ZegoCallData callData;
   final ZegoUserInfo otherUserInfo;
@@ -42,27 +35,45 @@ class _CallingPageState extends State<CallingPage> {
   void initState() {
     super.initState();
 
-    subscriptions
-      ..add(ZegoSDKManager
-          .shared.expressService.core.streamListUpdateStreamCtrl.stream
-          .listen(onStreamListUpdate))
-      ..add(ZegoSDKManager
-          .shared.expressService.core.roomUserListUpdateStreamCtrl.stream
-          .listen(onRoomUserListUpdate));
+    subscriptions.addAll([
+      ZegoSDKManager.instance.expressService.core.streamListUpdateStreamCtrl.stream.listen(onStreamListUpdate),
+      ZegoSDKManager.instance.expressService.core.roomUserListUpdateStreamCtrl.stream.listen(onRoomUserListUpdate)
+    ]);
 
-          // start publishing stream
-    ZegoSDKManager.shared.expressService.core.startPublishingStream();
+    ZegoSDKManager.instance.expressService.joinRoom(widget.callData.callID).then((ZegoRoomLoginResult joinRoomResult) {
+      if (joinRoomResult.errorCode == 0) {
+        ZegoSDKManager.instance.expressService.core.startPublishingStream();
+        ZegoSDKManager.instance.turnMicrophoneOn(micIsOn);
+        ZegoSDKManager.instance.setAudioOutputToSpeaker(isSpeaker);
+        if (widget.callData.callType == ZegoCallType.voice) {
+          cameraIsOn = false;
+          ZegoSDKManager.instance.turnCameraOn(cameraIsOn);
+          ZegoSDKManager.instance.useFrontFacingCamera(isFacingCamera);
+        } else {
+          ZegoSDKManager.instance.expressService.turnCameraOn(cameraIsOn);
+          ZegoSDKManager.instance.expressService.core.startPreview();
+        }
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('join room fail: ${joinRoomResult.errorCode},${joinRoomResult.extendedData}')),
+        );
+      }
+    });
+  }
 
-    ZegoSDKManager.shared.turnMicrophoneOn(micIsOn);
-    ZegoSDKManager.shared.setAudioOutputToSpeaker(isSpeaker);
-    if (widget.callData.callType == ZegoCallType.voice) {
-      cameraIsOn = false;
-      ZegoSDKManager.shared.turnCameraOn(cameraIsOn);
-      ZegoSDKManager.shared.useFrontFacingCamera(isFacingCamera);
-    } else {
-      ZegoSDKManager.shared.expressService.turnCameraOn(cameraIsOn);
-      ZegoSDKManager.shared.expressService.core.startPreview();
+  @override
+  void dispose() {
+    for (final subscription in subscriptions) {
+      subscription?.cancel();
     }
+    ZegoCallDataManager.instance.clear();
+    for (String streamID in streamIDList) {
+      ZegoSDKManager.instance.expressService.stopPlayingStream(streamID);
+    }
+    ZegoSDKManager.instance.expressService.core.stopPreview();
+    ZegoSDKManager.instance.expressService.core.stopPublishingStream();
+    ZegoSDKManager.instance.expressService.leaveRoom(widget.callData.callID);
+    super.dispose();
   }
 
   @override
@@ -79,18 +90,9 @@ class _CallingPageState extends State<CallingPage> {
     ));
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-    for (final subscription in subscriptions) {
-      subscription?.cancel();
-    }
-  }
-
   Widget largetVideoView() {
     return ValueListenableBuilder<Widget?>(
-        valueListenable: ZegoSDKManager.shared
-            .getVideoViewNotifier(widget.otherUserInfo.userID),
+        valueListenable: ZegoSDKManager.instance.getVideoViewNotifier(widget.otherUserInfo.userID),
         builder: (context, view, _) {
           if (view != null) {
             return view;
@@ -106,20 +108,18 @@ class _CallingPageState extends State<CallingPage> {
   Widget smallVideoView() {
     return LayoutBuilder(builder: (context, constraints) {
       return ValueListenableBuilder<Widget?>(
-          valueListenable: ZegoSDKManager.shared.getVideoViewNotifier(null),
+          valueListenable: ZegoSDKManager.instance.getVideoViewNotifier(null),
           builder: (context, view, _) {
             if (view != null) {
               return Container(
-                margin: EdgeInsets.only(
-                    top: 100, left: constraints.maxWidth - 95.0 - 20),
+                margin: EdgeInsets.only(top: 100, left: constraints.maxWidth - 95.0 - 20),
                 width: 95.0,
                 height: 164.0,
                 child: view,
               );
             } else {
               return Container(
-                margin: EdgeInsets.only(
-                    top: 100, left: constraints.maxWidth - 95.0 - 20),
+                margin: EdgeInsets.only(top: 100, left: constraints.maxWidth - 95.0 - 20),
                 width: 95.0,
                 height: 164.0,
                 color: Colors.red,
@@ -132,8 +132,7 @@ class _CallingPageState extends State<CallingPage> {
   Widget bottomBar() {
     return LayoutBuilder(builder: (context, containers) {
       return Padding(
-        padding:
-            EdgeInsets.only(left: 0, right: 0, top: containers.maxHeight - 70),
+        padding: EdgeInsets.only(left: 0, right: 0, top: containers.maxHeight - 70),
         child: buttonView(),
       );
     });
@@ -170,13 +169,6 @@ class _CallingPageState extends State<CallingPage> {
         height: 50,
         child: ZegoCancelButton(
           onPressed: () {
-            ZegoCallDataManager.shared.clear();
-            for (String streamID in streamIDList) {
-              ZegoSDKManager.shared.expressService.stopPlayingStream(streamID);
-            }
-            ZegoSDKManager.shared.expressService.core.stopPreview();
-            ZegoSDKManager.shared.expressService.core.stopPublishingStream();
-            ZegoSDKManager.shared.expressService.leaveRoom();
             Navigator.pop(context);
           },
         ),
@@ -192,7 +184,7 @@ class _CallingPageState extends State<CallingPage> {
         child: ZegoToggleMicrophoneButton(
           onPressed: () {
             micIsOn = !micIsOn;
-            ZegoSDKManager.shared.turnMicrophoneOn(micIsOn);
+            ZegoSDKManager.instance.turnMicrophoneOn(micIsOn);
           },
         ),
       );
@@ -207,7 +199,7 @@ class _CallingPageState extends State<CallingPage> {
         child: ZegoToggleCameraButton(
           onPressed: () {
             cameraIsOn = !cameraIsOn;
-            ZegoSDKManager.shared.turnCameraOn(cameraIsOn);
+            ZegoSDKManager.instance.turnCameraOn(cameraIsOn);
           },
         ),
       );
@@ -222,7 +214,7 @@ class _CallingPageState extends State<CallingPage> {
         child: ZegoSwitchCameraButton(
           onPressed: () {
             isFacingCamera = !isFacingCamera;
-            ZegoSDKManager.shared.useFrontFacingCamera(isFacingCamera);
+            ZegoSDKManager.instance.useFrontFacingCamera(isFacingCamera);
           },
         ),
       );
@@ -237,7 +229,7 @@ class _CallingPageState extends State<CallingPage> {
         child: ZegoSpeakerButton(
           onPressed: () {
             isSpeaker = !isSpeaker;
-            ZegoSDKManager.shared.setAudioOutputToSpeaker(isSpeaker);
+            ZegoSDKManager.instance.setAudioOutputToSpeaker(isSpeaker);
           },
         ),
       );
@@ -248,11 +240,10 @@ class _CallingPageState extends State<CallingPage> {
     for (var stream in event.streamList) {
       if (event.updateType == ZegoUpdateType.Add) {
         streamIDList.add(stream.streamID);
-        ZegoSDKManager.shared.expressService
-            .startPlayingStream(stream.streamID);
+        ZegoSDKManager.instance.expressService.startPlayingStream(stream.streamID);
       } else {
         streamIDList.remove(stream.streamID);
-        ZegoSDKManager.shared.expressService.stopPlayingStream(stream.streamID);
+        ZegoSDKManager.instance.expressService.stopPlayingStream(stream.streamID);
       }
     }
   }
@@ -261,8 +252,6 @@ class _CallingPageState extends State<CallingPage> {
     for (var user in event.userList) {
       if (event.updateType == ZegoUpdateType.Delete) {
         if (user.userID == widget.otherUserInfo.userID) {
-          ZegoCallDataManager.shared.clear();
-          ZegoSDKManager.shared.expressService.leaveRoom();
           Navigator.pop(context);
         }
       }
