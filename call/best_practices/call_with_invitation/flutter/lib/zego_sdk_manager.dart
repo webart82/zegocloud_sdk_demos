@@ -1,14 +1,13 @@
 import 'package:call_with_invitation/zego_user_Info.dart';
 import 'package:flutter/material.dart';
-import 'package:zego_express_engine/zego_express_engine.dart';
 
 import 'interal/express/zego_express_service.dart';
 import 'interal/zim/zim_service.dart';
 import 'interal/zim/zim_service_defines.dart';
 
-class ZegoSDKManager {
-  ZegoSDKManager._internal();
-  static final ZegoSDKManager instance = ZegoSDKManager._internal();
+class ZEGOSDKManager {
+  ZEGOSDKManager._internal();
+  static final ZEGOSDKManager instance = ZEGOSDKManager._internal();
 
   ZegoExpressService expressService = ZegoExpressService.instance;
   ZIMService zimService = ZIMService.instance;
@@ -22,30 +21,6 @@ class ZegoSDKManager {
   Future<void> connectUser(String userID, String userName) async {
     await expressService.connectUser(userID, userName);
     await zimService.connectUser(userID, userName);
-  }
-
-  Future<ZegoRoomLoginResult> joinRoom(String roomID) async {
-    return expressService.joinRoom(roomID);
-  }
-
-  void turnCameraOn(bool isOn) {
-    expressService.turnCameraOn(isOn);
-  }
-
-  void turnMicrophoneOn(bool isOn) {
-    expressService.turnMicrophoneOn(isOn);
-  }
-
-  void useFrontFacingCamera(bool isFrontFacing) {
-    expressService.useFrontFacingCamera(isFrontFacing);
-  }
-
-  void setAudioOutputToSpeaker(bool useSpeaker) {
-    expressService.setAudioOutputToSpeaker(useSpeaker);
-  }
-
-  void startPlayingStream(String streamID) {
-    expressService.startPlayingStream(streamID);
   }
 
   ValueNotifier<Widget?> getVideoViewNotifier(String? userID) {

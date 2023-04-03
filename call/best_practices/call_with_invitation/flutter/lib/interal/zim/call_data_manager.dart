@@ -6,7 +6,10 @@ class ZegoCallDataManager {
   ZegoCallDataManager._internal();
   static final ZegoCallDataManager instance = ZegoCallDataManager._internal();
   ZegoCallDataManager({this.callData});
+
   ZegoCallData? callData;
+
+  bool get busy => callData != null;
 
   void createCall(
       String callID, ZegoUserInfo inviter, ZegoUserInfo invitee, ZegoCallUserState state, ZegoCallType callType) {

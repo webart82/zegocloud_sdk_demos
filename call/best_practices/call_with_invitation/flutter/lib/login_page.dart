@@ -12,8 +12,8 @@ void jumpToHomePage(
   required String localUserID,
   required String localUserName,
 }) async {
-  await ZegoSDKManager.instance.init(appID, appSign);
-  await ZegoSDKManager.instance.connectUser(localUserID, localUserID);
+  await ZEGOSDKManager.instance.init(appID, appSign);
+  await ZEGOSDKManager.instance.connectUser(localUserID, localUserID);
 
   Navigator.pushReplacement(
     context,

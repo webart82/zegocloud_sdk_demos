@@ -36,22 +36,22 @@ class _CallingPageState extends State<CallingPage> {
     super.initState();
 
     subscriptions.addAll([
-      ZegoSDKManager.instance.expressService.streamListUpdateStreamCtrl.stream.listen(onStreamListUpdate),
-      ZegoSDKManager.instance.expressService.roomUserListUpdateStreamCtrl.stream.listen(onRoomUserListUpdate)
+      ZEGOSDKManager.instance.expressService.streamListUpdateStreamCtrl.stream.listen(onStreamListUpdate),
+      ZEGOSDKManager.instance.expressService.roomUserListUpdateStreamCtrl.stream.listen(onRoomUserListUpdate)
     ]);
 
-    ZegoSDKManager.instance.expressService.joinRoom(widget.callData.callID).then((ZegoRoomLoginResult joinRoomResult) {
+    ZEGOSDKManager.instance.expressService.joinRoom(widget.callData.callID).then((ZegoRoomLoginResult joinRoomResult) {
       if (joinRoomResult.errorCode == 0) {
-        ZegoSDKManager.instance.expressService.startPublishingStream();
-        ZegoSDKManager.instance.turnMicrophoneOn(micIsOn);
-        ZegoSDKManager.instance.setAudioOutputToSpeaker(isSpeaker);
+        ZEGOSDKManager.instance.expressService.startPublishingStream();
+        ZEGOSDKManager.instance.expressService.turnMicrophoneOn(micIsOn);
+        ZEGOSDKManager.instance.expressService.setAudioOutputToSpeaker(isSpeaker);
         if (widget.callData.callType == ZegoCallType.voice) {
           cameraIsOn = false;
-          ZegoSDKManager.instance.turnCameraOn(cameraIsOn);
-          ZegoSDKManager.instance.useFrontFacingCamera(isFacingCamera);
+          ZEGOSDKManager.instance.expressService.turnCameraOn(cameraIsOn);
+          ZEGOSDKManager.instance.expressService.useFrontFacingCamera(isFacingCamera);
         } else {
-          ZegoSDKManager.instance.expressService.turnCameraOn(cameraIsOn);
-          ZegoSDKManager.instance.expressService.startPreview();
+          ZEGOSDKManager.instance.expressService.turnCameraOn(cameraIsOn);
+          ZEGOSDKManager.instance.expressService.startPreview();
         }
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -68,11 +68,11 @@ class _CallingPageState extends State<CallingPage> {
     }
     ZegoCallDataManager.instance.clear();
     for (String streamID in streamIDList) {
-      ZegoSDKManager.instance.expressService.stopPlayingStream(streamID);
+      ZEGOSDKManager.instance.expressService.stopPlayingStream(streamID);
     }
-    ZegoSDKManager.instance.expressService.stopPreview();
-    ZegoSDKManager.instance.expressService.stopPublishingStream();
-    ZegoSDKManager.instance.expressService.leaveRoom(widget.callData.callID);
+    ZEGOSDKManager.instance.expressService.stopPreview();
+    ZEGOSDKManager.instance.expressService.stopPublishingStream();
+    ZEGOSDKManager.instance.expressService.leaveRoom(widget.callData.callID);
     super.dispose();
   }
 
@@ -92,7 +92,7 @@ class _CallingPageState extends State<CallingPage> {
 
   Widget largetVideoView() {
     return ValueListenableBuilder<Widget?>(
-        valueListenable: ZegoSDKManager.instance.getVideoViewNotifier(widget.otherUserInfo.userID),
+        valueListenable: ZEGOSDKManager.instance.getVideoViewNotifier(widget.otherUserInfo.userID),
         builder: (context, view, _) {
           if (view != null) {
             return view;
@@ -108,7 +108,7 @@ class _CallingPageState extends State<CallingPage> {
   Widget smallVideoView() {
     return LayoutBuilder(builder: (context, constraints) {
       return ValueListenableBuilder<Widget?>(
-          valueListenable: ZegoSDKManager.instance.getVideoViewNotifier(null),
+          valueListenable: ZEGOSDKManager.instance.getVideoViewNotifier(null),
           builder: (context, view, _) {
             if (view != null) {
               return Container(
@@ -184,7 +184,7 @@ class _CallingPageState extends State<CallingPage> {
         child: ZegoToggleMicrophoneButton(
           onPressed: () {
             micIsOn = !micIsOn;
-            ZegoSDKManager.instance.turnMicrophoneOn(micIsOn);
+            ZEGOSDKManager.instance.expressService.turnMicrophoneOn(micIsOn);
           },
         ),
       );
@@ -199,7 +199,7 @@ class _CallingPageState extends State<CallingPage> {
         child: ZegoToggleCameraButton(
           onPressed: () {
             cameraIsOn = !cameraIsOn;
-            ZegoSDKManager.instance.turnCameraOn(cameraIsOn);
+            ZEGOSDKManager.instance.expressService.turnCameraOn(cameraIsOn);
           },
         ),
       );
@@ -214,7 +214,7 @@ class _CallingPageState extends State<CallingPage> {
         child: ZegoSwitchCameraButton(
           onPressed: () {
             isFacingCamera = !isFacingCamera;
-            ZegoSDKManager.instance.useFrontFacingCamera(isFacingCamera);
+            ZEGOSDKManager.instance.expressService.useFrontFacingCamera(isFacingCamera);
           },
         ),
       );
@@ -229,7 +229,7 @@ class _CallingPageState extends State<CallingPage> {
         child: ZegoSpeakerButton(
           onPressed: () {
             isSpeaker = !isSpeaker;
-            ZegoSDKManager.instance.setAudioOutputToSpeaker(isSpeaker);
+            ZEGOSDKManager.instance.expressService.setAudioOutputToSpeaker(isSpeaker);
           },
         ),
       );
@@ -240,10 +240,10 @@ class _CallingPageState extends State<CallingPage> {
     for (var stream in event.streamList) {
       if (event.updateType == ZegoUpdateType.Add) {
         streamIDList.add(stream.streamID);
-        ZegoSDKManager.instance.expressService.startPlayingStream(stream.streamID);
+        ZEGOSDKManager.instance.expressService.startPlayingStream(stream.streamID);
       } else {
         streamIDList.remove(stream.streamID);
-        ZegoSDKManager.instance.expressService.stopPlayingStream(stream.streamID);
+        ZEGOSDKManager.instance.expressService.stopPlayingStream(stream.streamID);
       }
     }
   }

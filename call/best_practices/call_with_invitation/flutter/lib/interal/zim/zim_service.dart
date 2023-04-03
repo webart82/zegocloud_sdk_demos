@@ -128,7 +128,7 @@ class ZIMService {
 
   void onCallInvitationReceived(ZIM zim, ZIMCallInvitationReceivedInfo info, String callID) {
     if (ZegoCallDataManager.instance.callData != null) {
-      refuseInvitation(invitationID: callID);
+      refuseInvitation(invitationID: callID, extendedData: 'busy');
       return;
     }
     Map<String, dynamic> callInfoMap = {};

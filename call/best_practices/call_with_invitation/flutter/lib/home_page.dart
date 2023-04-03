@@ -31,8 +31,8 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
     requestPermission();
     subscriptions.addAll([
-      ZegoSDKManager.instance.zimService.receiveCallStreamCtrl.stream.listen(onReceiveCall),
-      ZegoSDKManager.instance.zimService.cancelCallStreamCtrl.stream.listen(onCancelCall)
+      ZEGOSDKManager.instance.zimService.receiveCallStreamCtrl.stream.listen(onReceiveCall),
+      ZEGOSDKManager.instance.zimService.cancelCallStreamCtrl.stream.listen(onCancelCall)
     ]);
   }
 
@@ -86,7 +86,7 @@ class _MyHomePageState extends State<MyHomePage> {
       'inviterName': widget.localUserName,
     });
 
-    final ZegoSendInvitationResult result = await ZegoSDKManager.instance
+    final ZegoSendInvitationResult result = await ZEGOSDKManager.instance
         .sendInvitation(invitees: [myController.text], callType: callType, extendedData: extendedData);
 
     if (result.error == null || result.error?.code == '0') {
@@ -130,7 +130,7 @@ class _MyHomePageState extends State<MyHomePage> {
               callID: event.callID),
           onAcceptCallback: acceptCall,
           onRefuseCallback: () {
-            ZegoSDKManager.instance.zimService.refuseInvitation(invitationID: event.callID);
+            ZEGOSDKManager.instance.zimService.refuseInvitation(invitationID: event.callID);
             hideInvitationTopSheet();
           },
         ),
@@ -141,7 +141,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future<void> acceptCall() async {
     hideInvitationTopSheet();
-    ZegoResponseInvitationResult result = await ZegoSDKManager.instance.zimService
+    ZegoResponseInvitationResult result = await ZEGOSDKManager.instance.zimService
         .acceptInvitation(invitationID: ZegoCallDataManager.instance.callData?.callID ?? '');
     if (result.error == null || result.error?.code == '0') {
       pushToCallingPage();
@@ -202,7 +202,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void pushToCallingPage() {
     if (ZegoCallDataManager.instance.callData != null) {
       ZegoUserInfo otherUser;
-      if (ZegoCallDataManager.instance.callData!.inviter.userID != ZegoSDKManager.instance.localUser.userID) {
+      if (ZegoCallDataManager.instance.callData!.inviter.userID != ZEGOSDKManager.instance.localUser.userID) {
         otherUser = ZegoCallDataManager.instance.callData!.inviter;
       } else {
         otherUser = ZegoCallDataManager.instance.callData!.invitee;
