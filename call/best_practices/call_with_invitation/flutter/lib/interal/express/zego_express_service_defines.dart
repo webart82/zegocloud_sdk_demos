@@ -1,4 +1,3 @@
-
 import 'package:zego_express_engine/zego_express_engine.dart';
 
 class ZegoCameraStateChangeEvent {
@@ -18,7 +17,11 @@ class ZegoRoomUserListUpdateEvent {
   final ZegoUpdateType updateType;
   final List<ZegoUser> userList;
 
-  ZegoRoomUserListUpdateEvent(this.roomID, this.updateType, this.userList,);
+  ZegoRoomUserListUpdateEvent(
+    this.roomID,
+    this.updateType,
+    this.userList,
+  );
 }
 
 class ZegoRoomStreamListUpdateEvent {
@@ -29,4 +32,3 @@ class ZegoRoomStreamListUpdateEvent {
 
   ZegoRoomStreamListUpdateEvent(this.roomID, this.updateType, this.streamList, this.extendedData);
 }
-

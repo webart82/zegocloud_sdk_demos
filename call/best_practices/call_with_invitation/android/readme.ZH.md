@@ -7,13 +7,13 @@ see https://docs.zegocloud.com/article/15663
 ## 前提条件
 
 1. 参考[QuickStart]()完成基本的通话功能。
-2. 下载本文档配套[Demo](https://github.com/ZEGOCLOUD/zegocloud_sdk_demos/blob/main/call/advanced_features/call_with_invitation/android/)
+2. 下载本文档配套[Demo](https://github.com/ZEGOCLOUD/zegocloud_sdk_demos/blob/main/call/best_practices/call_with_invitation/android/)
 3. Subscribe to the **In-app Chat** service.
 ![/Pics/InappChat/ActivateZIMinConsole2.png](/Pics/InappChat/ActivateZIMinConsole2.png)
 
 ## 效果预览
 
-您可以通过本文档提供的[Demo](https://github.com/ZEGOCLOUD/zegocloud_sdk_demos/blob/main/call/advanced_features/call_with_invitation/android/)来预览实现效果，具体展示如下：
+您可以通过本文档提供的[Demo](https://github.com/ZEGOCLOUD/zegocloud_sdk_demos/blob/main/call/best_practices/call_with_invitation/android/)来预览实现效果，具体展示如下：
 
 |Home Page|Incoming Call Dialog|Waiting Page|Calling Page|
 |--- | --- | --- |--- |
@@ -193,7 +193,7 @@ For most cases, 您需要一起使用多个sdk，比如在本文的呼叫邀请�
 
 1. 您可以为每个sdk创建一个封装层，以便您可以最大程度地复用代码。
 
-我们可以为zim sdk创建一个ZIMService类，由这个类来管理与zimsdk的交互并存储必要的数据。完整代码请参考[ZIMService.java](https://github.com/ZEGOCLOUD/zegocloud_sdk_demos/blob/main/call/advanced_features/call_with_invitation/android/app/src/main/java/com/zegocloud/demo/callwithinvitation/internal/ZIMService.java)
+我们可以为zim sdk创建一个ZIMService类，由这个类来管理与zimsdk的交互并存储必要的数据。完整代码请参考[ZIMService.java](https://github.com/ZEGOCLOUD/zegocloud_sdk_demos/blob/main/call/best_practices/call_with_invitation/android/app/src/main/java/com/zegocloud/demo/callwithinvitation/internal/ZIMService.java)
 ```java
 public class ZIMService {
     private ZIM zim;
@@ -219,7 +219,7 @@ public class ZIMService {
 }
 ```
 
-同样的，我们可以为 zego_express_engine sdk创建一个ExpressService类，由这个类来管理与 zego_express_engine sdk 的交互并存储必要的数据。完整代码请参考[ExpressService.java](https://github.com/ZEGOCLOUD/zegocloud_sdk_demos/blob/main/call/advanced_features/call_with_invitation/android/app/src/main/java/com/zegocloud/demo/callwithinvitation/internal/ExpressService.java)
+同样的，我们可以为 zego_express_engine sdk创建一个ExpressService类，由这个类来管理与 zego_express_engine sdk 的交互并存储必要的数据。完整代码请参考[ExpressService.java](https://github.com/ZEGOCLOUD/zegocloud_sdk_demos/blob/main/call/best_practices/call_with_invitation/android/app/src/main/java/com/zegocloud/demo/callwithinvitation/internal/ExpressService.java)
 
 ```java
 public class ExpressService {
@@ -271,7 +271,7 @@ public class ZIMService {
 
 </details>
 
-2. 完成service的封装后，我们可以进一步简化我们的代码，我们可以创建一个`ZEGOSDKManager`来统一管理这些service，如下所示, 完整代码请参考[ZEGOSDKManager.java](https://github.com/ZEGOCLOUD/zegocloud_sdk_demos/blob/main/call/advanced_features/call_with_invitation/android/app/src/main/java/com/zegocloud/demo/callwithinvitation/ZEGOSDKManager.java#L25)
+2. 完成service的封装后，我们可以进一步简化我们的代码，我们可以创建一个`ZEGOSDKManager`来统一管理这些service，如下所示, 完整代码请参考[ZEGOSDKManager.java](https://github.com/ZEGOCLOUD/zegocloud_sdk_demos/blob/main/call/best_practices/call_with_invitation/android/app/src/main/java/com/zegocloud/demo/callwithinvitation/ZEGOSDKManager.java#L25)
 ```java
 public class ZEGOSDKManager {
     public ExpressService expressService = new ExpressService();
@@ -308,7 +308,7 @@ caller在发起呼叫时，除了需要指定callee之外，给callee传递信�
 
 `callInvite`接口的`ZIMCallInviteConfig`参数允许我们传递一个字符串类型的扩展信息`extendedData`，这个扩展信息将会传递给callee，我们可以使用这种方式来让caller给callee传递任何需要的信息。
 
-在方案示例Demo中，我们使用 `CallInviteExtendedData` 类型来定义呼叫邀请的extendedData，并在发起呼叫时将其按 Json 格式转换为 String 传递给 callee。(详见[完整源码](https://github.com/ZEGOCLOUD/zegocloud_sdk_demos/blob/main/call/advanced_features/call_with_invitation/android/app/src/main/java/com/zegocloud/demo/callwithinvitation/call/internal/CallInviteExtendedData.java)), CallInviteExtendedData附带了呼叫类型，以及caller的名字。
+在方案示例Demo中，我们使用 `CallInviteExtendedData` 类型来定义呼叫邀请的extendedData，并在发起呼叫时将其按 Json 格式转换为 String 传递给 callee。(详见[完整源码](https://github.com/ZEGOCLOUD/zegocloud_sdk_demos/blob/main/call/best_practices/call_with_invitation/android/app/src/main/java/com/zegocloud/demo/callwithinvitation/call/internal/CallInviteExtendedData.java)), CallInviteExtendedData附带了呼叫类型，以及caller的名字。
 ```java
 public class CallInviteExtendedData {
     public String type;
@@ -324,7 +324,7 @@ public class CallInviteExtendedData {
 
 2. 实现呼叫等待页面
 
-- 在呼叫场景中，caller发出呼叫后，需要进入呼叫等待页面，在这个页面中我们来监听呼叫邀请的状态变化，详见[完整源码](https://github.com/ZEGOCLOUD/zegocloud_sdk_demos/blob/main/call/advanced_features/call_with_invitation/android/app/src/main/java/com/zegocloud/demo/callwithinvitation/call/CallWaitingActivity.java), 关键代码如下：
+- 在呼叫场景中，caller发出呼叫后，需要进入呼叫等待页面，在这个页面中我们来监听呼叫邀请的状态变化，详见[完整源码](https://github.com/ZEGOCLOUD/zegocloud_sdk_demos/blob/main/call/best_practices/call_with_invitation/android/app/src/main/java/com/zegocloud/demo/callwithinvitation/call/CallWaitingActivity.java), 关键代码如下：
 
 
 ```java
@@ -471,7 +471,7 @@ public class ZIMCallInvitationSentInfo {
 - 非busy状态下会唤起`IncomingCallDialog`，让终端用户来决定接受或拒绝这次呼叫。
 - busy状态下会自动拒绝邀请，并告知caller本端状态是busy。
 
-详见[完整源码](https://github.com/ZEGOCLOUD/zegocloud_sdk_demos/blob/main/call/advanced_features/call_with_invitation/android/app/src/main/java/com/zegocloud/demo/callwithinvitation/call/CallBackgroundService.java#L31)，关键代码如下：
+详见[完整源码](https://github.com/ZEGOCLOUD/zegocloud_sdk_demos/blob/main/call/best_practices/call_with_invitation/android/app/src/main/java/com/zegocloud/demo/callwithinvitation/call/CallBackgroundService.java#L31)，关键代码如下：
 ```java
 public void onIncomingCallInvitationReceived(String callID, String userID, String extendedData) {
     if (ZEGOSDKManager.getInstance().isBusy()) {
@@ -501,7 +501,7 @@ public void onIncomingCallInvitationReceived(String callID, String userID, Strin
 }
 ```
 
-2. 弹出`IncomingCallDialog`后, 当用户点击接受按钮时，调用`callAccept`，并进入CallingPage。详见[完整源码](https://github.com/ZEGOCLOUD/zegocloud_sdk_demos/blob/main/call/advanced_features/call_with_invitation/android/app/src/main/java/com/zegocloud/demo/callwithinvitation/call/IncomingCallDialog.java#L100)，关键代码如下：
+2. 弹出`IncomingCallDialog`后, 当用户点击接受按钮时，调用`callAccept`，并进入CallingPage。详见[完整源码](https://github.com/ZEGOCLOUD/zegocloud_sdk_demos/blob/main/call/best_practices/call_with_invitation/android/app/src/main/java/com/zegocloud/demo/callwithinvitation/call/IncomingCallDialog.java#L100)，关键代码如下：
 ```java
 public class IncomingCallDialog extends AppCompatActivity {
     // ...
@@ -536,7 +536,7 @@ public class IncomingCallDialog extends AppCompatActivity {
 }
 ```
 
-3. 弹出`IncomingCallDialog`后, 当用户点击拒绝按钮时，调用`callReject`，详见[完整源码](https://github.com/ZEGOCLOUD/zegocloud_sdk_demos/blob/main/call/advanced_features/call_with_invitation/android/app/src/main/java/com/zegocloud/demo/callwithinvitation/call/IncomingCallDialog.java#L123)，关键代码如下：
+3. 弹出`IncomingCallDialog`后, 当用户点击拒绝按钮时，调用`callReject`，详见[完整源码](https://github.com/ZEGOCLOUD/zegocloud_sdk_demos/blob/main/call/best_practices/call_with_invitation/android/app/src/main/java/com/zegocloud/demo/callwithinvitation/call/IncomingCallDialog.java#L123)，关键代码如下：
 
 ```java
 public class IncomingCallDialog extends AppCompatActivity {
@@ -562,7 +562,7 @@ public class IncomingCallDialog extends AppCompatActivity {
 }
 ```
 
-4. 弹出`IncomingCallDialog`后, 若callee无响应呼叫邀请超时，则`IncomingCallDialog`需要消失，详见[完整源码](https://github.com/ZEGOCLOUD/zegocloud_sdk_demos/blob/main/call/advanced_features/call_with_invitation/android/app/src/main/java/com/zegocloud/demo/callwithinvitation/call/IncomingCallDialog.java)，关键代码如下：
+4. 弹出`IncomingCallDialog`后, 若callee无响应呼叫邀请超时，则`IncomingCallDialog`需要消失，详见[完整源码](https://github.com/ZEGOCLOUD/zegocloud_sdk_demos/blob/main/call/best_practices/call_with_invitation/android/app/src/main/java/com/zegocloud/demo/callwithinvitation/call/IncomingCallDialog.java)，关键代码如下：
 
 ```java
 public class IncomingCallDialog extends AppCompatActivity {
@@ -660,7 +660,7 @@ flowchart
 ZEGOSDKManager.getInstance().setBusy(isBusy);
 ```
 
-2. 并在收到呼叫邀请时对齐进行判断，如果处于busy状态，将会直接拒绝对方的呼叫邀请，并告知对方是由于busy而拒绝，详见[完整源码](https://github.com/ZEGOCLOUD/zegocloud_sdk_demos/blob/main/call/advanced_features/call_with_invitation/android/app/src/main/java/com/zegocloud/demo/callwithinvitation/internal/ZIMService.java#L211)，关键代码如下：
+2. 并在收到呼叫邀请时对齐进行判断，如果处于busy状态，将会直接拒绝对方的呼叫邀请，并告知对方是由于busy而拒绝，详见[完整源码](https://github.com/ZEGOCLOUD/zegocloud_sdk_demos/blob/main/call/best_practices/call_with_invitation/android/app/src/main/java/com/zegocloud/demo/callwithinvitation/internal/ZIMService.java#L211)，关键代码如下：
 ```java
 public void autoRejectCallInviteCauseBusy(String callID, ZIMCallRejectionSentCallback callback) {
     ZIMCallRejectConfig config = new ZIMCallRejectConfig();
@@ -682,7 +682,7 @@ public void autoRejectCallInviteCauseBusy(String callID, ZIMCallRejectionSentCal
 
 ### 呼叫的接通
 
-callee接受呼叫邀请时，caller会收到`onCallInvitationAccepted`回调，此时双方便可以进入通话阶段。我们在[QuickStart]()已经实现过了通话页面，您也可以直接参考本文档附带Demo中的[示例代码](https://github.com/ZEGOCLOUD/zegocloud_sdk_demos/blob/main/call/advanced_features/call_with_invitation/android/app/src/main/java/com/zegocloud/demo/callwithinvitation/call/CallingActivity.java)
+callee接受呼叫邀请时，caller会收到`onCallInvitationAccepted`回调，此时双方便可以进入通话阶段。我们在[QuickStart]()已经实现过了通话页面，您也可以直接参考本文档附带Demo中的[示例代码](https://github.com/ZEGOCLOUD/zegocloud_sdk_demos/blob/main/call/best_practices/call_with_invitation/android/app/src/main/java/com/zegocloud/demo/callwithinvitation/call/CallingActivity.java)
 
 > 在本示例Demo中，我们使用 `callID` 来作为 `zego_express_sdk` 使用的 `roomID`。
 >有关roomID的概念，请参考[KeyConcept]()

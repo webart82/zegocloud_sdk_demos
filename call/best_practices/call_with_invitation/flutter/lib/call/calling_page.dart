@@ -4,13 +4,13 @@ import 'package:call_with_invitation/components/zego_speaker_button.dart';
 import 'package:call_with_invitation/components/zego_switch_camera_button.dart';
 import 'package:call_with_invitation/components/zego_toggle_camera_button.dart';
 import 'package:call_with_invitation/components/zego_toggle_microphone_button.dart';
-import 'package:call_with_invitation/interal/zim/zim_service_call_data_manager.dart';
-import 'package:call_with_invitation/interal/zim/zim_service_enum.dart';
+import 'package:call_with_invitation/interal/zim/call_data_manager.dart';
 import 'package:call_with_invitation/zego_sdk_manager.dart';
 import 'package:call_with_invitation/zego_user_Info.dart';
 import 'package:flutter/material.dart';
 import 'package:zego_express_engine/zego_express_engine.dart';
-import '../interal/express/zego_express_service_defines.dart';
+import 'package:call_with_invitation/interal/express/zego_express_service_defines.dart';
+import 'package:call_with_invitation/interal/zim/zim_service_defines.dart';
 
 class CallingPage extends StatefulWidget {
   const CallingPage({required this.callData, required this.otherUserInfo, super.key});
@@ -36,13 +36,13 @@ class _CallingPageState extends State<CallingPage> {
     super.initState();
 
     subscriptions.addAll([
-      ZegoSDKManager.instance.expressService.core.streamListUpdateStreamCtrl.stream.listen(onStreamListUpdate),
-      ZegoSDKManager.instance.expressService.core.roomUserListUpdateStreamCtrl.stream.listen(onRoomUserListUpdate)
+      ZegoSDKManager.instance.expressService.streamListUpdateStreamCtrl.stream.listen(onStreamListUpdate),
+      ZegoSDKManager.instance.expressService.roomUserListUpdateStreamCtrl.stream.listen(onRoomUserListUpdate)
     ]);
 
     ZegoSDKManager.instance.expressService.joinRoom(widget.callData.callID).then((ZegoRoomLoginResult joinRoomResult) {
       if (joinRoomResult.errorCode == 0) {
-        ZegoSDKManager.instance.expressService.core.startPublishingStream();
+        ZegoSDKManager.instance.expressService.startPublishingStream();
         ZegoSDKManager.instance.turnMicrophoneOn(micIsOn);
         ZegoSDKManager.instance.setAudioOutputToSpeaker(isSpeaker);
         if (widget.callData.callType == ZegoCallType.voice) {
@@ -51,7 +51,7 @@ class _CallingPageState extends State<CallingPage> {
           ZegoSDKManager.instance.useFrontFacingCamera(isFacingCamera);
         } else {
           ZegoSDKManager.instance.expressService.turnCameraOn(cameraIsOn);
-          ZegoSDKManager.instance.expressService.core.startPreview();
+          ZegoSDKManager.instance.expressService.startPreview();
         }
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -70,8 +70,8 @@ class _CallingPageState extends State<CallingPage> {
     for (String streamID in streamIDList) {
       ZegoSDKManager.instance.expressService.stopPlayingStream(streamID);
     }
-    ZegoSDKManager.instance.expressService.core.stopPreview();
-    ZegoSDKManager.instance.expressService.core.stopPublishingStream();
+    ZegoSDKManager.instance.expressService.stopPreview();
+    ZegoSDKManager.instance.expressService.stopPublishingStream();
     ZegoSDKManager.instance.expressService.leaveRoom(widget.callData.callID);
     super.dispose();
   }

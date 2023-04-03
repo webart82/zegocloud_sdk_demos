@@ -35,8 +35,8 @@ class _ZegoCancelButtonState extends State<ZegoCancelButton> {
 
   @override
   Widget build(BuildContext context) {
-    final containerSize = widget.buttonSize ?? Size(96, 96);
-    final sizeBoxSize = widget.iconSize ?? Size(56, 56);
+    final containerSize = widget.buttonSize ?? const Size(96, 96);
+    final sizeBoxSize = widget.iconSize ?? const Size(56, 56);
 
     return GestureDetector(
       onTap: () {
@@ -49,13 +49,13 @@ class _ZegoCancelButtonState extends State<ZegoCancelButton> {
         height: containerSize.height,
         decoration: BoxDecoration(
           color: widget.icon?.backgroundColor ??
-              Color(0xff2C2F3E).withOpacity(0.6),
+              const Color(0xff2C2F3E).withOpacity(0.6),
           shape: BoxShape.circle,
         ),
         child: SizedBox.fromSize(
           size: sizeBoxSize,
           child: widget.icon?.icon ??
-              Image(
+              const Image(
                   image: AssetImage('assets/icons/toolbar_bottom_cancel.png')),
         ),
       ),

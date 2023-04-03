@@ -1,6 +1,19 @@
 import 'package:flutter/services.dart';
 import 'package:zego_zim/zego_zim.dart';
-import 'zim_service_enum.dart';
+
+enum ZegoCallUserState {
+  inviting,
+  accepted,
+  rejected,
+  cancelled,
+  offline,
+  received,
+}
+
+enum ZegoCallType {
+  voice,
+  video,
+}
 
 class ZegoSendInvitationResult {
   const ZegoSendInvitationResult({
@@ -105,7 +118,6 @@ class ZIMTimeOutCallEvent {
 }
 
 class ZIMAnswerTimeOutCallEvent {
-
   final String callID;
   final List<String> invitees;
 
@@ -113,7 +125,6 @@ class ZIMAnswerTimeOutCallEvent {
 }
 
 class ZIMConnectionStateChangeEvent {
-
   final ZIMConnectionState state;
   final ZIMConnectionEvent event;
 

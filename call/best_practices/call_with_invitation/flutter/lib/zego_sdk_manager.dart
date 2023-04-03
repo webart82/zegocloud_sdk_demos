@@ -1,4 +1,3 @@
-import 'package:call_with_invitation/interal/zim/zim_service_enum.dart';
 import 'package:call_with_invitation/zego_user_Info.dart';
 import 'package:flutter/material.dart';
 import 'package:zego_express_engine/zego_express_engine.dart';
@@ -13,7 +12,7 @@ class ZegoSDKManager {
 
   ZegoExpressService expressService = ZegoExpressService.instance;
   ZIMService zimService = ZIMService.instance;
-  ZegoUserInfo localUser = ZegoExpressService.instance.core.localUser;
+  ZegoUserInfo get localUser => ZegoExpressService.instance.localUser;
 
   Future<void> init(int appID, String appSign) async {
     await expressService.init(appID: appID, appSign: appSign);
@@ -46,14 +45,14 @@ class ZegoSDKManager {
   }
 
   void startPlayingStream(String streamID) {
-    expressService.core.startPlayingStream(streamID);
+    expressService.startPlayingStream(streamID);
   }
 
   ValueNotifier<Widget?> getVideoViewNotifier(String? userID) {
-    if (userID == null || userID == expressService.core.localUser.userID) {
-      return expressService.core.localVideoView;
+    if (userID == null || userID == expressService.localUser.userID) {
+      return expressService.localVideoView;
     } else {
-      return expressService.core.remoteVideoView;
+      return expressService.remoteVideoView;
     }
   }
 

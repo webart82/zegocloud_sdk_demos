@@ -1,16 +1,34 @@
 import 'dart:async';
 
-import 'zego_express_service_event.dart';
-import 'zego_express_service_core.dart';
+import 'package:flutter/cupertino.dart';
+
+import '../../zego_user_Info.dart';
 
 import 'package:zego_express_engine/zego_express_engine.dart';
 
-class ZegoExpressService with ZegoExpressServiceEvent {
+import 'zego_express_service_defines.dart';
+
+class ZegoExpressService {
   ZegoExpressService._internal();
 
   static final ZegoExpressService instance = ZegoExpressService._internal();
 
-  ZegoExpressServiceCore core = ZegoExpressServiceCore();
+  StreamController<ZegoCameraStateChangeEvent> cameraStateUpdateStreamCtrl =
+      StreamController<ZegoCameraStateChangeEvent>.broadcast();
+  StreamController<ZegoMicrophoneStateChangeEvent> microphoneStateUpdateStreamCtrl =
+      StreamController<ZegoMicrophoneStateChangeEvent>.broadcast();
+  StreamController<ZegoRoomUserListUpdateEvent> roomUserListUpdateStreamCtrl =
+      StreamController<ZegoRoomUserListUpdateEvent>.broadcast();
+  StreamController<ZegoRoomStreamListUpdateEvent> streamListUpdateStreamCtrl =
+      StreamController<ZegoRoomStreamListUpdateEvent>.broadcast();
+
+  ZegoUserInfo localUser = ZegoUserInfo(userID: '', userName: '');
+  String room = '';
+
+  ValueNotifier<Widget?> localVideoView = ValueNotifier<Widget?>(null);
+  int localViewID = 0;
+  ValueNotifier<Widget?> remoteVideoView = ValueNotifier<Widget?>(null);
+  int remoteViewID = 0;
 
   bool isInit = false;
 
@@ -38,17 +56,34 @@ class ZegoExpressService with ZegoExpressServiceEvent {
   }
 
   Future<void> connectUser(String id, String name) async {
-    await core.connectUser(id, name);
+    localUser
+      ..userID = id
+      ..userName = name;
+  }
+
+  Future<void> disConnectUser(String id, String name) async {
+    localUser
+      ..userID = ''
+      ..userName = '';
+  }
+
+  Future<void> startPublishingStream() async {
+    String streamID = "${room}_${localUser.userID}";
+    ZegoExpressEngine.instance.startPublishingStream(streamID);
+  }
+
+  Future<void> stopPublishingStream() async {
+    ZegoExpressEngine.instance.stopPublishingStream();
   }
 
   Future<ZegoRoomLoginResult> joinRoom(String roomID) async {
     final joinRoomResult = await ZegoExpressEngine.instance.loginRoom(
       roomID,
-      ZegoUser(core.localUser.userID, core.localUser.userName),
+      ZegoUser(localUser.userID, localUser.userName),
       config: ZegoRoomConfig(0, true, ''),
     );
     if (joinRoomResult.errorCode == 0) {
-      core.room = roomID;
+      room = roomID;
     }
     return joinRoomResult;
   }
@@ -56,10 +91,11 @@ class ZegoExpressService with ZegoExpressServiceEvent {
   Future<ZegoRoomLogoutResult> leaveRoom(String roomID) async {
     final leaveResult = await ZegoExpressEngine.instance.logoutRoom(roomID);
     if (leaveResult.errorCode == 0) {
-      core.room = '';
-      core.localVideoView.value = null;
-      core.remoteVideoView.value = null;
-      core.stopPreview();
+      room = '';
+      localVideoView.value = null;
+      remoteVideoView.value = null;
+      localViewID = 0;
+      await ZegoExpressEngine.instance.stopPreview();
     }
     return leaveResult;
   }
@@ -87,10 +123,76 @@ class ZegoExpressService with ZegoExpressServiceEvent {
   }
 
   Future<void> startPlayingStream(String streamID) async {
-    await core.startPlayingStream(streamID);
+    remoteVideoView.value = await ZegoExpressEngine.instance.createCanvasView((viewID) => {
+          remoteViewID = viewID,
+        });
+    ZegoCanvas canvas = ZegoCanvas(remoteViewID, viewMode: ZegoViewMode.AspectFill);
+    ZegoExpressEngine.instance.startPlayingStream(streamID, canvas: canvas);
   }
 
   void stopPlayingStream(String streamID) async {
-    core.stopPlayingStream(streamID);
+    ZegoExpressEngine.instance.stopPlayingStream(streamID);
   }
+
+  Future<void> startPreview() async {
+    localVideoView.value = await ZegoExpressEngine.instance.createCanvasView((viewID) {
+      localViewID = viewID;
+    });
+
+    final previewCanvas = ZegoCanvas(
+      localViewID,
+      viewMode: ZegoViewMode.AspectFill,
+    );
+
+    await ZegoExpressEngine.instance.startPreview(canvas: previewCanvas);
+  }
+
+  Future<void> stopPreview() async {
+    localVideoView.value = null;
+    localViewID = 0;
+    await ZegoExpressEngine.instance.stopPreview();
+  }
+
+  void uninitEventHandle() {
+    ZegoExpressEngine.onRoomStreamUpdate = null;
+    ZegoExpressEngine.onRoomUserUpdate = null;
+    ZegoExpressEngine.onRemoteCameraStateUpdate = null;
+    ZegoExpressEngine.onRemoteMicStateUpdate = null;
+    ZegoExpressEngine.onRoomStateChanged = null;
+  }
+
+  void initEventHandle() {
+    ZegoExpressEngine.onRoomStreamUpdate = ZegoExpressService.instance.onRoomStreamUpdate;
+    ZegoExpressEngine.onRoomUserUpdate = ZegoExpressService.instance.onRoomUserUpdate;
+    ZegoExpressEngine.onRemoteCameraStateUpdate = ZegoExpressService.instance.onRemoteCameraStateUpdate;
+    ZegoExpressEngine.onRemoteMicStateUpdate = ZegoExpressService.instance.onRemoteMicStateUpdate;
+    ZegoExpressEngine.onRoomStateChanged = ZegoExpressService.instance.onRoomStateChanged;
+  }
+
+  Future<void> onRoomStreamUpdate(
+      String roomID, ZegoUpdateType updateType, List<ZegoStream> streamList, Map<String, dynamic> extendedData) async {
+    for (ZegoStream stream in streamList) {
+      if (updateType == ZegoUpdateType.Add) {
+        startPlayingStream(stream.streamID);
+      } else {
+        stopPlayingStream(stream.streamID);
+      }
+    }
+    streamListUpdateStreamCtrl.add(ZegoRoomStreamListUpdateEvent(roomID, updateType, streamList, extendedData));
+  }
+
+  void onRoomUserUpdate(String roomID, ZegoUpdateType updateType, List<ZegoUser> userList) {
+    roomUserListUpdateStreamCtrl.add(ZegoRoomUserListUpdateEvent(roomID, updateType, userList));
+  }
+
+  void onRemoteCameraStateUpdate(String streamID, ZegoRemoteDeviceState state) {
+    cameraStateUpdateStreamCtrl.add(ZegoCameraStateChangeEvent(state));
+  }
+
+  void onRemoteMicStateUpdate(String streamID, ZegoRemoteDeviceState state) {
+    microphoneStateUpdateStreamCtrl.add(ZegoMicrophoneStateChangeEvent(state));
+  }
+
+  void onRoomStateChanged(
+      String roomID, ZegoRoomStateChangedReason reason, int errorCode, Map<String, dynamic> extendedData) {}
 }

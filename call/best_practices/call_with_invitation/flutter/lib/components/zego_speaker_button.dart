@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'zego_defines.dart';
@@ -38,8 +37,8 @@ class _ZegoSpeakerButtonState extends State<ZegoSpeakerButton> {
 
   @override
   Widget build(BuildContext context) {
-    final containerSize = widget.buttonSize ?? Size(96, 96);
-    final sizeBoxSize = widget.iconSize ?? Size(56, 56);
+    final containerSize = widget.buttonSize ?? const Size(96, 96);
+    final sizeBoxSize = widget.iconSize ?? const Size(56, 56);
 
     return ValueListenableBuilder<bool>(
         valueListenable: speakerStateNoti,
@@ -55,16 +54,18 @@ class _ZegoSpeakerButtonState extends State<ZegoSpeakerButton> {
               width: containerSize.width,
               height: containerSize.height,
               decoration: BoxDecoration(
-                color: speakerState ? Colors.white : Color.fromARGB(255, 51, 52, 56).withOpacity(0.6),
+                color: speakerState
+                    ? Colors.white
+                    : const Color.fromARGB(255, 51, 52, 56).withOpacity(0.6),
                 shape: BoxShape.circle,
               ),
               child: SizedBox.fromSize(
                 size: sizeBoxSize,
                 child: speakerState
-                    ? Image(
+                    ? const Image(
                         image:
                             AssetImage('assets/icons/toolbar_speaker_off.png'))
-                    : Image(
+                    : const Image(
                         image: AssetImage(
                             'assets/icons/toolbar_speaker_normal.png')),
               ),

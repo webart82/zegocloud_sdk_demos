@@ -11,13 +11,13 @@ This doc will introduce how to implement the call invitation feature in the call
 Before you begin, make sure you complete the following:
 
 - Complete SDK integration and basic calling functions by referring to [Quick start\|_blank](!Quick_start_Integrate_Implementation).
-- Download the [demo\|_blank](https://github.com/ZEGOCLOUD/zegocloud_sdk_demos/blob/main/call/advanced_features/call_with_invitation/android/) that comes with this doc.
+- Download the [demo\|_blank](https://github.com/ZEGOCLOUD/zegocloud_sdk_demos/blob/main/call/best_practices/call_with_invitation/android/) that comes with this doc.
 - Subscribe to the **In-app Chat** service.
 ![/Pics/InappChat/ActivateZIMinConsole2.png](https://storage.zego.im/sdk-doc/Pics/InappChat/ActivateZIMinConsole2.png)
 
 ## Preview the effect
 
-You can achieve the following effect with the [demo\|_blank](https://github.com/ZEGOCLOUD/zegocloud_sdk_demos/blob/main/call/advanced_features/call_with_invitation/android/) provided in this doc: 
+You can achieve the following effect with the [demo\|_blank](https://github.com/ZEGOCLOUD/zegocloud_sdk_demos/blob/main/call/best_practices/call_with_invitation/android/) provided in this doc: 
 
 |Home Page|Incoming Call Dialog|Waiting Page|Calling Page|
 |--- | --- | --- |--- |
@@ -177,7 +177,7 @@ If your app has direct calls to SDKs everywhere, it can make the code difficult 
 
 1. Create a wrapper layer for each SDK so that you can reuse the code to the greatest extent possible.
 
-Create a `ZIMService` class for the `zim sdk`, which manages the interaction with the SDK and stores the necessary data. Please refer to the complete code in [ZIMService.java\|_blank](https://github.com/ZEGOCLOUD/zegocloud_sdk_demos/blob/main/call/advanced_features/call_with_invitation/android/app/src/main/java/com/zegocloud/demo/callwithinvitation/internal/ZIMService.java).
+Create a `ZIMService` class for the `zim sdk`, which manages the interaction with the SDK and stores the necessary data. Please refer to the complete code in [ZIMService.java\|_blank](https://github.com/ZEGOCLOUD/zegocloud_sdk_demos/blob/main/call/best_practices/call_with_invitation/android/app/src/main/java/com/zegocloud/demo/callwithinvitation/internal/ZIMService.java).
 ```java
 public class ZIMService {
     private ZIM zim;
@@ -204,7 +204,7 @@ public class ZIMService {
 ```
 
 
-Similarly, create an `ExpressService` class for the `zego_express_engine sdk`, which manages the interaction with the SDK and stores the necessary data. Please refer to the complete code in [ExpressService.java\|_blank](https://github.com/ZEGOCLOUD/zegocloud_sdk_demos/blob/main/call/advanced_features/call_with_invitation/android/app/src/main/java/com/zegocloud/demo/callwithinvitation/internal/ExpressService.java).
+Similarly, create an `ExpressService` class for the `zego_express_engine sdk`, which manages the interaction with the SDK and stores the necessary data. Please refer to the complete code in [ExpressService.java\|_blank](https://github.com/ZEGOCLOUD/zegocloud_sdk_demos/blob/main/call/best_practices/call_with_invitation/android/app/src/main/java/com/zegocloud/demo/callwithinvitation/internal/ExpressService.java).
 
 ```java
 public class ExpressService {
@@ -257,7 +257,7 @@ public class ZIMService {
 
 </details>
 
-2. After completing the service encapsulation, you can further simplify the code by creating a `ZEGOSDKManager` to manage these services, as shown below. Please refer to the complete code in [ZEGOSDKManager.java\|_blank](https://github.com/ZEGOCLOUD/zegocloud_sdk_demos/blob/main/call/advanced_features/call_with_invitation/android/app/src/main/java/com/zegocloud/demo/callwithinvitation/ZEGOSDKManager.java#L25).
+2. After completing the service encapsulation, you can further simplify the code by creating a `ZEGOSDKManager` to manage these services, as shown below. Please refer to the complete code in [ZEGOSDKManager.java\|_blank](https://github.com/ZEGOCLOUD/zegocloud_sdk_demos/blob/main/call/best_practices/call_with_invitation/android/app/src/main/java/com/zegocloud/demo/callwithinvitation/ZEGOSDKManager.java#L25).
 
 ```java
 public class ZEGOSDKManager {
@@ -299,7 +299,7 @@ When the caller initiates a call, not only specifying the callee, but also passi
 
 The `ZIMCallInviteConfig` parameter of the `callInvite` method allows for passing a string type of extended information `extendedData`. This extended information will be passed to the callee. You can use this method to allow the caller to pass any information to the callee. 
 
-In the example demo of this solution, you will use the `CallInviteExtendedData` type to define the `extendedData` of the call invitation, and you need to convert it to a string in JSON format and pass it to the callee when initiating the call. (See [complete source code\|_blank](https://github.com/ZEGOCLOUD/zegocloud_sdk_demos/blob/main/call/advanced_features/call_with_invitation/android/app/src/main/java/com/zegocloud/demo/callwithinvitation/call/internal/CallInviteExtendedData.java)). The `CallInviteExtendedData` includes the call type and the name of the caller.
+In the example demo of this solution, you will use the `CallInviteExtendedData` type to define the `extendedData` of the call invitation, and you need to convert it to a string in JSON format and pass it to the callee when initiating the call. (See [complete source code\|_blank](https://github.com/ZEGOCLOUD/zegocloud_sdk_demos/blob/main/call/best_practices/call_with_invitation/android/app/src/main/java/com/zegocloud/demo/callwithinvitation/call/internal/CallInviteExtendedData.java)). The `CallInviteExtendedData` includes the call type and the name of the caller.
 
 ```java
 public class CallInviteExtendedData {
@@ -315,7 +315,7 @@ public class CallInviteExtendedData {
 
 2. Implement call waiting page
 
-As a caller, after initiating the call, you will enter the call waiting page, where you can listen to the status changes of the call. See [complete source code\|_blank](https://github.com/ZEGOCLOUD/zegocloud_sdk_demos/blob/main/call/advanced_features/call_with_invitation/android/app/src/main/java/com/zegocloud/demo/callwithinvitation/call/CallWaitingActivity.java) for details. The key code is as follows:
+As a caller, after initiating the call, you will enter the call waiting page, where you can listen to the status changes of the call. See [complete source code\|_blank](https://github.com/ZEGOCLOUD/zegocloud_sdk_demos/blob/main/call/best_practices/call_with_invitation/android/app/src/main/java/com/zegocloud/demo/callwithinvitation/call/CallWaitingActivity.java) for details. The key code is as follows:
 
 ```java
 public class CallWaitingActivity extends AppCompatActivity {
@@ -474,7 +474,7 @@ When the callee receives a call invitation, they will receive the callback notif
 - If the callee is not in the busy state: the `IncomingCallDialog` will be triggered to let the callee decide whether to accept or reject the call.
 - If the callee is in the busy state: the invitation will be automatically rejected, and the caller will be informed that the callee is in the busy state.
 
-For details, see [complete source code\|_blank](https://github.com/ZEGOCLOUD/zegocloud_sdk_demos/blob/main/call/advanced_features/call_with_invitation/android/app/src/main/java/com/zegocloud/demo/callwithinvitation/call/CallBackgroundService.java#L31). The key code is as follows:
+For details, see [complete source code\|_blank](https://github.com/ZEGOCLOUD/zegocloud_sdk_demos/blob/main/call/best_practices/call_with_invitation/android/app/src/main/java/com/zegocloud/demo/callwithinvitation/call/CallBackgroundService.java#L31). The key code is as follows:
 
 ```java
 public void onIncomingCallInvitationReceived(String callID, String userID, String extendedData) {
@@ -507,7 +507,7 @@ public void onIncomingCallInvitationReceived(String callID, String userID, Strin
 
 2. When the callee wants to accept the call invite: after the `IncomingCallDialog` pops up, when the **accept button** is clicked, `callAccept` method will be called and will enter the `CallingPage`.
 
-For details, see [complete source code\|_blank](https://github.com/ZEGOCLOUD/zegocloud_sdk_demos/blob/main/call/advanced_features/call_with_invitation/android/app/src/main/java/com/zegocloud/demo/callwithinvitation/call/IncomingCallDialog.java#L100). The key code is as follows:
+For details, see [complete source code\|_blank](https://github.com/ZEGOCLOUD/zegocloud_sdk_demos/blob/main/call/best_practices/call_with_invitation/android/app/src/main/java/com/zegocloud/demo/callwithinvitation/call/IncomingCallDialog.java#L100). The key code is as follows:
 
 ```java
 public class IncomingCallDialog extends AppCompatActivity {
@@ -545,7 +545,7 @@ public class IncomingCallDialog extends AppCompatActivity {
 
 3. When the callee wants to reject the call invite: after the `IncomingCallDialog` pops up, when the **reject button** is clicked, `callReject` method will be called.
 
-For details, see [complete source code\|_blank](https://github.com/ZEGOCLOUD/zegocloud_sdk_demos/blob/main/call/advanced_features/call_with_invitation/android/app/src/main/java/com/zegocloud/demo/callwithinvitation/call/IncomingCallDialog.java#L123). The key code is as follows:
+For details, see [complete source code\|_blank](https://github.com/ZEGOCLOUD/zegocloud_sdk_demos/blob/main/call/best_practices/call_with_invitation/android/app/src/main/java/com/zegocloud/demo/callwithinvitation/call/IncomingCallDialog.java#L123). The key code is as follows:
 
 
 ```java
@@ -574,7 +574,7 @@ public class IncomingCallDialog extends AppCompatActivity {
 
 4. When the callee doesn't respond: after the `IncomingCallDialog` pops up, if the call invitation times out due to the callee's lack of response, the `IncomingCallDialog` needs to disappear.
 
-For details, see [complete source code\|_blank](https://github.com/ZEGOCLOUD/zegocloud_sdk_demos/blob/main/call/advanced_features/call_with_invitation/android/app/src/main/java/com/zegocloud/demo/callwithinvitation/call/IncomingCallDialog.java). The key code is as follows:
+For details, see [complete source code\|_blank](https://github.com/ZEGOCLOUD/zegocloud_sdk_demos/blob/main/call/best_practices/call_with_invitation/android/app/src/main/java/com/zegocloud/demo/callwithinvitation/call/IncomingCallDialog.java). The key code is as follows:
 
 
 ```java
@@ -660,7 +660,7 @@ ZEGOSDKManager.getInstance().setBusy(isBusy);
 
 2. Then, when receiving a call invitation, check whether the callee is in a busy state. If so, reject the call invitation directly and inform the caller that the call was rejected due to being busy.
 
-For details, see [complete source code\|_blank](https://github.com/ZEGOCLOUD/zegocloud_sdk_demos/blob/main/call/advanced_features/call_with_invitation/android/app/src/main/java/com/zegocloud/demo/callwithinvitation/internal/ZIMService.java#L211). The key code is as follows:
+For details, see [complete source code\|_blank](https://github.com/ZEGOCLOUD/zegocloud_sdk_demos/blob/main/call/best_practices/call_with_invitation/android/app/src/main/java/com/zegocloud/demo/callwithinvitation/internal/ZIMService.java#L211). The key code is as follows:
 
 ```java
 public void autoRejectCallInviteCauseBusy(String callID, ZIMCallRejectionSentCallback callback) {
@@ -684,7 +684,7 @@ public void autoRejectCallInviteCauseBusy(String callID, ZIMCallRejectionSentCal
 ### Start the call 
 
 After the callee accepts the call invitation, the caller will receive the callback notification via `onCallInvitationAccepted`, and both parties can start the call. 
-You can refer to the implementation of the call page in [Quick start\|_blank](!ExpressVideoSDK-Quick_start_Integrate_Implementation), or you can directly refer to the demo's [sample code\|_blank](https://github.com/ZEGOCLOUD/zegocloud_sdk_demos/blob/main/call/advanced_features/call_with_invitation/android/app/src/main/java/com/zegocloud/demo/callwithinvitation/call/CallingActivity.java) included in this doc.
+You can refer to the implementation of the call page in [Quick start\|_blank](!ExpressVideoSDK-Quick_start_Integrate_Implementation), or you can directly refer to the demo's [sample code\|_blank](https://github.com/ZEGOCLOUD/zegocloud_sdk_demos/blob/main/call/best_practices/call_with_invitation/android/app/src/main/java/com/zegocloud/demo/callwithinvitation/call/CallingActivity.java) included in this doc.
 
 > In this demo, we use `callID` as the `roomID` for `zego_express_sdk`.
 > For information on `roomID`, refer to [Key concepts\|_blank](!ExpressVideoSDK-VideoCall_Reference_KeyConcepts).

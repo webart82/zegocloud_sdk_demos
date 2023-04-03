@@ -35,8 +35,8 @@ class _ZegoSwitchCameraButtonState extends State<ZegoSwitchCameraButton> {
 
   @override
   Widget build(BuildContext context) {
-    final containerSize = widget.buttonSize ?? Size(96, 96);
-    final sizeBoxSize = widget.iconSize ?? Size(56, 56);
+    final containerSize = widget.buttonSize ?? const Size(96, 96);
+    final sizeBoxSize = widget.iconSize ?? const Size(56, 56);
 
     return GestureDetector(
       onTap: () {
@@ -49,13 +49,14 @@ class _ZegoSwitchCameraButtonState extends State<ZegoSwitchCameraButton> {
         height: containerSize.height,
         decoration: BoxDecoration(
           color: widget.icon?.backgroundColor ??
-              Color(0xff2C2F3E).withOpacity(0.6),
+              const Color(0xff2C2F3E).withOpacity(0.6),
           shape: BoxShape.circle,
         ),
         child: SizedBox.fromSize(
           size: sizeBoxSize,
           child: widget.icon?.icon ??
-              Image(image: AssetImage('assets/icons/toolbar_flip_camera.png')),
+              const Image(
+                  image: AssetImage('assets/icons/toolbar_flip_camera.png')),
         ),
       ),
     );

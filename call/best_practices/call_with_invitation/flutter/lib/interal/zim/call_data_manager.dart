@@ -1,5 +1,6 @@
-import 'package:call_with_invitation/interal/zim/zim_service_enum.dart';
 import 'package:call_with_invitation/zego_user_Info.dart';
+
+import 'zim_service_defines.dart';
 
 class ZegoCallDataManager {
   ZegoCallDataManager._internal();

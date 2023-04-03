@@ -1,17 +1,17 @@
 import 'package:call_with_invitation/components/zego_accept_button.dart';
 import 'package:call_with_invitation/components/zego_defines.dart';
 import 'package:call_with_invitation/components/zego_refuse_button.dart';
-import 'package:call_with_invitation/interal/zim/zim_service_call_data_manager.dart';
-import 'package:call_with_invitation/interal/zim/zim_service_enum.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:call_with_invitation/interal/zim/call_data_manager.dart';
+import 'package:call_with_invitation/interal/zim/zim_service_defines.dart';
 import 'package:flutter/material.dart';
 
 class ZegoCallInvitationDialog extends StatefulWidget {
-  const ZegoCallInvitationDialog(
-      {required this.invitationData,
-      this.onRefuseCallback,
-      this.onAcceptCallback,
-      super.key});
+  const ZegoCallInvitationDialog({
+    required this.invitationData,
+    this.onRefuseCallback,
+    this.onAcceptCallback,
+    super.key,
+  });
 
   final ZegoCallData invitationData;
 
@@ -100,10 +100,11 @@ class ZegoCallInvitationDialogState extends State<ZegoCallInvitationDialog> {
       child: ZegoAcceptButton(
         icon: (widget.invitationData.callType == ZegoCallType.video)
             ? ButtonIcon(
-                icon: const Image(image: AssetImage('assets/icons/invite_video.png')))
+                icon: const Image(
+                    image: AssetImage('assets/icons/invite_video.png')))
             : ButtonIcon(
-                icon:
-                    const Image(image: AssetImage('assets/icons/invite_voice.png'))),
+                icon: const Image(
+                    image: AssetImage('assets/icons/invite_voice.png'))),
         iconSize: const Size(40, 40),
         onPressed: () {
           widget.onAcceptCallback!();

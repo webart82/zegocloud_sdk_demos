@@ -5,11 +5,10 @@ import 'utils/permission.dart';
 import 'dart:async';
 import 'call/calling_page.dart';
 import 'interal/zim/zim_service_defines.dart';
-import 'interal/zim/zim_service_enum.dart';
 import 'zego_sdk_manager.dart';
 import 'zego_user_Info.dart';
 import 'components/zego_call_invitation_dialog.dart';
-import 'interal/zim/zim_service_call_data_manager.dart';
+import 'interal/zim/call_data_manager.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({Key? key, required this.localUserID, required this.localUserName}) : super(key: key);
@@ -89,6 +88,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
     final ZegoSendInvitationResult result = await ZegoSDKManager.instance
         .sendInvitation(invitees: [myController.text], callType: callType, extendedData: extendedData);
+
     if (result.error == null || result.error?.code == '0') {
       if (result.errorInvitees.containsKey(myController.text)) {
         ZegoCallDataManager.instance.clear();
@@ -96,6 +96,13 @@ class _MyHomePageState extends State<MyHomePage> {
           SnackBar(content: Text('user is not online: $result')),
         );
       } else {
+        ZegoCallDataManager.instance.createCall(
+          result.invitationID,
+          ZegoUserInfo(userID: widget.localUserID, userName: widget.localUserName),
+          ZegoUserInfo(userID: myController.text, userName: ''),
+          ZegoCallUserState.inviting,
+          callType,
+        );
         pushToCallWaitingPage();
       }
     } else {
