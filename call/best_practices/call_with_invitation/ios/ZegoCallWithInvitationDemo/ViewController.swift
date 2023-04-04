@@ -6,7 +6,7 @@
 //
 
 import UIKit
-import Toast_Swift
+import Toast
 import ZIM
 
 class ViewController: UIViewController {
