@@ -40,7 +40,7 @@ class _CallingPageState extends State<CallingPage> {
       ZEGOSDKManager.instance.expressService.roomUserListUpdateStreamCtrl.stream.listen(onRoomUserListUpdate)
     ]);
 
-    ZEGOSDKManager.instance.expressService.joinRoom(widget.callData.callID).then((ZegoRoomLoginResult joinRoomResult) {
+    ZEGOSDKManager.instance.expressService.loginRoom(widget.callData.callID).then((ZegoRoomLoginResult joinRoomResult) {
       if (joinRoomResult.errorCode == 0) {
         ZEGOSDKManager.instance.expressService.startPublishingStream();
         ZEGOSDKManager.instance.expressService.turnMicrophoneOn(micIsOn);
@@ -66,13 +66,13 @@ class _CallingPageState extends State<CallingPage> {
     for (final subscription in subscriptions) {
       subscription?.cancel();
     }
-    ZegoCallDataManager.instance.clear();
+    ZegoCallStateManager.instance.clear();
     for (String streamID in streamIDList) {
       ZEGOSDKManager.instance.expressService.stopPlayingStream(streamID);
     }
     ZEGOSDKManager.instance.expressService.stopPreview();
     ZEGOSDKManager.instance.expressService.stopPublishingStream();
-    ZEGOSDKManager.instance.expressService.leaveRoom(widget.callData.callID);
+    ZEGOSDKManager.instance.expressService.logoutRoom(widget.callData.callID);
     super.dispose();
   }
 

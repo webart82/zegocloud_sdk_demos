@@ -3,8 +3,8 @@ import 'package:flutter/cupertino.dart';
 import 'zego_defines.dart';
 
 /// switch cameras
-class ZegoRefuseButton extends StatefulWidget {
-  const ZegoRefuseButton({
+class ZegoRejectButton extends StatefulWidget {
+  const ZegoRejectButton({
     Key? key,
     this.onPressed,
     this.icon,
@@ -24,10 +24,10 @@ class ZegoRefuseButton extends StatefulWidget {
   final Size? buttonSize;
 
   @override
-  State<ZegoRefuseButton> createState() => _ZegoRefuseButtonState();
+  State<ZegoRejectButton> createState() => _ZegoRejectButtonState();
 }
 
-class _ZegoRefuseButtonState extends State<ZegoRefuseButton> {
+class _ZegoRejectButtonState extends State<ZegoRejectButton> {
   @override
   void initState() {
     super.initState();
@@ -48,14 +48,12 @@ class _ZegoRefuseButtonState extends State<ZegoRefuseButton> {
         width: containerSize.width,
         height: containerSize.height,
         decoration: BoxDecoration(
-          color: widget.icon?.backgroundColor ??
-              const Color(0xff2C2F3E).withOpacity(0.6),
+          color: widget.icon?.backgroundColor ?? const Color(0xff2C2F3E).withOpacity(0.6),
           shape: BoxShape.circle,
         ),
         child: SizedBox.fromSize(
           size: sizeBoxSize,
-          child: widget.icon?.icon ??
-              const Image(image: AssetImage('assets/icons/invite_reject.png')),
+          child: widget.icon?.icon ?? const Image(image: AssetImage('assets/icons/invite_reject.png')),
         ),
       ),
     );

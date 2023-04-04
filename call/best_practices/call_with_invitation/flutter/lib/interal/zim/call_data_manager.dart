@@ -2,10 +2,10 @@ import 'package:call_with_invitation/zego_user_Info.dart';
 
 import 'zim_service_defines.dart';
 
-class ZegoCallDataManager {
-  ZegoCallDataManager._internal();
-  static final ZegoCallDataManager instance = ZegoCallDataManager._internal();
-  ZegoCallDataManager({this.callData});
+class ZegoCallStateManager {
+  ZegoCallStateManager._internal();
+  static final ZegoCallStateManager instance = ZegoCallStateManager._internal();
+  ZegoCallStateManager({this.callData});
 
   ZegoCallData? callData;
 
@@ -19,6 +19,8 @@ class ZegoCallDataManager {
   void updateCall(String callID, ZegoCallUserState state) {
     if (callID.isNotEmpty && callID == callData?.callID) {
       callData?.state = state;
+    } else {
+      assert(false, 'callID is not match, curent:${callData!.callID}, new:$callID');
     }
   }
 

@@ -79,54 +79,54 @@ class ZegoLeaveRoomResult {
   String toString() => '{error: $error}';
 }
 
-class ZIMReveiveCallEvent {
+class IncomingCallInvitationReveivedEvent {
   final String inviter;
   final String extendedData;
   final String callID;
 
-  ZIMReveiveCallEvent(this.callID, this.inviter, this.extendedData);
+  IncomingCallInvitationReveivedEvent(this.callID, this.inviter, this.extendedData);
 }
 
-class ZIMAcceptCallEvent {
+class OutgoingCallInvitationAcceptedEvent {
   final String invitee;
   final String extendedData;
   final String callID;
 
-  ZIMAcceptCallEvent(this.callID, this.invitee, this.extendedData);
+  OutgoingCallInvitationAcceptedEvent(this.callID, this.invitee, this.extendedData);
 }
 
-class ZIMCancelCallEvent {
+class IncomingCallInvitationCanceledEvent {
   final String inviter;
   final String extendedData;
   final String callID;
 
-  ZIMCancelCallEvent(this.callID, this.inviter, this.extendedData);
+  IncomingCallInvitationCanceledEvent(this.callID, this.inviter, this.extendedData);
 }
 
-class ZIMRejectCallEvent {
+class OutgoingCallInvitationRejectedEvent {
   final String invitee;
   final String extendedData;
   final String callID;
 
-  ZIMRejectCallEvent(this.callID, this.invitee, this.extendedData);
+  OutgoingCallInvitationRejectedEvent(this.callID, this.invitee, this.extendedData);
 }
 
-class ZIMTimeOutCallEvent {
+class IncomingCallInvitationTimeoutEvent {
   final String callID;
 
-  ZIMTimeOutCallEvent(this.callID);
+  IncomingCallInvitationTimeoutEvent(this.callID);
 }
 
-class ZIMAnswerTimeOutCallEvent {
+class OutgoingCallInvitationTimeoutEvent {
   final String callID;
   final List<String> invitees;
 
-  ZIMAnswerTimeOutCallEvent(this.callID, this.invitees);
+  OutgoingCallInvitationTimeoutEvent(this.callID, this.invitees);
 }
 
-class ZIMConnectionStateChangeEvent {
+class ZIMServiceConnectionStateChangedEvent {
   final ZIMConnectionState state;
   final ZIMConnectionEvent event;
 
-  ZIMConnectionStateChangeEvent(this.state, this.event);
+  ZIMServiceConnectionStateChangedEvent(this.state, this.event);
 }

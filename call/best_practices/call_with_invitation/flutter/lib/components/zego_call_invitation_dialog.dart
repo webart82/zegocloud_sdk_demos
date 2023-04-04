@@ -1,6 +1,6 @@
 import 'package:call_with_invitation/components/zego_accept_button.dart';
 import 'package:call_with_invitation/components/zego_defines.dart';
-import 'package:call_with_invitation/components/zego_refuse_button.dart';
+import 'package:call_with_invitation/components/zego_reject_button.dart';
 import 'package:call_with_invitation/interal/zim/call_data_manager.dart';
 import 'package:call_with_invitation/interal/zim/zim_service_defines.dart';
 import 'package:flutter/material.dart';
@@ -8,19 +8,18 @@ import 'package:flutter/material.dart';
 class ZegoCallInvitationDialog extends StatefulWidget {
   const ZegoCallInvitationDialog({
     required this.invitationData,
-    this.onRefuseCallback,
+    this.onRejectCallback,
     this.onAcceptCallback,
     super.key,
   });
 
   final ZegoCallData invitationData;
 
-  final Function? onRefuseCallback;
+  final Function? onRejectCallback;
   final Function? onAcceptCallback;
 
   @override
-  ZegoCallInvitationDialogState createState() =>
-      ZegoCallInvitationDialogState();
+  ZegoCallInvitationDialogState createState() => ZegoCallInvitationDialogState();
 }
 
 class ZegoCallInvitationDialogState extends State<ZegoCallInvitationDialog> {
@@ -54,7 +53,7 @@ class ZegoCallInvitationDialogState extends State<ZegoCallInvitationDialog> {
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                refuseButton(),
+                rejectButton(),
                 const SizedBox(width: 40),
                 acceptButton(),
               ],
@@ -80,9 +79,7 @@ class ZegoCallInvitationDialogState extends State<ZegoCallInvitationDialog> {
 
   Widget callTypeText() {
     return Text(
-      widget.invitationData.callType == ZegoCallType.video
-          ? 'video call'
-          : 'voice call',
+      widget.invitationData.callType == ZegoCallType.video ? 'video call' : 'voice call',
       textAlign: TextAlign.left,
       style: const TextStyle(
         fontSize: 16,
@@ -99,12 +96,8 @@ class ZegoCallInvitationDialogState extends State<ZegoCallInvitationDialog> {
       height: 40,
       child: ZegoAcceptButton(
         icon: (widget.invitationData.callType == ZegoCallType.video)
-            ? ButtonIcon(
-                icon: const Image(
-                    image: AssetImage('assets/icons/invite_video.png')))
-            : ButtonIcon(
-                icon: const Image(
-                    image: AssetImage('assets/icons/invite_voice.png'))),
+            ? ButtonIcon(icon: const Image(image: AssetImage('assets/icons/invite_video.png')))
+            : ButtonIcon(icon: const Image(image: AssetImage('assets/icons/invite_voice.png'))),
         iconSize: const Size(40, 40),
         onPressed: () {
           widget.onAcceptCallback!();
@@ -113,14 +106,14 @@ class ZegoCallInvitationDialogState extends State<ZegoCallInvitationDialog> {
     );
   }
 
-  Widget refuseButton() {
+  Widget rejectButton() {
     return SizedBox(
       width: 40,
       height: 40,
-      child: ZegoRefuseButton(
+      child: ZegoRejectButton(
         iconSize: const Size(40, 40),
         onPressed: () {
-          widget.onRefuseCallback!();
+          widget.onRejectCallback!();
         },
       ),
     );

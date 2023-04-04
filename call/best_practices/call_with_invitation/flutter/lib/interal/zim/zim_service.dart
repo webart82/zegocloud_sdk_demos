@@ -11,16 +11,16 @@ import 'zim_service_defines.dart';
 
 class ZIMService {
   ZIMService._internal();
+  factory ZIMService() => instance;
   static final ZIMService instance = ZIMService._internal();
 
   Future<void> init({required int appID, String appSign = ''}) async {
+    initEventHandle();
     ZIM.create(
       ZIMAppConfig()
         ..appID = appID
         ..appSign = appSign,
     );
-
-    initEventHandle();
   }
 
   Future<void> uninit() async {
@@ -33,20 +33,24 @@ class ZIMService {
     userInfo.userID = userID;
     userInfo.userName = userName;
     zimUserInfo = userInfo;
-    ZIM.getInstance()?.login(userInfo);
+    await ZIM.getInstance()?.login(userInfo);
+  }
+
+  Future<void> disConnectUser() async {
+    ZIM.getInstance()!.logout();
   }
 
   Future<ZegoSendInvitationResult> sendInvitation({
     required List<String> invitees,
-    required int timeout,
     required ZegoCallType callType,
+    int timeout = 60,
     String extendedData = '',
   }) async {
     final config = ZIMCallInviteConfig()
       ..extendedData = extendedData
       ..timeout = timeout;
     return ZIM.getInstance()!.callInvite(invitees, config).then((ZIMCallInvitationSentResult zimResult) {
-      ZegoCallDataManager.instance.createCall(
+      ZegoCallStateManager.instance.createCall(
         zimResult.callID,
         ZegoUserInfo(userID: zimUserInfo?.userID ?? '', userName: zimUserInfo?.userName ?? ''),
         ZegoUserInfo(userID: invitees.first, userName: ''),
@@ -74,7 +78,7 @@ class ZIMService {
     required List<String> invitees,
     String extendedData = '',
   }) async {
-    ZegoCallDataManager.instance.clear();
+    ZegoCallStateManager.instance.clear();
     return ZIM
         .getInstance()!
         .callCancel(invitees, invitationID, ZIMCallCancelConfig()..extendedData = extendedData)
@@ -90,12 +94,12 @@ class ZIMService {
     });
   }
 
-  Future<ZegoResponseInvitationResult> refuseInvitation({
+  Future<ZegoResponseInvitationResult> rejectInvitation({
     required String invitationID,
     String extendedData = '',
   }) {
-    if (invitationID == ZegoCallDataManager.instance.callData?.callID) {
-      ZegoCallDataManager.instance.clear();
+    if (invitationID == ZegoCallStateManager.instance.callData?.callID) {
+      ZegoCallStateManager.instance.clear();
     }
     return ZIM
         .getInstance()!
@@ -117,7 +121,7 @@ class ZIMService {
         .getInstance()!
         .callAccept(invitationID, ZIMCallAcceptConfig()..extendedData = extendedData)
         .then((ZIMCallAcceptanceSentResult zimResult) {
-      ZegoCallDataManager.instance.updateCall(invitationID, ZegoCallUserState.accepted);
+      ZegoCallStateManager.instance.updateCall(invitationID, ZegoCallUserState.accepted);
       return const ZegoResponseInvitationResult();
     }).catchError((error) {
       return ZegoResponseInvitationResult(
@@ -127,8 +131,8 @@ class ZIMService {
   }
 
   void onCallInvitationReceived(ZIM zim, ZIMCallInvitationReceivedInfo info, String callID) {
-    if (ZegoCallDataManager.instance.callData != null) {
-      refuseInvitation(invitationID: callID, extendedData: 'busy');
+    if (ZegoCallStateManager.instance.callData != null) {
+      rejectInvitation(invitationID: callID, extendedData: 'busy');
       return;
     }
     Map<String, dynamic> callInfoMap = {};
@@ -139,13 +143,14 @@ class ZIMService {
     }
     ZegoCallType type = callInfoMap['type'] == ZegoCallType.video.index ? ZegoCallType.video : ZegoCallType.voice;
     String inviterName = callInfoMap['inviterName'] as String;
-    ZegoCallDataManager.instance.createCall(
-        callID,
-        ZegoUserInfo(userID: info.inviter, userName: inviterName),
-        ZegoUserInfo(userID: zimUserInfo?.userID ?? '', userName: zimUserInfo?.userName ?? ''),
-        ZegoCallUserState.received,
-        type);
-    receiveCallStreamCtrl.add(ZIMReveiveCallEvent(
+    ZegoCallStateManager.instance.createCall(
+      callID,
+      ZegoUserInfo(userID: info.inviter, userName: inviterName),
+      ZegoUserInfo(userID: zimUserInfo?.userID ?? '', userName: zimUserInfo?.userName ?? ''),
+      ZegoCallUserState.received,
+      type,
+    );
+    incomingCallInvitationReceivedStreamCtrl.add(IncomingCallInvitationReveivedEvent(
       callID,
       info.inviter,
       info.extendedData,
@@ -153,36 +158,39 @@ class ZIMService {
   }
 
   void onCallInvitationAccepted(ZIM zim, ZIMCallInvitationAcceptedInfo info, String callID) {
-    ZegoCallDataManager.instance.updateCall(callID, ZegoCallUserState.accepted);
-    acceptCallStreamCtrl.add(ZIMAcceptCallEvent(callID, info.invitee, info.extendedData));
+    ZegoCallStateManager.instance.updateCall(callID, ZegoCallUserState.accepted);
+    outgoingCallInvitationAcceptedStreamCtrl
+        .add(OutgoingCallInvitationAcceptedEvent(callID, info.invitee, info.extendedData));
   }
 
   void onCallInvitationCancelled(ZIM zim, ZIMCallInvitationCancelledInfo info, String callID) {
-    ZegoCallDataManager.instance.updateCall(callID, ZegoCallUserState.cancelled);
-    ZegoCallDataManager.instance.clear();
-    cancelCallStreamCtrl.add(ZIMCancelCallEvent(callID, info.inviter, info.extendedData));
+    ZegoCallStateManager.instance.updateCall(callID, ZegoCallUserState.cancelled);
+    ZegoCallStateManager.instance.clear();
+    incomingCallInvitationCanceledStreamCtrl
+        .add(IncomingCallInvitationCanceledEvent(callID, info.inviter, info.extendedData));
   }
 
   void onCallInvitationRejected(ZIM zim, ZIMCallInvitationRejectedInfo info, String callID) {
-    ZegoCallDataManager.instance.updateCall(callID, ZegoCallUserState.rejected);
-    ZegoCallDataManager.instance.clear();
-    rejectCallStreamCtrl.add(ZIMRejectCallEvent(callID, info.invitee, info.extendedData));
+    ZegoCallStateManager.instance.updateCall(callID, ZegoCallUserState.rejected);
+    ZegoCallStateManager.instance.clear();
+    outgoingCallInvitationRejectedStreamCtrl
+        .add(OutgoingCallInvitationRejectedEvent(callID, info.invitee, info.extendedData));
   }
 
   void onCallInvitationTimeout(ZIM zim, String callID) {
-    ZegoCallDataManager.instance.updateCall(callID, ZegoCallUserState.offline);
-    ZegoCallDataManager.instance.clear();
-    timeoutCallStreamCtrl.add(ZIMTimeOutCallEvent(callID));
+    ZegoCallStateManager.instance.updateCall(callID, ZegoCallUserState.offline);
+    ZegoCallStateManager.instance.clear();
+    incomingCallInvitationTimeoutStreamCtrl.add(IncomingCallInvitationTimeoutEvent(callID));
   }
 
   void onCallInviteesAnsweredTimeout(ZIM zim, List<String> invitees, String callID) {
-    ZegoCallDataManager.instance.updateCall(callID, ZegoCallUserState.offline);
-    ZegoCallDataManager.instance.clear();
-    answerTimeoutCallStreamCtrl.add(ZIMAnswerTimeOutCallEvent(callID, invitees));
+    ZegoCallStateManager.instance.updateCall(callID, ZegoCallUserState.offline);
+    ZegoCallStateManager.instance.clear();
+    outgoingCallInvitationTimeoutStreamCtrl.add(OutgoingCallInvitationTimeoutEvent(callID, invitees));
   }
 
   void onConnectionStateChanged(ZIM zim, ZIMConnectionState state, ZIMConnectionEvent event, Map extendedData) {
-    zimConnectionStateStreamCtrl.add(ZIMConnectionStateChangeEvent(state, event));
+    zimConnectionStateStreamCtrl.add(ZIMServiceConnectionStateChangedEvent(state, event));
   }
 
   void uninitEventHandle() {
@@ -212,13 +220,18 @@ class ZIMService {
   }
 
   ZIMUserInfo? zimUserInfo;
-  StreamController<ZIMReveiveCallEvent> receiveCallStreamCtrl = StreamController<ZIMReveiveCallEvent>.broadcast();
-  StreamController<ZIMAcceptCallEvent> acceptCallStreamCtrl = StreamController<ZIMAcceptCallEvent>.broadcast();
-  StreamController<ZIMCancelCallEvent> cancelCallStreamCtrl = StreamController<ZIMCancelCallEvent>.broadcast();
-  StreamController<ZIMRejectCallEvent> rejectCallStreamCtrl = StreamController<ZIMRejectCallEvent>.broadcast();
-  StreamController<ZIMTimeOutCallEvent> timeoutCallStreamCtrl = StreamController<ZIMTimeOutCallEvent>.broadcast();
-  StreamController<ZIMAnswerTimeOutCallEvent> answerTimeoutCallStreamCtrl =
-      StreamController<ZIMAnswerTimeOutCallEvent>.broadcast();
-  StreamController<ZIMConnectionStateChangeEvent> zimConnectionStateStreamCtrl =
-      StreamController<ZIMConnectionStateChangeEvent>.broadcast();
+  StreamController<IncomingCallInvitationReveivedEvent> incomingCallInvitationReceivedStreamCtrl =
+      StreamController<IncomingCallInvitationReveivedEvent>.broadcast();
+  StreamController<OutgoingCallInvitationAcceptedEvent> outgoingCallInvitationAcceptedStreamCtrl =
+      StreamController<OutgoingCallInvitationAcceptedEvent>.broadcast();
+  StreamController<IncomingCallInvitationCanceledEvent> incomingCallInvitationCanceledStreamCtrl =
+      StreamController<IncomingCallInvitationCanceledEvent>.broadcast();
+  StreamController<OutgoingCallInvitationRejectedEvent> outgoingCallInvitationRejectedStreamCtrl =
+      StreamController<OutgoingCallInvitationRejectedEvent>.broadcast();
+  StreamController<IncomingCallInvitationTimeoutEvent> incomingCallInvitationTimeoutStreamCtrl =
+      StreamController<IncomingCallInvitationTimeoutEvent>.broadcast();
+  StreamController<OutgoingCallInvitationTimeoutEvent> outgoingCallInvitationTimeoutStreamCtrl =
+      StreamController<OutgoingCallInvitationTimeoutEvent>.broadcast();
+  StreamController<ZIMServiceConnectionStateChangedEvent> zimConnectionStateStreamCtrl =
+      StreamController<ZIMServiceConnectionStateChangedEvent>.broadcast();
 }

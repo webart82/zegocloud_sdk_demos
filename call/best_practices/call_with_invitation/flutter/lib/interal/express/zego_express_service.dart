@@ -8,22 +8,13 @@ import 'package:zego_express_engine/zego_express_engine.dart';
 
 import 'zego_express_service_defines.dart';
 
-class ZegoExpressService {
-  ZegoExpressService._internal();
-
-  static final ZegoExpressService instance = ZegoExpressService._internal();
-
-  StreamController<ZegoCameraStateChangeEvent> cameraStateUpdateStreamCtrl =
-      StreamController<ZegoCameraStateChangeEvent>.broadcast();
-  StreamController<ZegoMicrophoneStateChangeEvent> microphoneStateUpdateStreamCtrl =
-      StreamController<ZegoMicrophoneStateChangeEvent>.broadcast();
-  StreamController<ZegoRoomUserListUpdateEvent> roomUserListUpdateStreamCtrl =
-      StreamController<ZegoRoomUserListUpdateEvent>.broadcast();
-  StreamController<ZegoRoomStreamListUpdateEvent> streamListUpdateStreamCtrl =
-      StreamController<ZegoRoomStreamListUpdateEvent>.broadcast();
+class ExpressService {
+  ExpressService._internal();
+  factory ExpressService() => instance;
+  static final ExpressService instance = ExpressService._internal();
 
   ZegoUserInfo localUser = ZegoUserInfo(userID: '', userName: '');
-  String room = '';
+  String currentRoomID = '';
 
   ValueNotifier<Widget?> localVideoView = ValueNotifier<Widget?>(null);
   int localViewID = 0;
@@ -38,10 +29,9 @@ class ZegoExpressService {
     ZegoScenario scenario = ZegoScenario.StandardVideoCall,
   }) async {
     isInit = true;
-
-    final profile = ZegoEngineProfile(appID, scenario, appSign: appSign);
     initEventHandle();
 
+    final profile = ZegoEngineProfile(appID, scenario, appSign: appSign);
     await ZegoExpressEngine.createEngineWithProfile(profile);
     ZegoExpressEngine.setEngineConfig(ZegoEngineConfig(advancedConfig: {
       'notify_remote_device_unknown_status': 'true',
@@ -51,7 +41,6 @@ class ZegoExpressService {
 
   Future<void> uninit() async {
     uninitEventHandle();
-
     await ZegoExpressEngine.destroyEngine();
   }
 
@@ -68,7 +57,7 @@ class ZegoExpressService {
   }
 
   Future<void> startPublishingStream() async {
-    String streamID = "${room}_${localUser.userID}";
+    String streamID = "${currentRoomID}_${localUser.userID}";
     ZegoExpressEngine.instance.startPublishingStream(streamID);
   }
 
@@ -76,22 +65,23 @@ class ZegoExpressService {
     ZegoExpressEngine.instance.stopPublishingStream();
   }
 
-  Future<ZegoRoomLoginResult> joinRoom(String roomID) async {
+  Future<ZegoRoomLoginResult> loginRoom(String roomID) async {
     final joinRoomResult = await ZegoExpressEngine.instance.loginRoom(
       roomID,
       ZegoUser(localUser.userID, localUser.userName),
       config: ZegoRoomConfig(0, true, ''),
     );
     if (joinRoomResult.errorCode == 0) {
-      room = roomID;
+      currentRoomID = roomID;
     }
     return joinRoomResult;
   }
 
-  Future<ZegoRoomLogoutResult> leaveRoom(String roomID) async {
+  Future<ZegoRoomLogoutResult> logoutRoom([String roomID = '']) async {
+    if (roomID.isEmpty) roomID = currentRoomID;
     final leaveResult = await ZegoExpressEngine.instance.logoutRoom(roomID);
     if (leaveResult.errorCode == 0) {
-      room = '';
+      currentRoomID = '';
       localVideoView.value = null;
       remoteVideoView.value = null;
       localViewID = 0;
@@ -162,12 +152,21 @@ class ZegoExpressService {
   }
 
   void initEventHandle() {
-    ZegoExpressEngine.onRoomStreamUpdate = ZegoExpressService.instance.onRoomStreamUpdate;
-    ZegoExpressEngine.onRoomUserUpdate = ZegoExpressService.instance.onRoomUserUpdate;
-    ZegoExpressEngine.onRemoteCameraStateUpdate = ZegoExpressService.instance.onRemoteCameraStateUpdate;
-    ZegoExpressEngine.onRemoteMicStateUpdate = ZegoExpressService.instance.onRemoteMicStateUpdate;
-    ZegoExpressEngine.onRoomStateChanged = ZegoExpressService.instance.onRoomStateChanged;
+    ZegoExpressEngine.onRoomStreamUpdate = ExpressService.instance.onRoomStreamUpdate;
+    ZegoExpressEngine.onRoomUserUpdate = ExpressService.instance.onRoomUserUpdate;
+    ZegoExpressEngine.onRemoteCameraStateUpdate = ExpressService.instance.onRemoteCameraStateUpdate;
+    ZegoExpressEngine.onRemoteMicStateUpdate = ExpressService.instance.onRemoteMicStateUpdate;
+    ZegoExpressEngine.onRoomStateChanged = ExpressService.instance.onRoomStateChanged;
   }
+
+  StreamController<ZegoCameraStateChangeEvent> cameraStateUpdateStreamCtrl =
+      StreamController<ZegoCameraStateChangeEvent>.broadcast();
+  StreamController<ZegoMicrophoneStateChangeEvent> microphoneStateUpdateStreamCtrl =
+      StreamController<ZegoMicrophoneStateChangeEvent>.broadcast();
+  StreamController<ZegoRoomUserListUpdateEvent> roomUserListUpdateStreamCtrl =
+      StreamController<ZegoRoomUserListUpdateEvent>.broadcast();
+  StreamController<ZegoRoomStreamListUpdateEvent> streamListUpdateStreamCtrl =
+      StreamController<ZegoRoomStreamListUpdateEvent>.broadcast();
 
   Future<void> onRoomStreamUpdate(
       String roomID, ZegoUpdateType updateType, List<ZegoStream> streamList, Map<String, dynamic> extendedData) async {
