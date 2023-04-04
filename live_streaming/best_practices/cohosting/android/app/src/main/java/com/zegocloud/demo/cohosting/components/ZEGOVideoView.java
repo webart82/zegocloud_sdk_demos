@@ -9,7 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.zegocloud.demo.cohosting.ZEGOSDKManager;
 import com.zegocloud.demo.cohosting.internal.ZEGOExpressService;
-import com.zegocloud.demo.cohosting.utils.ToastUtil;
+import com.zegocloud.demo.cohosting.internal.rtc.ZEGOLiveUser;
 import im.zego.zegoexpress.constants.ZegoRemoteDeviceState;
 import im.zego.zegoexpress.constants.ZegoUpdateType;
 import im.zego.zegoexpress.constants.ZegoViewMode;
@@ -78,8 +78,11 @@ public class ZEGOVideoView extends FrameLayout {
             ZEGOSDKManager.getInstance().rtcService.startCameraPreview(textureView, zegoViewMode);
             ZEGOSDKManager.getInstance().rtcService.startPublishLocalAudioVideo();
         } else {
-            String streamID = rtcService.generateStream(mUserID);
-            ZEGOSDKManager.getInstance().rtcService.startPlayRemoteAudioVideo(textureView, streamID, zegoViewMode);
+            ZEGOLiveUser userInfo = rtcService.getUserInfo(mUserID);
+            if (userInfo != null) {
+                String streamID = rtcService.generateStream(mUserID);
+                ZEGOSDKManager.getInstance().rtcService.startPlayRemoteAudioVideo(textureView, streamID, zegoViewMode);
+            }
         }
     }
 
@@ -99,13 +102,10 @@ public class ZEGOVideoView extends FrameLayout {
     public void onRoomStreamUpdate(String roomID, ZegoUpdateType updateType, ArrayList<ZegoStream> streamList,
         JSONObject extendedData) {
         for (ZegoStream stream : streamList) {
-            if (TextUtils.isEmpty(mUserID)) {
-                mUserID = stream.user.userID;
-            }
-            ToastUtil.show(getContext(), "receive " + stream.user.userName + "'s stream " + updateType);
             if (stream.user.userID.equals(mUserID)) {
                 if (updateType == ZegoUpdateType.ADD) {
-                    ZEGOSDKManager.getInstance().rtcService.startPlayRemoteAudioVideo(textureView, stream.streamID, zegoViewMode);
+                    ZEGOSDKManager.getInstance().rtcService.startPlayRemoteAudioVideo(textureView, stream.streamID,
+                        zegoViewMode);
                 } else {
                     ZEGOSDKManager.getInstance().rtcService.stopPlayRemoteAudioVideo(stream.streamID);
                 }
