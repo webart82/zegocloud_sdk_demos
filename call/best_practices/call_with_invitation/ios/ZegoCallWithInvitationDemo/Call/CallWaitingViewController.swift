@@ -8,11 +8,17 @@
 import UIKit
 import ZIM
 
-protocol CallWaitViewControllerDelegate: AnyObject {
+protocol CallWaitingViewControllerDelegate: AnyObject {
     func startShowCallPage(_ remoteUser: UserInfo)
 }
 
-class CallWaitViewController: UIViewController {
+class CallWaitingViewController: UIViewController {
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        // Do any additional setup after loading the view.
+        ZegoSDKManager.shared.addZIMEventHandler(self)
+    }
     
     @IBOutlet weak var backgroundImage: UIImageView! {
         didSet {
@@ -59,7 +65,7 @@ class CallWaitViewController: UIViewController {
     @IBOutlet weak var cancelInviationButton: UIButton!
     @IBOutlet weak var acceptButton: UIButton! {
         didSet {
-            if ZegoCallDataManager.shared.currentCallData?.type == .video {
+            if ZegoCallStateManager.shared.currentCallData?.type == .video {
                 acceptButton.setImage(UIImage(named: "call_video_icon"), for: .normal)
             } else {
                 acceptButton.setImage(UIImage(named: "call_accept_icon"), for: .normal)
@@ -113,16 +119,12 @@ class CallWaitViewController: UIViewController {
         }
     }
     
-    weak var delegate: CallWaitViewControllerDelegate?
+    weak var delegate: CallWaitingViewControllerDelegate?
     
     
     @IBOutlet weak var trailingConstraint: NSLayoutConstraint!
     
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        // Do any additional setup after loading the view.
-        ZegoSDKManager.shared.addZIMEventHandler(self)
-    }
+
     
     private func setHeadUserName(_ userName: String?) {
         guard let userName = userName else { return }
@@ -133,24 +135,24 @@ class CallWaitViewController: UIViewController {
     }
     
     @IBAction func declineButtonClick(_ sender: Any) {
-        guard let callID = ZegoCallDataManager.shared.currentCallData?.callID else { return }
-        ZegoSDKManager.shared.refuseInvitation(with: callID, data: nil, callback: nil)
+        guard let callID = ZegoCallStateManager.shared.currentCallData?.callID else { return }
+        ZegoSDKManager.shared.rejectCallInvitation(with: callID, data: nil, callback: nil)
         ZegoSDKManager.shared.leaveRoom()
         self.dismiss(animated: true)
     }
     
     @IBAction func handupButtonClick(_ sender: Any) {
         guard let inviteeUserID = invitee?.userID,
-              let callID = ZegoCallDataManager.shared.currentCallData?.callID
+              let callID = ZegoCallStateManager.shared.currentCallData?.callID
         else { return }
-        ZegoSDKManager.shared.cancelInvitation(with: [inviteeUserID], invitationID: callID, data: nil, callback: nil)
+        ZegoSDKManager.shared.cancelCallInvitation(with: [inviteeUserID], invitationID: callID, data: nil, callback: nil)
         ZegoSDKManager.shared.leaveRoom()
         self.dismiss(animated: true)
     }
     
     @IBAction func acceptButtonClick(_ sender: Any) {
-        guard let callID = ZegoCallDataManager.shared.currentCallData?.callID else { return }
-        ZegoSDKManager.shared.acceptInvitation(with: callID, data: nil) { errorCode, errorMessage in
+        guard let callID = ZegoCallStateManager.shared.currentCallData?.callID else { return }
+        ZegoSDKManager.shared.acceptCallInvitation(with: callID, data: nil) { errorCode, errorMessage in
             if errorCode == 0 {
                 //accept sucess
                 if let localUserID = ZegoSDKManager.shared.localUser?.userID,
@@ -159,11 +161,11 @@ class CallWaitViewController: UIViewController {
                     ZegoSDKManager.shared.joinRoom(userID: localUserID, userName: locaUserName, roomID: callID) { errorCode, errorMessage in
                         if errorCode == 0 {
                             //start call
-                            guard let remoteUser = ZegoCallDataManager.shared.currentCallData?.inviter else { return }
+                            guard let remoteUser = ZegoCallStateManager.shared.currentCallData?.inviter else { return }
                             ZegoSDKManager.shared.startPublishingStream()
                             self.showCallPage(remoteUser)
                         } else {
-                            self.view.makeToast("express joim room fail:\(errorCode)", duration: 2.0, position: .center)
+                            self.view.makeToast("express joim room failed:\(errorCode)", duration: 2.0, position: .center)
                         }
                     }
                 }
@@ -181,10 +183,10 @@ class CallWaitViewController: UIViewController {
 
 }
 
-extension CallWaitViewController: ZIMEventHandler {
+extension CallWaitingViewController: ZIMEventHandler {
     
     func zim(_ zim: ZIM, callInvitationAccepted info: ZIMCallInvitationAcceptedInfo, callID: String) {
-        guard let remoteUser = ZegoCallDataManager.shared.currentCallData?.invitee else { return }
+        guard let remoteUser = ZegoCallStateManager.shared.currentCallData?.invitee else { return }
         ZegoSDKManager.shared.startPublishingStream()
         showCallPage(remoteUser)
     }

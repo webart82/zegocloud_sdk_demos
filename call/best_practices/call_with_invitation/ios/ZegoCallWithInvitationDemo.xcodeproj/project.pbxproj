@@ -26,17 +26,16 @@
 		86E503C129B991C9003E13A9 /* ExpressService+Device.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86E503C029B991C9003E13A9 /* ExpressService+Device.swift */; };
 		86E503C429B9B07C003E13A9 /* CallingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86E503C229B9B07C003E13A9 /* CallingViewController.swift */; };
 		86E503C529B9B07C003E13A9 /* CallingViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 86E503C329B9B07C003E13A9 /* CallingViewController.xib */; };
-		86E503CB29B9B0C7003E13A9 /* IncomingCallDialog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86E503CA29B9B0C7003E13A9 /* IncomingCallDialog.swift */; };
 		86E503CD29B9B6D9003E13A9 /* UserInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86E503CC29B9B6D9003E13A9 /* UserInfo.swift */; };
 		86E503D129B9BB4C003E13A9 /* ZIMService+Call.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86E503D029B9BB4C003E13A9 /* ZIMService+Call.swift */; };
 		86E503D329B9BC50003E13A9 /* ZIMService+EventHandle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86E503D229B9BC50003E13A9 /* ZIMService+EventHandle.swift */; };
-		86E5040C29BEFE9A003E13A9 /* CallWaitViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86E5040A29BEFE9A003E13A9 /* CallWaitViewController.swift */; };
-		86E5040D29BEFE9A003E13A9 /* CallWaitViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 86E5040B29BEFE9A003E13A9 /* CallWaitViewController.xib */; };
+		86E5040C29BEFE9A003E13A9 /* CallWaitingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86E5040A29BEFE9A003E13A9 /* CallWaitingViewController.swift */; };
+		86E5040D29BEFE9A003E13A9 /* CallWaitingViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 86E5040B29BEFE9A003E13A9 /* CallWaitingViewController.xib */; };
 		86E5040F29BF0FFA003E13A9 /* ZegoSDKManager+Express.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86E5040E29BF0FFA003E13A9 /* ZegoSDKManager+Express.swift */; };
 		86E5041129BF1041003E13A9 /* ZegoSDKManager+ZIM.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86E5041029BF1041003E13A9 /* ZegoSDKManager+ZIM.swift */; };
 		86E5041329BF121A003E13A9 /* ZegoSDKManager+ExpressEventHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86E5041229BF121A003E13A9 /* ZegoSDKManager+ExpressEventHandler.swift */; };
 		86E5041529BF1231003E13A9 /* ZegoSDKManager+ZIMEventHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86E5041429BF1231003E13A9 /* ZegoSDKManager+ZIMEventHandler.swift */; };
-		86E5041729BF1425003E13A9 /* ZegoCallDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86E5041629BF1425003E13A9 /* ZegoCallDataManager.swift */; };
+		86E5041729BF1425003E13A9 /* ZegoCallStateManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86E5041629BF1425003E13A9 /* ZegoCallStateManager.swift */; };
 		86E5041929BF1785003E13A9 /* ZegoCallDataModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86E5041829BF1785003E13A9 /* ZegoCallDataModel.swift */; };
 		86E5041C29BF1E2F003E13A9 /* String+ZegoConvert.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86E5041B29BF1E2F003E13A9 /* String+ZegoConvert.swift */; };
 		86E5041E29BF1E37003E13A9 /* Dictionary+ZegoConvert.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86E5041D29BF1E37003E13A9 /* Dictionary+ZegoConvert.swift */; };
@@ -44,8 +43,8 @@
 		86E5042229BF1E47003E13A9 /* UIColor+ZegoHex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86E5042129BF1E47003E13A9 /* UIColor+ZegoHex.swift */; };
 		86E5042429BF1E4F003E13A9 /* UIView+ZegoLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86E5042329BF1E4F003E13A9 /* UIView+ZegoLayout.swift */; };
 		86E5042629C0519A003E13A9 /* ExpressService+Stream.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86E5042529C0519A003E13A9 /* ExpressService+Stream.swift */; };
-		86E5042929C05C91003E13A9 /* ZegoCallInvitationDialog.xib in Resources */ = {isa = PBXBuildFile; fileRef = 86E5042729C05C91003E13A9 /* ZegoCallInvitationDialog.xib */; };
-		86E5042A29C05C91003E13A9 /* ZegoCallInvitationDialog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86E5042829C05C91003E13A9 /* ZegoCallInvitationDialog.swift */; };
+		86E5042929C05C91003E13A9 /* ZegoIncomingCallDialog.xib in Resources */ = {isa = PBXBuildFile; fileRef = 86E5042729C05C91003E13A9 /* ZegoIncomingCallDialog.xib */; };
+		86E5042A29C05C91003E13A9 /* ZegoIncomingCallDialog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86E5042829C05C91003E13A9 /* ZegoIncomingCallDialog.swift */; };
 		86E5042C29C05F29003E13A9 /* ZegoDefine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86E5042B29C05F29003E13A9 /* ZegoDefine.swift */; };
 /* End PBXBuildFile section */
 
@@ -68,17 +67,16 @@
 		86E503C029B991C9003E13A9 /* ExpressService+Device.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ExpressService+Device.swift"; sourceTree = "<group>"; };
 		86E503C229B9B07C003E13A9 /* CallingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CallingViewController.swift; sourceTree = "<group>"; };
 		86E503C329B9B07C003E13A9 /* CallingViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = CallingViewController.xib; sourceTree = "<group>"; };
-		86E503CA29B9B0C7003E13A9 /* IncomingCallDialog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncomingCallDialog.swift; sourceTree = "<group>"; };
 		86E503CC29B9B6D9003E13A9 /* UserInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserInfo.swift; sourceTree = "<group>"; };
 		86E503D029B9BB4C003E13A9 /* ZIMService+Call.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ZIMService+Call.swift"; sourceTree = "<group>"; };
 		86E503D229B9BC50003E13A9 /* ZIMService+EventHandle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ZIMService+EventHandle.swift"; sourceTree = "<group>"; };
-		86E5040A29BEFE9A003E13A9 /* CallWaitViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CallWaitViewController.swift; sourceTree = "<group>"; };
-		86E5040B29BEFE9A003E13A9 /* CallWaitViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = CallWaitViewController.xib; sourceTree = "<group>"; };
+		86E5040A29BEFE9A003E13A9 /* CallWaitingViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CallWaitingViewController.swift; sourceTree = "<group>"; };
+		86E5040B29BEFE9A003E13A9 /* CallWaitingViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = CallWaitingViewController.xib; sourceTree = "<group>"; };
 		86E5040E29BF0FFA003E13A9 /* ZegoSDKManager+Express.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ZegoSDKManager+Express.swift"; sourceTree = "<group>"; };
 		86E5041029BF1041003E13A9 /* ZegoSDKManager+ZIM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ZegoSDKManager+ZIM.swift"; sourceTree = "<group>"; };
 		86E5041229BF121A003E13A9 /* ZegoSDKManager+ExpressEventHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ZegoSDKManager+ExpressEventHandler.swift"; sourceTree = "<group>"; };
 		86E5041429BF1231003E13A9 /* ZegoSDKManager+ZIMEventHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ZegoSDKManager+ZIMEventHandler.swift"; sourceTree = "<group>"; };
-		86E5041629BF1425003E13A9 /* ZegoCallDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZegoCallDataManager.swift; sourceTree = "<group>"; };
+		86E5041629BF1425003E13A9 /* ZegoCallStateManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZegoCallStateManager.swift; sourceTree = "<group>"; };
 		86E5041829BF1785003E13A9 /* ZegoCallDataModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZegoCallDataModel.swift; sourceTree = "<group>"; };
 		86E5041B29BF1E2F003E13A9 /* String+ZegoConvert.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "String+ZegoConvert.swift"; sourceTree = "<group>"; };
 		86E5041D29BF1E37003E13A9 /* Dictionary+ZegoConvert.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Dictionary+ZegoConvert.swift"; sourceTree = "<group>"; };
@@ -86,8 +84,8 @@
 		86E5042129BF1E47003E13A9 /* UIColor+ZegoHex.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIColor+ZegoHex.swift"; sourceTree = "<group>"; };
 		86E5042329BF1E4F003E13A9 /* UIView+ZegoLayout.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIView+ZegoLayout.swift"; sourceTree = "<group>"; };
 		86E5042529C0519A003E13A9 /* ExpressService+Stream.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ExpressService+Stream.swift"; sourceTree = "<group>"; };
-		86E5042729C05C91003E13A9 /* ZegoCallInvitationDialog.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ZegoCallInvitationDialog.xib; sourceTree = "<group>"; };
-		86E5042829C05C91003E13A9 /* ZegoCallInvitationDialog.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ZegoCallInvitationDialog.swift; sourceTree = "<group>"; };
+		86E5042729C05C91003E13A9 /* ZegoIncomingCallDialog.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ZegoIncomingCallDialog.xib; sourceTree = "<group>"; };
+		86E5042829C05C91003E13A9 /* ZegoIncomingCallDialog.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ZegoIncomingCallDialog.swift; sourceTree = "<group>"; };
 		86E5042B29C05F29003E13A9 /* ZegoDefine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZegoDefine.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -138,7 +136,7 @@
 				86E5041029BF1041003E13A9 /* ZegoSDKManager+ZIM.swift */,
 				86E5041229BF121A003E13A9 /* ZegoSDKManager+ExpressEventHandler.swift */,
 				86E5041429BF1231003E13A9 /* ZegoSDKManager+ZIMEventHandler.swift */,
-				86E5041629BF1425003E13A9 /* ZegoCallDataManager.swift */,
+				86E5041629BF1425003E13A9 /* ZegoCallStateManager.swift */,
 				86E5041829BF1785003E13A9 /* ZegoCallDataModel.swift */,
 				86E5042B29C05F29003E13A9 /* ZegoDefine.swift */,
 				86E5039F29B9868A003E13A9 /* Main.storyboard */,
@@ -154,9 +152,8 @@
 			children = (
 				86E503C229B9B07C003E13A9 /* CallingViewController.swift */,
 				86E503C329B9B07C003E13A9 /* CallingViewController.xib */,
-				86E5040A29BEFE9A003E13A9 /* CallWaitViewController.swift */,
-				86E5040B29BEFE9A003E13A9 /* CallWaitViewController.xib */,
-				86E503CA29B9B0C7003E13A9 /* IncomingCallDialog.swift */,
+				86E5040A29BEFE9A003E13A9 /* CallWaitingViewController.swift */,
+				86E5040B29BEFE9A003E13A9 /* CallWaitingViewController.xib */,
 			);
 			path = Call;
 			sourceTree = "<group>";
@@ -164,8 +161,8 @@
 		86E503AE29B987A7003E13A9 /* Components */ = {
 			isa = PBXGroup;
 			children = (
-				86E5042829C05C91003E13A9 /* ZegoCallInvitationDialog.swift */,
-				86E5042729C05C91003E13A9 /* ZegoCallInvitationDialog.xib */,
+				86E5042829C05C91003E13A9 /* ZegoIncomingCallDialog.swift */,
+				86E5042729C05C91003E13A9 /* ZegoIncomingCallDialog.xib */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -174,19 +171,19 @@
 			isa = PBXGroup;
 			children = (
 				86E503B129B98BAA003E13A9 /* Express */,
-				86E503B029B98B9B003E13A9 /* IM */,
+				86E503B029B98B9B003E13A9 /* ZIM */,
 			);
 			path = Internal;
 			sourceTree = "<group>";
 		};
-		86E503B029B98B9B003E13A9 /* IM */ = {
+		86E503B029B98B9B003E13A9 /* ZIM */ = {
 			isa = PBXGroup;
 			children = (
 				86E503B429B98C21003E13A9 /* ZIMService.swift */,
 				86E503D229B9BC50003E13A9 /* ZIMService+EventHandle.swift */,
 				86E503D029B9BB4C003E13A9 /* ZIMService+Call.swift */,
 			);
-			path = IM;
+			path = ZIM;
 			sourceTree = "<group>";
 		};
 		86E503B129B98BAA003E13A9 /* Express */ = {
@@ -291,8 +288,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				86E503A629B9868C003E13A9 /* LaunchScreen.storyboard in Resources */,
-				86E5042929C05C91003E13A9 /* ZegoCallInvitationDialog.xib in Resources */,
-				86E5040D29BEFE9A003E13A9 /* CallWaitViewController.xib in Resources */,
+				86E5042929C05C91003E13A9 /* ZegoIncomingCallDialog.xib in Resources */,
+				86E5040D29BEFE9A003E13A9 /* CallWaitingViewController.xib in Resources */,
 				86E503A329B9868C003E13A9 /* Assets.xcassets in Resources */,
 				86E503A129B9868A003E13A9 /* Main.storyboard in Resources */,
 				86E503C529B9B07C003E13A9 /* CallingViewController.xib in Resources */,
@@ -315,8 +312,7 @@
 				86E5039E29B9868A003E13A9 /* ViewController.swift in Sources */,
 				86E5041329BF121A003E13A9 /* ZegoSDKManager+ExpressEventHandler.swift in Sources */,
 				86E5042229BF1E47003E13A9 /* UIColor+ZegoHex.swift in Sources */,
-				86E5042A29C05C91003E13A9 /* ZegoCallInvitationDialog.swift in Sources */,
-				86E503CB29B9B0C7003E13A9 /* IncomingCallDialog.swift in Sources */,
+				86E5042A29C05C91003E13A9 /* ZegoIncomingCallDialog.swift in Sources */,
 				86E5039A29B9868A003E13A9 /* AppDelegate.swift in Sources */,
 				86E5042429BF1E4F003E13A9 /* UIView+ZegoLayout.swift in Sources */,
 				86E5042029BF1E40003E13A9 /* Array+ZegoConvert.swift in Sources */,
@@ -324,9 +320,9 @@
 				86E5041E29BF1E37003E13A9 /* Dictionary+ZegoConvert.swift in Sources */,
 				86E503CD29B9B6D9003E13A9 /* UserInfo.swift in Sources */,
 				86E5041529BF1231003E13A9 /* ZegoSDKManager+ZIMEventHandler.swift in Sources */,
-				86E5040C29BEFE9A003E13A9 /* CallWaitViewController.swift in Sources */,
+				86E5040C29BEFE9A003E13A9 /* CallWaitingViewController.swift in Sources */,
 				86E503B329B98C05003E13A9 /* ExpressService.swift in Sources */,
-				86E5041729BF1425003E13A9 /* ZegoCallDataManager.swift in Sources */,
+				86E5041729BF1425003E13A9 /* ZegoCallStateManager.swift in Sources */,
 				86E503B729B98C48003E13A9 /* ZegoSDKKeyCenter.swift in Sources */,
 				86E5041C29BF1E2F003E13A9 /* String+ZegoConvert.swift in Sources */,
 				86E503BD29B98EB3003E13A9 /* ExpressService+EventHandle.swift in Sources */,

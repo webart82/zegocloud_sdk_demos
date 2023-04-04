@@ -53,7 +53,7 @@ class CallingViewController: UIViewController {
     }
     var type: CallType {
         get {
-            return ZegoCallDataManager.shared.currentCallData?.type ?? .voice
+            return ZegoCallStateManager.shared.currentCallData?.type ?? .voice
         }
     }
     
@@ -146,7 +146,7 @@ class CallingViewController: UIViewController {
     @objc func buttonClick(_ sender: UIButton) {
         switch sender.tag {
         case 100:
-            ZegoCallDataManager.shared.resertCall()
+            ZegoCallStateManager.shared.clearCallData()
             ZegoSDKManager.shared.leaveRoom()
             self.dismiss(animated: true)
         case 101:
@@ -195,7 +195,7 @@ extension CallingViewController: ZegoEventHandler, ZIMEventHandler {
         if updateType == .delete {
             for user in userList {
                 if user.userID == remoteUser?.userID {
-                    ZegoCallDataManager.shared.resertCall()
+                    ZegoCallStateManager.shared.clearCallData()
                     ZegoSDKManager.shared.leaveRoom()
                     self.dismiss(animated: true)
                 }

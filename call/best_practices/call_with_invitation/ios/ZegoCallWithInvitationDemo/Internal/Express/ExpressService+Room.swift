@@ -33,7 +33,7 @@ extension ExpressService {
             if errorCode == 0 {
                 callBack(UInt(errorCode), "join room sucess")
             } else {
-                callBack(UInt(errorCode), "join room fail")
+                callBack(UInt(errorCode), "join room failed")
             }
         }
     }

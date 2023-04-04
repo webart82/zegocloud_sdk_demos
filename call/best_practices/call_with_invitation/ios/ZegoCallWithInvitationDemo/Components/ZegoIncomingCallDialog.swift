@@ -11,12 +11,12 @@ protocol CallAcceptTipViewDelegate: AnyObject {
     func onAcceptButtonClick(_ remoteUser: UserInfo)
 }
 
-class ZegoCallInvitationDialog: UIView {
+class ZegoIncomingCallDialog: UIView {
     
     @IBOutlet weak var userNameLabel: UILabel!
     @IBOutlet weak var messageLabel: UILabel!
     @IBOutlet weak var acceptButton: UIButton!
-    @IBOutlet weak var refuseButton: UIButton!
+    @IBOutlet weak var rejectButton: UIButton!
     
     @IBOutlet weak var headLabel: UILabel! {
         didSet {
@@ -38,12 +38,12 @@ class ZegoCallInvitationDialog: UIView {
         self.addGestureRecognizer(tapClick)
     }
     
-    static func show(_ inviter: UserInfo, callID: String, type: CallType) -> ZegoCallInvitationDialog {
+    static func show(_ inviter: UserInfo, callID: String, type: CallType) -> ZegoIncomingCallDialog {
         return showTipView(inviter, callID: callID, type: type)
     }
     
-    private static func showTipView(_ inviter: UserInfo, callID: String, type: CallType) -> ZegoCallInvitationDialog {
-        let tipView: ZegoCallInvitationDialog = Bundle.main.loadNibNamed("ZegoCallInvitationDialog", owner: self, options: nil)?.first as! ZegoCallInvitationDialog
+    private static func showTipView(_ inviter: UserInfo, callID: String, type: CallType) -> ZegoIncomingCallDialog {
+        let tipView: ZegoIncomingCallDialog = Bundle.main.loadNibNamed("ZegoCallInvitationDialog", owner: self, options: nil)?.first as! ZegoIncomingCallDialog
         let y = KeyWindow().safeAreaInsets.top
         tipView.frame = CGRect.init(x: 8, y: y + 8, width: UIScreen.main.bounds.size.width - 16, height: 80)
         tipView.layer.masksToBounds = true
@@ -76,8 +76,8 @@ class ZegoCallInvitationDialog: UIView {
     public static func hide() {
         DispatchQueue.main.async {
             for subview in KeyWindow().subviews {
-                if subview is ZegoCallInvitationDialog {
-                    let view: ZegoCallInvitationDialog = subview as! ZegoCallInvitationDialog
+                if subview is ZegoIncomingCallDialog {
+                    let view: ZegoIncomingCallDialog = subview as! ZegoIncomingCallDialog
                     view.removeFromSuperview()
                 }
             }
@@ -92,15 +92,15 @@ class ZegoCallInvitationDialog: UIView {
     @objc func viewTap() {
         guard let inviter = inviter else { return }
         showCallWaitingPage(inviter: inviter)
-        ZegoCallInvitationDialog.hide()
+        ZegoIncomingCallDialog.hide()
     }
     
     func showCallWaitingPage(inviter: UserInfo) {
-        let callWaitingVC: CallWaitViewController = Bundle.main.loadNibNamed("CallWaitViewController", owner: self, options: nil)?.first as! CallWaitViewController
+        let callWaitingVC: CallWaitingViewController = Bundle.main.loadNibNamed("CallWaitViewController", owner: self, options: nil)?.first as! CallWaitingViewController
         callWaitingVC.modalPresentationStyle = .fullScreen
         callWaitingVC.isInviter = false
         callWaitingVC.inviter = inviter
-        callWaitingVC.delegate = currentViewController() as? any CallWaitViewControllerDelegate
+        callWaitingVC.delegate = currentViewController() as? any CallWaitingViewControllerDelegate
         currentViewController()?.present(callWaitingVC, animated: true)
     }
     
@@ -108,22 +108,22 @@ class ZegoCallInvitationDialog: UIView {
         guard let inviter = inviter,
         let callID = callID
         else { return }
-        ZegoSDKManager.shared.acceptInvitation(with: callID, data: nil) { errorCode, errorMessage in
+        ZegoSDKManager.shared.acceptCallInvitation(with: callID, data: nil) { errorCode, errorMessage in
             if errorCode == 0 {
                 ZegoSDKManager.shared.joinRoom(userID: ZegoSDKManager.shared.localUser?.userID ?? "", userName: ZegoSDKManager.shared.localUser?.userName ?? "", roomID: callID) { errorCode, errorMessage in
                     self.delegate?.onAcceptButtonClick(inviter)
-                    ZegoCallInvitationDialog.hide()
+                    ZegoIncomingCallDialog.hide()
                 }
             } else {
-                self.makeToast("accept call fail:\(errorCode)", duration: 2.0, position: .center)
+                self.makeToast("accept call failed:\(errorCode)", duration: 2.0, position: .center)
             }
         }
     }
     
-    @IBAction func refuseButtonClick(_ sender: UIButton) {
+    @IBAction func rejectButtonClick(_ sender: UIButton) {
         guard let callID = callID else { return }
-        ZegoSDKManager.shared.refuseInvitation(with: callID, data: nil, callback: nil)
-        ZegoCallInvitationDialog.hide()
+        ZegoSDKManager.shared.rejectCallInvitation(with: callID, data: nil, callback: nil)
+        ZegoIncomingCallDialog.hide()
     }
     
     func showCallMainPage(_ remoteUser: UserInfo) {

@@ -24,37 +24,37 @@ extension ZegoSDKManager {
     }
     
     //MARK - invitation
-    func sendInvitation(with invitees: [String], type: CallType, callback: InvitationCallback?) {
+    func sendCallInvitation(with invitees: [String], type: CallType, callback: SendCallInvitationCallback?) {
         guard let localUser = localUser else { return }
         let callType: String = type == .voice ? "voice_call" : "video_call"
         let extendedData: [String : AnyObject] = ["type": callType as AnyObject, "userName": localUser.userName as AnyObject]
-        ZIMService.shared.sendInvitation(with: invitees, data: extendedData.jsonString) { errorCode, errorMessage, invitationID, errorInvitees in
+        ZIMService.shared.sendCallInvitation(with: invitees, data: extendedData.jsonString) { errorCode, errorMessage, invitationID, errorInvitees in
             if errorCode == 0 {
                 let invitee: UserInfo = UserInfo(userID: invitees.first ?? "")
-                ZegoCallDataManager.shared.createCallData(invitationID, inviter: localUser, invitee: invitee, type: type, callStatus: .wating)
+                ZegoCallStateManager.shared.createCallData(invitationID, inviter: localUser, invitee: invitee, type: type, callStatus: .wating)
             } else {
-                ZegoCallDataManager.shared.resertCall()
+                ZegoCallStateManager.shared.clearCallData()
             }
             guard let callback = callback else { return }
             callback(errorCode, errorMessage, invitationID, errorInvitees)
         }
     }
     
-    func cancelInvitation(with invitees: [String], invitationID: String, data: String?, callback: CancelInvitationCallback?) {
-        ZegoCallDataManager.shared.resertCall()
-        ZIMService.shared.cancelInvitation(with: invitees, invitationID: invitationID, data: data, callback: callback)
+    func cancelCallInvitation(with invitees: [String], invitationID: String, data: String?, callback: CancelCallInvitationCallback?) {
+        ZegoCallStateManager.shared.clearCallData()
+        ZIMService.shared.cancelCallInvitation(with: invitees, invitationID: invitationID, data: data, callback: callback)
     }
     
-    func refuseInvitation(with invitationID: String, data: String?, callback: ResponseInvitationCallback?) {
-        if invitationID == ZegoCallDataManager.shared.currentCallData?.callID {
-            ZegoCallDataManager.shared.resertCall()
+    func rejectCallInvitation(with invitationID: String, data: String?, callback: ResponseInvitationCallback?) {
+        if invitationID == ZegoCallStateManager.shared.currentCallData?.callID {
+            ZegoCallStateManager.shared.clearCallData()
         }
-        ZIMService.shared.refuseInvitation(with: invitationID, data: data, callback: callback)
+        ZIMService.shared.rejectCallInvitation(with: invitationID, data: data, callback: callback)
     }
     
-    func acceptInvitation(with invitationID: String, data: String?, callback: ResponseInvitationCallback?) {
-        ZegoCallDataManager.shared.updateCallData(callStatus: .accept)
-        ZIMService.shared.acceptInvitation(with: invitationID, data: data, callback: callback)
+    func acceptCallInvitation(with invitationID: String, data: String?, callback: ResponseInvitationCallback?) {
+        ZegoCallStateManager.shared.updateCallData(callStatus: .accept)
+        ZIMService.shared.acceptCallInvitation(with: invitationID, data: data, callback: callback)
     }
     
 }

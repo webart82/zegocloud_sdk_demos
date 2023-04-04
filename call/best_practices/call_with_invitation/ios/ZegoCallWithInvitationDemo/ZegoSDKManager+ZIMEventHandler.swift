@@ -11,10 +11,10 @@ import ZIM
 extension ZegoSDKManager: ZIMEventHandler {
     
     func zim(_ zim: ZIM, callInvitationReceived info: ZIMCallInvitationReceivedInfo, callID: String) {
-        if let currentCallData = ZegoCallDataManager.shared.currentCallData {
+        if let currentCallData = ZegoCallStateManager.shared.currentCallData {
             if currentCallData.callStatus == .wating || currentCallData.callStatus == .accept {
                 let dataDict: [String : AnyObject] = ["reason":"busy" as AnyObject, "callID": callID as AnyObject]
-                refuseInvitation(with: callID, data: dataDict.jsonString, callback: nil)
+                rejectCallInvitation(with: callID, data: dataDict.jsonString, callback: nil)
                 return
             }
         }
@@ -29,7 +29,7 @@ extension ZegoSDKManager: ZIMEventHandler {
             callType = .video
         }
         if let localUser = localUser {
-            ZegoCallDataManager.shared.createCallData(callID, inviter: inviter, invitee: localUser, type: callType, callStatus: .wating)
+            ZegoCallStateManager.shared.createCallData(callID, inviter: inviter, invitee: localUser, type: callType, callStatus: .wating)
         }
         for delegate in zimEventHandlers.allObjects {
             delegate.zim?(zim, callInvitationReceived: info, callID: callID)
@@ -37,39 +37,39 @@ extension ZegoSDKManager: ZIMEventHandler {
     }
     
     func zim(_ zim: ZIM, callInvitationAccepted info: ZIMCallInvitationAcceptedInfo, callID: String) {
-        ZegoCallDataManager.shared.updateCallData(callStatus: .accept)
+        ZegoCallStateManager.shared.updateCallData(callStatus: .accept)
         for delegate in zimEventHandlers.allObjects {
             delegate.zim?(zim, callInvitationAccepted: info, callID: callID)
         }
     }
     
     func zim(_ zim: ZIM, callInvitationRejected info: ZIMCallInvitationRejectedInfo, callID: String) {
-        ZegoCallDataManager.shared.updateCallData(callStatus: .refuse)
-        ZegoCallDataManager.shared.resertCall()
+        ZegoCallStateManager.shared.updateCallData(callStatus: .reject)
+        ZegoCallStateManager.shared.clearCallData()
         for delegate in zimEventHandlers.allObjects {
             delegate.zim?(zim, callInvitationRejected: info, callID: callID)
         }
     }
     
     func zim(_ zim: ZIM, callInvitationCancelled info: ZIMCallInvitationCancelledInfo, callID: String) {
-        ZegoCallDataManager.shared.updateCallData(callStatus: .cancel)
-        ZegoCallDataManager.shared.resertCall()
+        ZegoCallStateManager.shared.updateCallData(callStatus: .cancel)
+        ZegoCallStateManager.shared.clearCallData()
         for delegate in zimEventHandlers.allObjects {
             delegate.zim?(zim, callInvitationCancelled: info, callID: callID)
         }
     }
     
     func zim(_ zim: ZIM, callInvitationTimeout callID: String) {
-        ZegoCallDataManager.shared.updateCallData(callStatus: .timeout)
-        ZegoCallDataManager.shared.resertCall()
+        ZegoCallStateManager.shared.updateCallData(callStatus: .timeout)
+        ZegoCallStateManager.shared.clearCallData()
         for delegate in zimEventHandlers.allObjects {
             delegate.zim?(zim, callInvitationTimeout: callID)
         }
     }
     
     func zim(_ zim: ZIM, callInviteesAnsweredTimeout invitees: [String], callID: String) {
-        ZegoCallDataManager.shared.updateCallData(callStatus: .timeout)
-        ZegoCallDataManager.shared.resertCall()
+        ZegoCallStateManager.shared.updateCallData(callStatus: .timeout)
+        ZegoCallStateManager.shared.clearCallData()
         for delegate in zimEventHandlers.allObjects {
             delegate.zim?(zim, callInviteesAnsweredTimeout: invitees, callID: callID)
         }

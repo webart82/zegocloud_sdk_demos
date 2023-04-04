@@ -31,24 +31,24 @@ class ViewController: UIViewController {
         ZegoSDKManager.shared.connectUser(userID: "\(myUserID)", userName: "user_\(myUserID)", token: nil) { errorCode, errorMessage in
             if errorCode != 0 {
                 // login sucess
-                self.view.makeToast("zim login fail:\(errorCode)", duration: 2.0, position: .center)
+                self.view.makeToast("zim login failed:\(errorCode)", duration: 2.0, position: .center)
             }
         }
     }
     
     @IBAction func voiceCallClick(_ sender: UIButton) {
-        startCall(.voice)
+        sendCallInvitation(.voice)
     }
     
     @IBAction func videoCallClick(_ sender: UIButton) {
-        startCall(.video)
+        sendCallInvitation(.video)
     }
     
-    func startCall(_ type: CallType)  {
+    func sendCallInvitation(_ type: CallType)  {
         guard let inviteeUserID = inviteeUserIDTextField.text else { return }
         invitee = UserInfo(userID: inviteeUserID, userName: "user_\(inviteeUserID)")
         //send call invitation
-        ZegoSDKManager.shared.sendInvitation(with: [inviteeUserID], type: type) { errorCode, errorMessage, invitationID, errorInvitees in
+        ZegoSDKManager.shared.sendCallInvitation(with: [inviteeUserID], type: type) { errorCode, errorMessage, invitationID, errorInvitees in
             if errorCode == 0 {
                 // call waiting
                 if errorInvitees.contains(inviteeUserID) {
@@ -57,7 +57,7 @@ class ViewController: UIViewController {
                     self.joinRoom(roomID: invitationID)
                 }
             } else {
-                self.view.makeToast("call fail:\(errorCode)", duration: 2.0, position: .center)
+                self.view.makeToast("call failed:\(errorCode)", duration: 2.0, position: .center)
             }
         }
     }
@@ -81,7 +81,7 @@ class ViewController: UIViewController {
 
     
     func showCallWaitingPage(invitee: UserInfo) {
-        let callWaitingVC: CallWaitViewController = Bundle.main.loadNibNamed("CallWaitViewController", owner: self, options: nil)?.first as! CallWaitViewController
+        let callWaitingVC: CallWaitingViewController = Bundle.main.loadNibNamed("CallWaitViewController", owner: self, options: nil)?.first as! CallWaitingViewController
         callWaitingVC.modalPresentationStyle = .fullScreen
         callWaitingVC.isInviter = true
         callWaitingVC.invitee = invitee
@@ -90,7 +90,7 @@ class ViewController: UIViewController {
     }
     
     func showReceiveCallWaitingPage(inviter: UserInfo, callID: String) {
-        let callWaitingVC: CallWaitViewController = Bundle.main.loadNibNamed("CallWaitViewController", owner: self, options: nil)?.first as! CallWaitViewController
+        let callWaitingVC: CallWaitingViewController = Bundle.main.loadNibNamed("CallWaitViewController", owner: self, options: nil)?.first as! CallWaitingViewController
         callWaitingVC.modalPresentationStyle = .fullScreen
         callWaitingVC.isInviter = false
         callWaitingVC.inviter = inviter
@@ -99,11 +99,11 @@ class ViewController: UIViewController {
 
 }
 
-extension ViewController: ZIMEventHandler, CallWaitViewControllerDelegate, CallAcceptTipViewDelegate {
+extension ViewController: ZIMEventHandler, CallWaitingViewControllerDelegate, CallAcceptTipViewDelegate {
     func zim(_ zim: ZIM, callInvitationReceived info: ZIMCallInvitationReceivedInfo, callID: String) {
         // receive call
-        guard let inviter = ZegoCallDataManager.shared.currentCallData?.inviter else { return }
-        let dialog: ZegoCallInvitationDialog = ZegoCallInvitationDialog.show(inviter, callID: callID, type: ZegoCallDataManager.shared.currentCallData?.type ?? .voice)
+        guard let inviter = ZegoCallStateManager.shared.currentCallData?.inviter else { return }
+        let dialog: ZegoIncomingCallDialog = ZegoIncomingCallDialog.show(inviter, callID: callID, type: ZegoCallStateManager.shared.currentCallData?.type ?? .voice)
         dialog.delegate = self
     }
     
@@ -118,15 +118,15 @@ extension ViewController: ZIMEventHandler, CallWaitViewControllerDelegate, CallA
     
     func zim(_ zim: ZIM, callInvitationCancelled info: ZIMCallInvitationCancelledInfo, callID: String) {
         //receive cancel call
-        ZegoCallInvitationDialog.hide()
+        ZegoIncomingCallDialog.hide()
     }
     
     func zim(_ zim: ZIM, callInvitationTimeout callID: String) {
-        ZegoCallInvitationDialog.hide()
+        ZegoIncomingCallDialog.hide()
     }
     
     func zim(_ zim: ZIM, callInviteesAnsweredTimeout invitees: [String], callID: String) {
-        ZegoCallInvitationDialog.hide()
+        ZegoIncomingCallDialog.hide()
     }
     
     func startShowCallPage(_ remoteUser: UserInfo) {

@@ -8,14 +8,14 @@
 import Foundation
 import ZIM
 
-typealias InvitationCallback = (_ errorCode: UInt, _ errorMessage: String, _ invitationID: String, _ errorInvitees: [String]) -> ()
-typealias CancelInvitationCallback = (_ errorCode: UInt, _ errorMessage: String, _ errorInvitees: [String]) -> ()
+typealias SendCallInvitationCallback = (_ errorCode: UInt, _ errorMessage: String, _ invitationID: String, _ errorInvitees: [String]) -> ()
+typealias CancelCallInvitationCallback = (_ errorCode: UInt, _ errorMessage: String, _ errorInvitees: [String]) -> ()
 
 public typealias ResponseInvitationCallback = (_ errorCode: UInt, _ errorMessage: String) -> ()
 
 extension ZIMService {
     
-    func sendInvitation(with invitees: [String], data: String?, callback: InvitationCallback?) {
+    func sendCallInvitation(with invitees: [String], data: String?, callback: SendCallInvitationCallback?) {
         let config = ZIMCallInviteConfig()
         config.timeout = 60
         config.extendedData = data ?? ""
@@ -27,7 +27,7 @@ extension ZIMService {
         })
     }
     
-    func cancelInvitation(with invitees: [String], invitationID: String, data: String?, callback: CancelInvitationCallback?) {
+    func cancelCallInvitation(with invitees: [String], invitationID: String, data: String?, callback: CancelCallInvitationCallback?) {
         let config = ZIMCallCancelConfig()
         config.extendedData = data ?? ""
         zim?.callCancel(with: invitees, callID: invitationID, config: config, callback: { callID, errorInvitees, error in
@@ -37,7 +37,7 @@ extension ZIMService {
         })
     }
     
-    func refuseInvitation(with invitationID: String, data: String?, callback: ResponseInvitationCallback?) {
+    func rejectCallInvitation(with invitationID: String, data: String?, callback: ResponseInvitationCallback?) {
         let config = ZIMCallRejectConfig()
         config.extendedData = data ?? ""
         zim?.callReject(with: invitationID, config: config, callback: { callID, error in
@@ -45,7 +45,7 @@ extension ZIMService {
         })
     }
     
-    func acceptInvitation(with invitationID: String, data: String?, callback: ResponseInvitationCallback?) {
+    func acceptCallInvitation(with invitationID: String, data: String?, callback: ResponseInvitationCallback?) {
         let config = ZIMCallAcceptConfig()
         config.extendedData = data ?? ""
         zim?.callAccept(with: invitationID, config: config, callback: { callID, error in

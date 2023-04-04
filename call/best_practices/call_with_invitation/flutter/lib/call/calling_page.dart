@@ -66,7 +66,7 @@ class _CallingPageState extends State<CallingPage> {
     for (final subscription in subscriptions) {
       subscription?.cancel();
     }
-    ZegoCallStateManager.instance.clear();
+    ZegoCallStateManager.instance.clearCallData();
     for (String streamID in streamIDList) {
       ZEGOSDKManager.instance.expressService.stopPlayingStream(streamID);
     }

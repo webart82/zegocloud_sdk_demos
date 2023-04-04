@@ -11,7 +11,7 @@ class ZegoCallStateManager {
 
   bool get busy => callData != null;
 
-  void createCall(
+  void createCallData(
       String callID, ZegoUserInfo inviter, ZegoUserInfo invitee, ZegoCallUserState state, ZegoCallType callType) {
     callData = ZegoCallData(inviter: inviter, invitee: invitee, state: state, callType: callType, callID: callID);
   }
@@ -24,7 +24,7 @@ class ZegoCallStateManager {
     }
   }
 
-  void clear() => callData = null;
+  void clearCallData() => callData = null;
 }
 
 class ZegoCallData {

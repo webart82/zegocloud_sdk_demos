@@ -7,9 +7,9 @@
 
 import UIKit
 
-class ZegoCallDataManager: NSObject {
+class ZegoCallStateManager: NSObject {
     
-    static let shared = ZegoCallDataManager()
+    static let shared = ZegoCallStateManager()
     
     var currentCallData: ZegoCallDataModel?
     
@@ -25,7 +25,7 @@ class ZegoCallDataManager: NSObject {
         currentCallData?.callStatus = callStatus
     }
     
-    func resertCall() {
+    func clearCallData() {
         currentCallData = nil
     }
 

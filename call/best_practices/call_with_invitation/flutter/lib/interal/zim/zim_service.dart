@@ -50,7 +50,7 @@ class ZIMService {
       ..extendedData = extendedData
       ..timeout = timeout;
     return ZIM.getInstance()!.callInvite(invitees, config).then((ZIMCallInvitationSentResult zimResult) {
-      ZegoCallStateManager.instance.createCall(
+      ZegoCallStateManager.instance.createCallData(
         zimResult.callID,
         ZegoUserInfo(userID: zimUserInfo?.userID ?? '', userName: zimUserInfo?.userName ?? ''),
         ZegoUserInfo(userID: invitees.first, userName: ''),
@@ -78,7 +78,7 @@ class ZIMService {
     required List<String> invitees,
     String extendedData = '',
   }) async {
-    ZegoCallStateManager.instance.clear();
+    ZegoCallStateManager.instance.clearCallData();
     return ZIM
         .getInstance()!
         .callCancel(invitees, invitationID, ZIMCallCancelConfig()..extendedData = extendedData)
@@ -99,7 +99,7 @@ class ZIMService {
     String extendedData = '',
   }) {
     if (invitationID == ZegoCallStateManager.instance.callData?.callID) {
-      ZegoCallStateManager.instance.clear();
+      ZegoCallStateManager.instance.clearCallData();
     }
     return ZIM
         .getInstance()!
@@ -143,7 +143,7 @@ class ZIMService {
     }
     ZegoCallType type = callInfoMap['type'] == ZegoCallType.video.index ? ZegoCallType.video : ZegoCallType.voice;
     String inviterName = callInfoMap['inviterName'] as String;
-    ZegoCallStateManager.instance.createCall(
+    ZegoCallStateManager.instance.createCallData(
       callID,
       ZegoUserInfo(userID: info.inviter, userName: inviterName),
       ZegoUserInfo(userID: zimUserInfo?.userID ?? '', userName: zimUserInfo?.userName ?? ''),
@@ -165,27 +165,27 @@ class ZIMService {
 
   void onCallInvitationCancelled(ZIM zim, ZIMCallInvitationCancelledInfo info, String callID) {
     ZegoCallStateManager.instance.updateCall(callID, ZegoCallUserState.cancelled);
-    ZegoCallStateManager.instance.clear();
+    ZegoCallStateManager.instance.clearCallData();
     incomingCallInvitationCanceledStreamCtrl
         .add(IncomingCallInvitationCanceledEvent(callID, info.inviter, info.extendedData));
   }
 
   void onCallInvitationRejected(ZIM zim, ZIMCallInvitationRejectedInfo info, String callID) {
     ZegoCallStateManager.instance.updateCall(callID, ZegoCallUserState.rejected);
-    ZegoCallStateManager.instance.clear();
+    ZegoCallStateManager.instance.clearCallData();
     outgoingCallInvitationRejectedStreamCtrl
         .add(OutgoingCallInvitationRejectedEvent(callID, info.invitee, info.extendedData));
   }
 
   void onCallInvitationTimeout(ZIM zim, String callID) {
     ZegoCallStateManager.instance.updateCall(callID, ZegoCallUserState.offline);
-    ZegoCallStateManager.instance.clear();
+    ZegoCallStateManager.instance.clearCallData();
     incomingCallInvitationTimeoutStreamCtrl.add(IncomingCallInvitationTimeoutEvent(callID));
   }
 
   void onCallInviteesAnsweredTimeout(ZIM zim, List<String> invitees, String callID) {
     ZegoCallStateManager.instance.updateCall(callID, ZegoCallUserState.offline);
-    ZegoCallStateManager.instance.clear();
+    ZegoCallStateManager.instance.clearCallData();
     outgoingCallInvitationTimeoutStreamCtrl.add(OutgoingCallInvitationTimeoutEvent(callID, invitees));
   }
 

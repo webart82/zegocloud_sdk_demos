@@ -101,7 +101,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
     if (result.error == null || result.error?.code == '0') {
       if (result.errorInvitees.containsKey(myController.text)) {
-        ZegoCallStateManager.instance.clear();
+        ZegoCallStateManager.instance.clearCallData();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('user is not online: $result')),
         );

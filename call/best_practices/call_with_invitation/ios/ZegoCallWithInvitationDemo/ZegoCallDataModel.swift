@@ -11,7 +11,7 @@ enum CallState: Int {
     case error
     case accept
     case wating
-    case refuse
+    case reject
     case cancel
     case timeout
 }
