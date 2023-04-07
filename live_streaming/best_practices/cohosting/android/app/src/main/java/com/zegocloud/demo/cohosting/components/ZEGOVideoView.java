@@ -78,7 +78,7 @@ public class ZEGOVideoView extends FrameLayout {
             ZEGOSDKManager.getInstance().rtcService.startCameraPreview(textureView, zegoViewMode);
             ZEGOSDKManager.getInstance().rtcService.startPublishLocalAudioVideo();
         } else {
-            ZEGOLiveUser userInfo = rtcService.getUserInfo(mUserID);
+            ZEGOLiveUser userInfo = rtcService.getUser(mUserID);
             if (userInfo != null) {
                 String streamID = rtcService.generateStream(mUserID);
                 ZEGOSDKManager.getInstance().rtcService.startPlayRemoteAudioVideo(textureView, streamID, zegoViewMode);

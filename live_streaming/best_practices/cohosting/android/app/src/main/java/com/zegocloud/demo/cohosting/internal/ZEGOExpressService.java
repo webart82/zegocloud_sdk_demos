@@ -40,6 +40,9 @@ public class ZEGOExpressService {
     private IZegoEventHandler eventHandler;
     private RoomStateChangeListener roomStateChangeListener;
     private Map<String, ZEGOLiveUser> roomUserMap = new HashMap<>();
+    private List<RoomUserChangeListener> roomUserChangeListenerList = new ArrayList<>();
+
+    // order by default time s
     private List<String> userIDList = new ArrayList<>();
     private List<String> videoUserIDList = new ArrayList<>();
 
@@ -66,7 +69,7 @@ public class ZEGOExpressService {
                     + "], streamList = [" + streamList + "], extendedData = [" + extendedData + "]");
                 if (updateType == ZegoUpdateType.ADD) {
                     for (ZegoStream zegoStream : streamList) {
-                        ZEGOLiveUser liveUser = getUserInfo(zegoStream.user.userID);
+                        ZEGOLiveUser liveUser = getUser(zegoStream.user.userID);
                         if (liveUser == null) {
                             liveUser = new ZEGOLiveUser(zegoStream.user.userID, zegoStream.user.userName);
                             saveUserInfo(liveUser);
@@ -87,7 +90,7 @@ public class ZEGOExpressService {
                     }
                 } else {
                     for (ZegoStream zegoStream : streamList) {
-                        ZEGOLiveUser liveUser = getUserInfo(zegoStream.user.userID);
+                        ZEGOLiveUser liveUser = getUser(zegoStream.user.userID);
                         if (liveUser != null) {
                             liveUser.deleteStream(zegoStream.streamID);
                         }
@@ -202,7 +205,7 @@ public class ZEGOExpressService {
     }
 
     public String generateStream(String userID) {
-        ZEGOLiveUser userInfo = getUserInfo(userID);
+        ZEGOLiveUser userInfo = getUser(userID);
         String streamID;
         if (userInfo.isHost()) {
             streamID = currentRoomID + "_" + userID + "_main" + "_host";
@@ -286,6 +289,7 @@ public class ZEGOExpressService {
         roomUserMap.clear();
         userIDList.clear();
         videoUserIDList.clear();
+        roomUserChangeListenerList.clear();
         currentRoomID = null;
     }
 
@@ -297,7 +301,7 @@ public class ZEGOExpressService {
         localUser = null;
     }
 
-    public ZEGOLiveUser getLocalUserInfo() {
+    public ZEGOLiveUser getLocalUser() {
         return localUser;
     }
 
@@ -316,11 +320,29 @@ public class ZEGOExpressService {
         userIDList.remove(userID);
     }
 
-    public List<String> getVideoUserIDList() {
-        return videoUserIDList;
+    public List<ZEGOLiveUser> getUserList() {
+        List<ZEGOLiveUser> userList = new ArrayList<>();
+        userList.add(localUser);
+        for (String userID : userIDList) {
+            ZEGOLiveUser liveUser = roomUserMap.get(userID);
+            userList.add(liveUser);
+        }
+        return userList;
     }
 
-    public ZEGOLiveUser getUserInfo(String userID) {
+    public List<ZEGOLiveUser> getVideoUserList() {
+        List<ZEGOLiveUser> userList = new ArrayList<>();
+        if (localUser.hasStream()) {
+            userList.add(localUser);
+        }
+        for (String userID : videoUserIDList) {
+            ZEGOLiveUser liveUser = roomUserMap.get(userID);
+            userList.add(liveUser);
+        }
+        return userList;
+    }
+
+    public ZEGOLiveUser getUser(String userID) {
         if (userID != null && localUser != null && userID.equals(localUser.userID)) {
             return localUser;
         }
@@ -400,9 +422,24 @@ public class ZEGOExpressService {
         this.roomStateChangeListener = roomStateChangeListener;
     }
 
+    public void addUserChangeListener(RoomUserChangeListener listener) {
+        roomUserChangeListenerList.add(listener);
+    }
+
+    public void removeUserChangeListener(RoomUserChangeListener listener) {
+        roomUserChangeListenerList.remove(listener);
+    }
+
     public interface RoomStateChangeListener {
 
         void onRoomStateChanged(String roomID, ZegoRoomStateChangedReason reason, int errorCode,
             JSONObject extendedData);
+    }
+
+    public interface RoomUserChangeListener {
+
+        void onUserEnter(List<ZEGOLiveUser> userList);
+
+        void onUserLeft(List<ZEGOLiveUser> userList);
     }
 }

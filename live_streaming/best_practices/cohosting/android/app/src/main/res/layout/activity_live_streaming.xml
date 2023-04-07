@@ -22,6 +22,12 @@
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintStart_toStartOf="parent" />
 
+  <com.zegocloud.demo.cohosting.components.BottomMenuBar
+    android:id="@+id/live_bottom_menu_bar"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:layout_constraintBottom_toBottomOf="parent" />
+
   <androidx.recyclerview.widget.RecyclerView
     android:id="@+id/main_small_view_parent"
     android:layout_width="wrap_content"

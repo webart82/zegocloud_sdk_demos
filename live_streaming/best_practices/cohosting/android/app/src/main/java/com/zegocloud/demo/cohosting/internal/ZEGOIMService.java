@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import org.json.JSONObject;
 
 public class ZEGOIMService {
@@ -392,6 +393,17 @@ public class ZEGOIMService {
     public ZEGOInvitation getZEGOInvitation(String callID) {
         return zegoInvitationMap.get(callID);
     }
+
+
+    public boolean isUserInviteExisted(String userID) {
+        for (ZEGOInvitation invitation : zegoInvitationMap.values()) {
+            if (Objects.equals(invitation.inviter, userID)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 
     public void addOutgoingInvitationListener(OutgoingInvitationListener listener) {
         outgoingInvitationListenerList.add(listener);

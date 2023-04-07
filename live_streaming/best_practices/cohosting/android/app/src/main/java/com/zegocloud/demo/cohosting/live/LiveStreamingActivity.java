@@ -34,7 +34,7 @@ public class LiveStreamingActivity extends AppCompatActivity {
         boolean isHost = getIntent().getBooleanExtra("host", true);
         liveID = getIntent().getStringExtra("liveID");
 
-        ZEGOLiveUser userInfo = ZEGOSDKManager.getInstance().rtcService.getLocalUserInfo();
+        ZEGOLiveUser userInfo = ZEGOSDKManager.getInstance().rtcService.getLocalUser();
         userInfo.setRole(isHost ? ZEGOLiveRole.HOST : ZEGOLiveRole.AUDIENCE);
 
         binding.previewStart.setOnClickListener(v -> {
@@ -75,7 +75,7 @@ public class LiveStreamingActivity extends AppCompatActivity {
 
     private void onJoinRoomSuccess() {
         binding.previewStart.setVisibility(View.GONE);
-        ZEGOLiveUser localUserInfo = ZEGOSDKManager.getInstance().rtcService.getLocalUserInfo();
+        ZEGOLiveUser localUserInfo = ZEGOSDKManager.getInstance().rtcService.getLocalUser();
         if (localUserInfo.isHost()) {
             binding.mainFullVideo.setUserID(localUserInfo.userID);
         }
@@ -83,20 +83,18 @@ public class LiveStreamingActivity extends AppCompatActivity {
         binding.mainSmallViewParent.setLayoutManager(new LinearLayoutManager(this));
         binding.mainSmallViewParent.setAdapter(coHostAdapter);
 
-        addUserVideos(ZEGOSDKManager.getInstance().rtcService.getVideoUserIDList());
+        addUserVideos();
     }
 
-    private void addUserVideos(List<String> videoUserIDList) {
+    private void addUserVideos() {
+        List<ZEGOLiveUser> videoUserList = ZEGOSDKManager.getInstance().rtcService.getVideoUserList();
         hostUserID = null;
         List<String> coHostUserIDList = new ArrayList<>();
-        for (String userID : videoUserIDList) {
-            ZEGOLiveUser userInfo = ZEGOSDKManager.getInstance().rtcService.getUserInfo(userID);
-            if (userInfo != null) {
-                if (userInfo.isHost()) {
-                    hostUserID = userInfo.userID;
-                } else {
-                    coHostUserIDList.add(userInfo.userID);
-                }
+        for (ZEGOLiveUser liveUser : videoUserList) {
+            if (liveUser.isHost()) {
+                hostUserID = liveUser.userID;
+            } else {
+                coHostUserIDList.add(liveUser.userID);
             }
         }
         if (hostUserID != null) {

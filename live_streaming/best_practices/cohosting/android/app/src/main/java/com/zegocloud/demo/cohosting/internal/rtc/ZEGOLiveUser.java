@@ -21,6 +21,10 @@ public class ZEGOLiveUser {
         return mainStreamID;
     }
 
+    public boolean hasStream() {
+        return !TextUtils.isEmpty(mainStreamID) && !TextUtils.isEmpty(shareStreamID);
+    }
+
     public void setStreamID(String streamID) {
         if (streamID.contains("main")) {
             this.mainStreamID = streamID;
