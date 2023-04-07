@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:live_streaming_with_cohosting/pages/zego_page_define.dart';
+import 'package:live_streaming_with_cohosting/zego_sdk_key_center.dart';
+import 'package:live_streaming_with_cohosting/zego_sdk_manager.dart';
 
 import '../utils/permission.dart';
 
@@ -18,7 +21,14 @@ class _ZegoLoginPageState extends State<ZegoLoginPage> {
   @override
   void initState() {
     super.initState();
+    // init SDK
+    ZegoSDKManager.shared.init(SDKKeyCenter.appID, SDKKeyCenter.appSign);
     // requestPermission();
+  }
+
+  void pushToJoinLivePage() {
+    Navigator.push(context,
+        MaterialPageRoute(builder: (context) => const ZegoJoinLivePage()));
   }
 
   @override
@@ -42,9 +52,13 @@ class _ZegoLoginPageState extends State<ZegoLoginPage> {
             SizedBox(
               width: 200,
               height: 40,
-              child: OutlinedButton(onPressed: () {
-                
-              }, child: Text('Login')),
+              child: OutlinedButton(
+                  onPressed: () {
+                    ZegoSDKManager.shared.connectUser(
+                        userIDController.text, userNameController.text);
+                    pushToJoinLivePage();
+                  },
+                  child: Text('Login')),
             ),
           ],
         ),
