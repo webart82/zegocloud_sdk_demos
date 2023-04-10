@@ -26,12 +26,12 @@ class ZegoLivePage extends StatefulWidget {
 class _ZegoLivePageState extends State<ZegoLivePage> {
   List<StreamSubscription<dynamic>?> subscriptions = [];
 
-  // ValueNotifier<List<ZegoUserInfo>> coHostListNoti = ValueNotifier([]);
   ValueNotifier<String?> hostStreamNoti = ValueNotifier(null);
   ListNotifier<String> coHostStreamNoti = ListNotifier([]);
   ValueNotifier<bool> isLivingNoti = ValueNotifier(false);
   ListNotifier<String> applyCohostList = ListNotifier([]);
   ValueNotifier<bool> applyState = ValueNotifier(false);
+  ValueNotifier<ZegoUserInfo?> hostUserInfoNoti = ValueNotifier(null);
 
   @override
   void initState() {
@@ -52,11 +52,12 @@ class _ZegoLivePageState extends State<ZegoLivePage> {
       ZegoSDKManager.shared.localUser?.roleNoti.value = ZegoLiveRole.audience;
       ZegoSDKManager.shared.joinRoom(widget.liveID);
     } else if (widget.role == ZegoLiveRole.host) {
+      hostUserInfoNoti.value = ZegoSDKManager.shared.localUser;
       ZegoSDKManager.shared.localUser?.roleNoti.value = ZegoLiveRole.host;
       ZegoSDKManager.shared.expressService.turnCameraOn(true);
       ZegoSDKManager.shared.expressService.turnMicrophoneOn(true);
       ZegoSDKManager.shared.expressService.startPreview();
-    } else {}
+    }
   }
 
   @override
@@ -139,16 +140,20 @@ class _ZegoLivePageState extends State<ZegoLivePage> {
   }
 
   Widget coHostView() {
+    var height = MediaQuery.of(context).size.height - 100 - 100;
     return Positioned(
       right: 20,
       top: 100,
       width: 96,
-      height: 600,
+      height: height,
       child: coHostVideoView(),
     );
   }
 
   Widget coHostVideoView() {
+    var height = (MediaQuery.of(context).size.height - 30 - 100 - 100) / 3;
+    var width = height * (9 / 16);
+
     return ValueListenableBuilder<List<String>>(
         valueListenable: coHostStreamNoti,
         builder: (context, cohostList, _) {
@@ -159,11 +164,11 @@ class _ZegoLivePageState extends State<ZegoLivePage> {
           }
           return Column(
             children: [
-              for (Widget view in videoList) ...[
+              for (Widget view in videoList.reversed) ...[
                 const SizedBox(height: 10),
                 SizedBox(
-                  width: 96,
-                  height: 164,
+                  width: width,
+                  height: height,
                   child: view,
                 )
               ],
@@ -197,8 +202,16 @@ class _ZegoLivePageState extends State<ZegoLivePage> {
         child: SizedBox(
           width: 100,
           height: 40,
-          child:
-              OutlinedButton(onPressed: startLive, child: Text('Start Live')),
+          child: OutlinedButton(
+              style: OutlinedButton.styleFrom(
+                  side: const BorderSide(width: 1, color: Colors.white)),
+              onPressed: startLive,
+              child: const Text(
+                'Start Live',
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              )),
         ),
       );
     });
@@ -216,9 +229,11 @@ class _ZegoLivePageState extends State<ZegoLivePage> {
     return LayoutBuilder(builder: (context, containers) {
       return Padding(
         padding: EdgeInsets.only(left: containers.maxWidth - 60, top: 40),
-        child: Container(
+        child: SizedBox(
+          width: 30,
+          height: 30,
           child: CircleAvatar(
-            radius: 20,
+            radius: 15,
             backgroundColor: Colors.black12,
             child: IconButton(
                 onPressed: () {
@@ -267,7 +282,7 @@ class _ZegoLivePageState extends State<ZegoLivePage> {
               //   },
               // );
             },
-            child: Text('showMembers')),
+            child: const Text('showMembers')),
       );
     });
   }
@@ -279,7 +294,7 @@ class _ZegoLivePageState extends State<ZegoLivePage> {
           if (index == 0) {
             return Container(
               height: 50,
-              child: Text(
+              child: const Text(
                 'Members',
                 textAlign: TextAlign.center,
                 style: TextStyle(
@@ -309,7 +324,7 @@ class _ZegoLivePageState extends State<ZegoLivePage> {
       height: 40,
       color: Colors.blue,
       child: Row(
-        children: [
+        children: const [
           Text('userName:'),
         ],
       ),
@@ -317,10 +332,20 @@ class _ZegoLivePageState extends State<ZegoLivePage> {
   }
 
   Widget hostText() {
-    return Padding(
-      padding: EdgeInsets.only(left: 20, top: 40),
-      child: Text('hostName'),
-    );
+    return ValueListenableBuilder<ZegoUserInfo?>(
+        valueListenable: hostUserInfoNoti,
+        builder: (context, userInfo, _) {
+          return Padding(
+            padding: const EdgeInsets.only(left: 20, top: 50),
+            child: Text(
+              'host:${userInfo?.userName ?? ''}',
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.white,
+              ),
+            ),
+          );
+        });
   }
 
   void onStreamListUpdate(ZegoRoomStreamListUpdateEvent event) {
@@ -329,13 +354,18 @@ class _ZegoLivePageState extends State<ZegoLivePage> {
         if (stream.streamID.endsWith('_host')) {
           isLivingNoti.value = true;
           hostStreamNoti.value = stream.streamID;
+          hostUserInfoNoti.value = ZegoUserInfo(
+              userID: stream.user.userID, userName: stream.user.userName);
         } else if (stream.streamID.endsWith('_cohost')) {
-          coHostStreamNoti.add(stream.streamID);
+          if (coHostStreamNoti.length < 3) {
+            coHostStreamNoti.add(stream.streamID);
+          }
         }
       } else {
         if (stream.streamID.endsWith('_host')) {
           isLivingNoti.value = false;
           hostStreamNoti.value = null;
+          hostUserInfoNoti.value = null;
         } else if (stream.streamID.endsWith('_cohost')) {
           coHostStreamNoti.remove(stream.streamID);
         }
@@ -346,11 +376,12 @@ class _ZegoLivePageState extends State<ZegoLivePage> {
   void onRoomUserListUpdate(ZegoRoomUserListUpdateEvent event) {
     for (var user in event.userList) {
       if (event.updateType == ZegoUpdateType.Delete) {
-        //if (user.userID == widget.otherUserInfo.userID) {
-        // ZegoCallDataManager.shared.clear();
-        // ZegoSDKManager.shared.expressService.leaveRoom();
-        // Navigator.pop(context);
-        //}
+        if (coHostStreamNoti.value.contains(user.userID)) {
+          coHostStreamNoti.remove(user.userID);
+        }
+        if (hostUserInfoNoti.value?.userID == user.userID) {
+          hostUserInfoNoti.value = null;
+        }
       }
     }
   }

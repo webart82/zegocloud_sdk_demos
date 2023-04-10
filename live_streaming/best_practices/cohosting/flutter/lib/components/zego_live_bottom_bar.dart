@@ -130,6 +130,8 @@ class _ZegoLiveBottomBarState extends State<ZegoLiveBottomBar> {
       width: 120,
       height: 40,
       child: OutlinedButton(
+          style: OutlinedButton.styleFrom(
+              side: const BorderSide(width: 1, color: Colors.white)),
           onPressed: () {
             final command = jsonEncode({
               'type': CustomCommandActionType.AudienceApplyToBecomeCoHost,
@@ -139,7 +141,10 @@ class _ZegoLiveBottomBarState extends State<ZegoLiveBottomBar> {
                 .sendCommandMessage(command, [getHostUser()?.userID ?? '']);
             widget.applyState?.value = true;
           },
-          child: Text('applyCohost')),
+          child: Text(
+            'applyCohost',
+            style: TextStyle(color: Colors.white),
+          )),
     );
   }
 
@@ -148,6 +153,8 @@ class _ZegoLiveBottomBarState extends State<ZegoLiveBottomBar> {
       width: 120,
       height: 40,
       child: OutlinedButton(
+          style: OutlinedButton.styleFrom(
+              side: const BorderSide(width: 1, color: Colors.white)),
           onPressed: () {
             final command = jsonEncode({
               'type': CustomCommandActionType.AudienceCancelCoHostApply,
@@ -157,7 +164,10 @@ class _ZegoLiveBottomBarState extends State<ZegoLiveBottomBar> {
                 .sendCommandMessage(command, [getHostUser()?.userID ?? '']);
             widget.applyState?.value = false;
           },
-          child: Text('cancelApplyCohost')),
+          child: Text(
+            'cancelApplyCohost',
+            style: TextStyle(color: Colors.white),
+          )),
     );
   }
 
@@ -181,6 +191,8 @@ class _ZegoLiveBottomBarState extends State<ZegoLiveBottomBar> {
       width: 120,
       height: 40,
       child: OutlinedButton(
+          style: OutlinedButton.styleFrom(
+              side: const BorderSide(width: 1, color: Colors.white)),
           onPressed: () {
             widget.coHostStreamNoti.removeWhere((element) {
               return element == ZegoSDKManager.shared.localUser!.streamID;
@@ -190,7 +202,12 @@ class _ZegoLiveBottomBarState extends State<ZegoLiveBottomBar> {
                 ZegoLiveRole.audience;
             ZegoSDKManager.shared.expressService.stopPublishingStream();
           },
-          child: Text('end cohost')),
+          child: const Text(
+            'end cohost',
+            style: TextStyle(
+              color: Colors.white,
+            ),
+          )),
     );
   }
 }

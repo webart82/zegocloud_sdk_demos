@@ -23,7 +23,7 @@ class _ZegoLoginPageState extends State<ZegoLoginPage> {
     super.initState();
     // init SDK
     ZegoSDKManager.shared.init(SDKKeyCenter.appID, SDKKeyCenter.appSign);
-    // requestPermission();
+    requestPermission();
   }
 
   void pushToJoinLivePage() {

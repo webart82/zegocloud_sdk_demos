@@ -27,9 +27,8 @@ class ZegoSDKManager {
     for (var user in expressService.userInfoList) {
       if (userID == user.userID) {
         return user;
-      } else {
-        return null;
       }
     }
+    return null;
   }
 }
