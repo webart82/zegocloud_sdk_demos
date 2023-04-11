@@ -6,7 +6,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:live_streaming_with_cohosting/components/zego_audio_video_view.dart';
 import 'package:live_streaming_with_cohosting/components/zego_live_bottom_bar.dart';
-import 'package:live_streaming_with_cohosting/define.dart';
 import 'package:live_streaming_with_cohosting/internal/zego_express_service.dart';
 import 'package:live_streaming_with_cohosting/utils/flutter_extension.dart';
 import 'package:live_streaming_with_cohosting/zego_sdk_manager.dart';

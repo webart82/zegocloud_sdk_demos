@@ -2,21 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:live_streaming_with_cohosting/define.dart';
 import 'package:live_streaming_with_cohosting/pages/zego_live_page.dart';
 
-class ZegoJoinLivePage extends StatefulWidget {
-  const ZegoJoinLivePage({super.key});
+class HomePage extends StatefulWidget {
+  const HomePage({super.key});
 
   @override
-  State<ZegoJoinLivePage> createState() => _ZegoJoinLivePageState();
+  State<HomePage> createState() => _HomePageState();
 }
 
-class _ZegoJoinLivePageState extends State<ZegoJoinLivePage> {
+class _HomePageState extends State<HomePage> {
   final roomIDController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Join Live Room Page'),
+        title: const Text('Home Page'),
       ),
       body: Padding(
         padding: const EdgeInsets.only(top: 100, left: 30, right: 30),

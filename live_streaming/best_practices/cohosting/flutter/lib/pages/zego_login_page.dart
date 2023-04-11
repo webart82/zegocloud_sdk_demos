@@ -26,11 +26,6 @@ class _ZegoLoginPageState extends State<ZegoLoginPage> {
     requestPermission();
   }
 
-  void pushToJoinLivePage() {
-    Navigator.push(context,
-        MaterialPageRoute(builder: (context) => const ZegoJoinLivePage()));
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -38,27 +33,31 @@ class _ZegoLoginPageState extends State<ZegoLoginPage> {
         title: Text(widget.title),
       ),
       body: Padding(
-        padding: EdgeInsets.only(top: 100, left: 20, right: 20),
+        padding: const EdgeInsets.only(top: 100, left: 20, right: 20),
         child: Column(
           children: [
             userIDInputView(),
-            SizedBox(
+            const SizedBox(
               height: 20,
             ),
             userNameInputView(),
-            SizedBox(
+            const SizedBox(
               height: 20,
             ),
             SizedBox(
               width: 200,
               height: 40,
               child: OutlinedButton(
-                  onPressed: () {
-                    ZegoSDKManager.shared.connectUser(
-                        userIDController.text, userNameController.text);
-                    pushToJoinLivePage();
-                  },
-                  child: Text('Login')),
+                onPressed: () {
+                  ZegoSDKManager.shared.connectUser(userIDController.text, userNameController.text).then((value) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const HomePage()),
+                    );
+                  });
+                },
+                child: const Text('Login'),
+              ),
             ),
           ],
         ),
@@ -69,15 +68,13 @@ class _ZegoLoginPageState extends State<ZegoLoginPage> {
   Widget userIDInputView() {
     return Row(
       children: [
-        SizedBox(width: 20),
-        Text('userID:'),
-        SizedBox(
-          width: 10,
-        ),
+        const SizedBox(width: 20),
+        const Text('userID:'),
+        const SizedBox(width: 10),
         Flexible(
             child: TextField(
           controller: userIDController,
-          decoration: InputDecoration(
+          decoration: const InputDecoration(
             labelText: 'please input your userID',
           ),
         )),
@@ -88,15 +85,13 @@ class _ZegoLoginPageState extends State<ZegoLoginPage> {
   Widget userNameInputView() {
     return Row(
       children: [
-        SizedBox(width: 20),
-        Text('userName:'),
-        SizedBox(
-          width: 10,
-        ),
+        const SizedBox(width: 20),
+        const Text('userName:'),
+        const SizedBox(width: 10),
         Flexible(
             child: TextField(
           controller: userNameController,
-          decoration: InputDecoration(
+          decoration: const InputDecoration(
             labelText: 'please input your userName',
           ),
         )),
