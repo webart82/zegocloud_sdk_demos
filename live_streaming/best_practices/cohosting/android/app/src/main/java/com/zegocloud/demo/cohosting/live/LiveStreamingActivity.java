@@ -12,7 +12,6 @@ import com.zegocloud.demo.cohosting.R;
 import com.zegocloud.demo.cohosting.ZEGOSDKManager;
 import com.zegocloud.demo.cohosting.databinding.ActivityLiveStreamingBinding;
 import com.zegocloud.demo.cohosting.internal.ZEGOExpressService;
-import com.zegocloud.demo.cohosting.internal.ZEGOExpressService.IMRecvCustomCommandListener;
 import com.zegocloud.demo.cohosting.internal.ZEGOExpressService.RoomStreamChangeListener;
 import com.zegocloud.demo.cohosting.internal.invitation.common.IncomingInvitationListener;
 import com.zegocloud.demo.cohosting.internal.invitation.common.OutgoingInvitationListener;
@@ -20,10 +19,7 @@ import com.zegocloud.demo.cohosting.internal.invitation.common.ZEGOInvitation;
 import com.zegocloud.demo.cohosting.internal.rtc.ZEGOLiveRole;
 import com.zegocloud.demo.cohosting.internal.rtc.ZEGOLiveUser;
 import im.zego.zegoexpress.callback.IZegoRoomLoginCallback;
-import im.zego.zegoexpress.entity.ZegoStream;
-import im.zego.zegoexpress.entity.ZegoUser;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import org.json.JSONObject;
@@ -210,12 +206,16 @@ public class LiveStreamingActivity extends AppCompatActivity {
                             ZEGOLiveUser inviter = ZEGOSDKManager.getInstance().rtcService.getUser(
                                 zegoInvitation.inviter);
                             if (inviter != null) {
-                                builder.setMessage(inviter.userName + "invite you to CoHost");
+                                builder.setMessage(inviter.userName + " invite you to CoHost");
                             }
                         }
                         builder.setPositiveButton(R.string.ok, new OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
+                                ZEGOExpressService rtcService = ZEGOSDKManager.getInstance().rtcService;
+                                rtcService.openMicrophone(true);
+                                rtcService.enableCamera(true);
+                                rtcService.startPublishLocalAudioVideo();
                                 dialog.dismiss();
                             }
                         });

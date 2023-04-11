@@ -1,11 +1,15 @@
 package com.zegocloud.demo.cohosting.components;
 
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AlertDialog.Builder;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.RecyclerView.ViewHolder;
 import com.zegocloud.demo.cohosting.R;
@@ -13,7 +17,9 @@ import com.zegocloud.demo.cohosting.ZEGOSDKManager;
 import com.zegocloud.demo.cohosting.internal.invitation.ZEGOInvitationService;
 import com.zegocloud.demo.cohosting.internal.invitation.common.AcceptInvitationCallback;
 import com.zegocloud.demo.cohosting.internal.invitation.common.RejectInvitationCallback;
+import com.zegocloud.demo.cohosting.internal.invitation.common.SendInvitationCallback;
 import com.zegocloud.demo.cohosting.internal.invitation.common.ZEGOInvitation;
+import com.zegocloud.demo.cohosting.internal.invitation.impl.CoHostProtocol;
 import com.zegocloud.demo.cohosting.internal.rtc.ZEGOLiveUser;
 import com.zegocloud.demo.cohosting.utils.ToastUtil;
 import com.zegocloud.demo.cohosting.utils.Utils;
@@ -133,17 +139,33 @@ public class MemberListAdapter extends RecyclerView.Adapter<ViewHolder> {
             }
         });
         more.setOnClickListener(v -> {
-            //            if (memberListConfig != null && memberListConfig.memberListMoreButtonPressedListener != null) {
-            //                memberListConfig.memberListMoreButtonPressedListener.onMemberListMoreButtonPressed((ViewGroup) view,
-            //                    uiKitUser);
-            //            } else {
-            //                if (seatLocked) {
-            //                    if (!isUserSpeaker) {
-            //                        showMoreOperationDialog(uiKitUser);
-            //                        dismiss();
-            //                    }
-            //                }
-            //            }
+            AlertDialog.Builder alertBuilder = new Builder(more.getContext());
+            alertBuilder.setTitle("Invite CoHost");
+            alertBuilder.setMessage("Are you sure to invite " + liveUser.userName + " to CoHost?");
+            alertBuilder.setPositiveButton(R.string.ok, new OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    CoHostProtocol protocol = new CoHostProtocol();
+                    protocol.setActionType(CoHostProtocol.HostInviteAudienceToBecomeCoHost);
+                    protocol.setTargetID(liveUser.userID);
+                    protocol.setOperatorID(localUser.userID);
+                    invitationService.inviteUser(liveUser.userID, protocol.toString(), new SendInvitationCallback() {
+                        @Override
+                        public void onResult(int errorCode, String invitationID, List<String> errorInvitees) {
+
+                        }
+                    });
+                    dialog.dismiss();
+                }
+            });
+            alertBuilder.setNegativeButton(R.string.cancel, new OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                }
+            });
+            AlertDialog alertDialog = alertBuilder.create();
+            alertDialog.show();
         });
     }
 

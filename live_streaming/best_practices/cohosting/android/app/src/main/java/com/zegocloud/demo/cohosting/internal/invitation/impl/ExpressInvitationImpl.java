@@ -3,7 +3,7 @@ package com.zegocloud.demo.cohosting.internal.invitation.impl;
 import android.app.Application;
 import com.zegocloud.demo.cohosting.ZEGOSDKManager;
 import com.zegocloud.demo.cohosting.internal.ZEGOExpressService;
-import com.zegocloud.demo.cohosting.internal.ZEGOExpressService.IMRecvCustomCommandListener;
+import com.zegocloud.demo.cohosting.internal.ZEGOExpressService.IMCustomCommandListener;
 import com.zegocloud.demo.cohosting.internal.invitation.common.AcceptInvitationCallback;
 import com.zegocloud.demo.cohosting.internal.invitation.common.CancelInvitationCallback;
 import com.zegocloud.demo.cohosting.internal.invitation.common.ConnectCallback;
@@ -27,7 +27,7 @@ public class ExpressInvitationImpl implements InvitationInterface {
 
     @Override
     public void initSDK(Application application, long appID, String appSign) {
-        ZEGOSDKManager.getInstance().rtcService.addCustomCommandListener(new IMRecvCustomCommandListener() {
+        ZEGOSDKManager.getInstance().rtcService.addCustomCommandListener(new IMCustomCommandListener() {
             @Override
             public void onIMRecvCustomCommand(String roomID, ZegoUser fromUser, String command) {
                 if (invitationListener == null) {

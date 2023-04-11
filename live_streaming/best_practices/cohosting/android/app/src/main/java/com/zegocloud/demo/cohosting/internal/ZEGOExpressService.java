@@ -9,6 +9,7 @@ import com.zegocloud.demo.cohosting.utils.LogUtil;
 import im.zego.zegoexpress.ZegoExpressEngine;
 import im.zego.zegoexpress.callback.IZegoCustomVideoProcessHandler;
 import im.zego.zegoexpress.callback.IZegoEventHandler;
+import im.zego.zegoexpress.callback.IZegoIMSendBarrageMessageCallback;
 import im.zego.zegoexpress.callback.IZegoIMSendCustomCommandCallback;
 import im.zego.zegoexpress.callback.IZegoRoomLoginCallback;
 import im.zego.zegoexpress.constants.ZegoPublishChannel;
@@ -18,6 +19,7 @@ import im.zego.zegoexpress.constants.ZegoRoomStateChangedReason;
 import im.zego.zegoexpress.constants.ZegoScenario;
 import im.zego.zegoexpress.constants.ZegoUpdateType;
 import im.zego.zegoexpress.constants.ZegoViewMode;
+import im.zego.zegoexpress.entity.ZegoBarrageMessageInfo;
 import im.zego.zegoexpress.entity.ZegoCanvas;
 import im.zego.zegoexpress.entity.ZegoCustomVideoProcessConfig;
 import im.zego.zegoexpress.entity.ZegoEngineConfig;
@@ -46,7 +48,8 @@ public class ZEGOExpressService {
     private IZegoEventHandler eventHandler;
     private List<RoomUserChangeListener> roomUserChangeListenerList = new ArrayList<>();
     private List<RoomStreamChangeListener> roomStreamChangeListenerList = new ArrayList<>();
-    private List<IMRecvCustomCommandListener> customCommandListenerList = new ArrayList<>();
+    private List<IMCustomCommandListener> customCommandListenerList = new ArrayList<>();
+    private List<IMBarrageMessageListener> barrageMessageListenerList = new ArrayList<>();
 
     // order by default time s
     private List<String> userIDList = new ArrayList<>();
@@ -223,11 +226,25 @@ public class ZEGOExpressService {
                 super.onIMRecvCustomCommand(roomID, fromUser, command);
                 Log.d(TAG, "onIMRecvCustomCommand() called with: roomID = [" + roomID + "], fromUser = [" + fromUser
                     + "], command = [" + command + "]");
-                for (IMRecvCustomCommandListener listener : customCommandListenerList) {
+                for (IMCustomCommandListener listener : customCommandListenerList) {
                     listener.onIMRecvCustomCommand(roomID, fromUser, command);
                 }
                 if (eventHandler != null) {
                     eventHandler.onIMRecvCustomCommand(roomID, fromUser, command);
+                }
+            }
+
+            @Override
+            public void onIMRecvBarrageMessage(String roomID, ArrayList<ZegoBarrageMessageInfo> messageList) {
+                super.onIMRecvBarrageMessage(roomID, messageList);
+                Log.d(TAG,
+                    "onIMRecvBarrageMessage() called with: roomID = [" + roomID + "], messageList = [" + messageList
+                        + "]");
+                for (IMBarrageMessageListener listener : barrageMessageListenerList) {
+                    listener.onIMRecvBarrageMessage(roomID, messageList);
+                }
+                if (eventHandler != null) {
+                    eventHandler.onIMRecvBarrageMessage(roomID, messageList);
                 }
             }
         });
@@ -482,6 +499,13 @@ public class ZEGOExpressService {
         engine.sendCustomCommand(currentRoomID, command, toUserList, callback);
     }
 
+    public void sendBarrageMessage(String message, IZegoIMSendBarrageMessageCallback callback) {
+        if (engine == null) {
+            return;
+        }
+        engine.sendBarrageMessage(currentRoomID, message, callback);
+    }
+
     public void setRoomStateChangeListener(RoomStateChangeListener roomStateChangeListener) {
         this.roomStateChangeListener = roomStateChangeListener;
     }
@@ -502,12 +526,20 @@ public class ZEGOExpressService {
         roomStreamChangeListenerList.remove(listener);
     }
 
-    public void addCustomCommandListener(IMRecvCustomCommandListener listener) {
+    public void addCustomCommandListener(IMCustomCommandListener listener) {
         customCommandListenerList.add(listener);
     }
 
-    public void removeCustomCommandListener(IMRecvCustomCommandListener listener) {
+    public void removeCustomCommandListener(IMCustomCommandListener listener) {
         customCommandListenerList.remove(listener);
+    }
+
+    public void addBarrageMessageListener(IMBarrageMessageListener listener) {
+        barrageMessageListenerList.add(listener);
+    }
+
+    public void removeBarrageMessageListener(IMBarrageMessageListener listener) {
+        barrageMessageListenerList.remove(listener);
     }
 
     public interface RoomStateChangeListener {
@@ -530,8 +562,13 @@ public class ZEGOExpressService {
         void onStreamRemove(List<ZEGOLiveUser> userList);
     }
 
-    public interface IMRecvCustomCommandListener {
+    public interface IMCustomCommandListener {
 
         void onIMRecvCustomCommand(String roomID, ZegoUser fromUser, String command);
+    }
+
+    public interface IMBarrageMessageListener {
+
+        void onIMRecvBarrageMessage(String roomID, ArrayList<ZegoBarrageMessageInfo> messageList);
     }
 }
