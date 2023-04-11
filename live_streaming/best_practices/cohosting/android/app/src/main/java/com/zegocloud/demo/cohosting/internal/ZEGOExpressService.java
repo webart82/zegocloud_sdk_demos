@@ -503,7 +503,17 @@ public class ZEGOExpressService {
         if (engine == null) {
             return;
         }
-        engine.sendBarrageMessage(currentRoomID, message, callback);
+        engine.sendBarrageMessage(currentRoomID, message, new IZegoIMSendBarrageMessageCallback() {
+            @Override
+            public void onIMSendBarrageMessageResult(int errorCode, String messageID) {
+                if (callback != null) {
+                    callback.onIMSendBarrageMessageResult(errorCode, messageID);
+                }
+                for (IMBarrageMessageListener listener : barrageMessageListenerList) {
+                    listener.onIMSendBarrageMessageResult(errorCode, message, messageID);
+                }
+            }
+        });
     }
 
     public void setRoomStateChangeListener(RoomStateChangeListener roomStateChangeListener) {
@@ -570,5 +580,7 @@ public class ZEGOExpressService {
     public interface IMBarrageMessageListener {
 
         void onIMRecvBarrageMessage(String roomID, ArrayList<ZegoBarrageMessageInfo> messageList);
+
+        void onIMSendBarrageMessageResult(int errorCode, String message, String messageID);
     }
 }

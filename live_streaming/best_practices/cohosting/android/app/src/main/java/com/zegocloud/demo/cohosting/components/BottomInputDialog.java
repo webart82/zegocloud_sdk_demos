@@ -71,13 +71,9 @@ public class BottomInputDialog extends Dialog {
 
         sendBtn.setOnClickListener(v -> {
             String message = editText.getText().toString();
-            ZEGOSDKManager.getInstance().rtcService.sendBarrageMessage(message,
-                new IZegoIMSendBarrageMessageCallback() {
-                    @Override
-                    public void onIMSendBarrageMessageResult(int errorCode, String messageID) {
+            ZEGOSDKManager.getInstance().rtcService.sendBarrageMessage(message, (errorCode, messageID) -> {
 
-                    }
-                });
+            });
             editText.setText("");
         });
 
