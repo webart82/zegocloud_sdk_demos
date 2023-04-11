@@ -4,7 +4,6 @@ import android.app.Application;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.TextureView;
-import com.zegocloud.demo.cohosting.ZEGOSDKManager;
 import com.zegocloud.demo.cohosting.internal.rtc.ZEGOLiveUser;
 import com.zegocloud.demo.cohosting.utils.LogUtil;
 import im.zego.zegoexpress.ZegoExpressEngine;
@@ -338,7 +337,6 @@ public class ZEGOExpressService {
         userIDList.clear();
         videoUserIDList.clear();
         roomUserChangeListenerList.clear();
-        customCommandListenerList.clear();
         roomStreamChangeListenerList.clear();
         currentRoomID = null;
     }

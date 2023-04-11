@@ -12,6 +12,7 @@ import androidx.annotation.NonNull;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.zegocloud.demo.cohosting.R;
 import com.zegocloud.demo.cohosting.ZEGOSDKManager;
 import com.zegocloud.demo.cohosting.databinding.LayoutMemberlistBinding;
 import com.zegocloud.demo.cohosting.internal.ZEGOExpressService.RoomUserChangeListener;
@@ -24,7 +25,7 @@ public class MemberListView extends BottomSheetDialog {
     private MemberListAdapter memberListAdapter;
 
     public MemberListView(@NonNull Context context) {
-        super(context);
+        super(context, R.style.TransparentDialog);
     }
 
     public MemberListView(@NonNull Context context, int theme) {
