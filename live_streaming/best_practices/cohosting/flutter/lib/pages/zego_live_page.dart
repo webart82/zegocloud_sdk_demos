@@ -50,7 +50,12 @@ class _ZegoLivePageState extends State<ZegoLivePage> {
     if (widget.role == ZegoLiveRole.audience) {
       //Join room
       ZegoSDKManager.shared.localUser?.roleNoti.value = ZegoLiveRole.audience;
-      ZegoSDKManager.shared.joinRoom(widget.liveID);
+      ZegoSDKManager.shared.joinRoom(widget.liveID).then((value) {
+        if (value.errorCode != 0) {
+          ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('login room failed: ${value.errorCode}')));
+        }
+      });
     } else if (widget.role == ZegoLiveRole.host) {
       hostUserInfoNoti.value = ZegoSDKManager.shared.localUser;
       ZegoSDKManager.shared.localUser?.roleNoti.value = ZegoLiveRole.host;
@@ -217,12 +222,19 @@ class _ZegoLivePageState extends State<ZegoLivePage> {
     });
   }
 
-  Future<void> startLive() async {
+  void startLive() {
     var userID = ZegoSDKManager.shared.localUser?.userID;
     var hostStreamID = '${widget.liveID}_${userID}_host';
     isLivingNoti.value = true;
-    await ZegoSDKManager.shared.joinRoom(widget.liveID);
-    ZegoSDKManager.shared.expressService.startPublishingStream(hostStreamID);
+    ZegoSDKManager.shared.joinRoom(widget.liveID).then((value) {
+      if (value.errorCode != 0) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('login room failed: ${value.errorCode}')));
+      } else {
+        ZegoSDKManager.shared.expressService
+            .startPublishingStream(hostStreamID);
+      }
+    });
   }
 
   Widget leaveButton() {
@@ -484,9 +496,15 @@ class _ZegoLivePageState extends State<ZegoLivePage> {
                   'type': CustomCommandActionType.HostRefuseAudienceCoHostApply,
                   'userID': ZegoSDKManager.shared.localUser?.userID ?? '',
                 });
-                ZegoSDKManager.shared.expressService
-                    .sendCommandMessage(command, [userInfo.userID]);
-                Navigator.pop(context);
+                ZegoSDKManager.shared.expressService.sendCommandMessage(
+                    command, [userInfo.userID]).then((value) {
+                  if (value.errorCode != 0) {
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                        content:
+                            Text('refuse cohost failed: ${value.errorCode}')));
+                  }
+                  Navigator.pop(context);
+                });
               },
             ),
             CupertinoDialogAction(
@@ -496,9 +514,15 @@ class _ZegoLivePageState extends State<ZegoLivePage> {
                   'type': CustomCommandActionType.HostAcceptAudienceCoHostApply,
                   'userID': ZegoSDKManager.shared.localUser?.userID ?? '',
                 });
-                ZegoSDKManager.shared.expressService
-                    .sendCommandMessage(command, [userInfo.userID]);
-                Navigator.pop(context);
+                ZegoSDKManager.shared.expressService.sendCommandMessage(
+                    command, [userInfo.userID]).then((value) {
+                  if (value.errorCode != 0) {
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                        content: Text(
+                            'accept apply cohost failed: ${value.errorCode}')));
+                  }
+                  Navigator.pop(context);
+                });
               },
             ),
           ],

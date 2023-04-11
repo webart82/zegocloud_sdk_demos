@@ -137,9 +137,15 @@ class _ZegoLiveBottomBarState extends State<ZegoLiveBottomBar> {
               'type': CustomCommandActionType.AudienceApplyToBecomeCoHost,
               'userID': ZegoSDKManager.shared.localUser?.userID ?? '',
             });
-            ZegoSDKManager.shared.expressService
-                .sendCommandMessage(command, [getHostUser()?.userID ?? '']);
-            widget.applyState?.value = true;
+            ZegoSDKManager.shared.expressService.sendCommandMessage(
+                command, [getHostUser()?.userID ?? '']).then((value) {
+              if (value.errorCode != 0) {
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content: Text('apply cohost failed: ${value.errorCode}')));
+              } else {
+                widget.applyState?.value = true;
+              }
+            });
           },
           child: Text(
             'applyCohost',
@@ -160,9 +166,15 @@ class _ZegoLiveBottomBarState extends State<ZegoLiveBottomBar> {
               'type': CustomCommandActionType.AudienceCancelCoHostApply,
               'userID': ZegoSDKManager.shared.localUser?.userID ?? '',
             });
-            ZegoSDKManager.shared.expressService
-                .sendCommandMessage(command, [getHostUser()?.userID ?? '']);
-            widget.applyState?.value = false;
+            ZegoSDKManager.shared.expressService.sendCommandMessage(
+                command, [getHostUser()?.userID ?? '']).then((value) {
+              if (value.errorCode != 0) {
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content: Text('cancel apply cohost failed: ${value.errorCode}')));
+              } else {
+                widget.applyState?.value = false;
+              }
+            });
           },
           child: Text(
             'cancelApplyCohost',

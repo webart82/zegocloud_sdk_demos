@@ -188,13 +188,14 @@ class ZegoExpressService with ZegoExpressServiceEvent {
     await ZegoExpressEngine.instance.stopPublishingStream();
   }
 
-  void sendCommandMessage(String command, List<String> toUserList) {
+  Future<ZegoIMSendCustomCommandResult> sendCommandMessage(String command, List<String> toUserList) async {
     List<ZegoUser> users = [];
     for (var userID in toUserList) {
       ZegoUser user = ZegoUser(userID, '');
       users.add(user);
     }
-    ZegoExpressEngine.instance.sendCustomCommand(room, command, users);
+    ZegoIMSendCustomCommandResult result = await ZegoExpressEngine.instance.sendCustomCommand(room, command, users);
+    return result;
   }
 
   //MARK: - Express Listen
