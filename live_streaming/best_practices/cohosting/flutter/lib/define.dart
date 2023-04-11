@@ -1,16 +1,12 @@
 import 'package:flutter/cupertino.dart';
 
-class CustomCommandActionType{
-    // audience
-    static const int AudienceApplyToBecomeCoHost      = 10000;
-    static const int AudienceCancelCoHostApply        = 10001;
-    static const int HostRefuseAudienceCoHostApply    = 10002;
-    static const int HostAcceptAudienceCoHostApply    = 10003;
-    // host
-    static const int HostInviteAudienceToBecomeCoHost = 10100;
-    static const int HostCancelCoHostInvitation       = 10101;
-    static const int AudienceRefuseCoHostInvitation   = 10102;
-    static const int AudienceAcceptCoHostInvitation   = 10103;
+class CustomCommandActionType {
+  // audience
+  static const int audienceApplyToBecomeCoHost = 10000;
+  static const int audienceCancelCoHostApply = 10001;
+  static const int hostRefuseAudienceCoHostApply = 10002;
+  static const int hostAcceptAudienceCoHostApply = 10003;
+  // host
 }
 
 enum ZegoLiveRole {

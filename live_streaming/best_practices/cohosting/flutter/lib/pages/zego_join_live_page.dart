@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:live_streaming_with_cohosting/define.dart';
 import 'package:live_streaming_with_cohosting/pages/zego_live_page.dart';
-import 'package:live_streaming_with_cohosting/zego_sdk_manager.dart';
 
 class ZegoJoinLivePage extends StatefulWidget {
   const ZegoJoinLivePage({super.key});
@@ -11,7 +10,7 @@ class ZegoJoinLivePage extends StatefulWidget {
 }
 
 class _ZegoJoinLivePageState extends State<ZegoJoinLivePage> {
-  final liveIDController = TextEditingController();
+  final roomIDController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +22,7 @@ class _ZegoJoinLivePageState extends State<ZegoJoinLivePage> {
         padding: const EdgeInsets.only(top: 100, left: 30, right: 30),
         child: Column(
           children: [
-            liveIDTextField(),
+            roomIDTextField(),
             const SizedBox(
               height: 20,
             ),
@@ -38,21 +37,21 @@ class _ZegoJoinLivePageState extends State<ZegoJoinLivePage> {
     );
   }
 
-  Widget liveIDTextField() {
+  Widget roomIDTextField() {
     return SizedBox(
       width: 350,
       height: 40,
       child: Row(
         children: [
-          const Text('LiveID:'),
+          const Text('RoomID:'),
           const SizedBox(
             width: 10,
           ),
           Flexible(
             child: TextField(
-              controller: liveIDController,
+              controller: roomIDController,
               decoration: const InputDecoration(
-                labelText: 'please input liveID',
+                labelText: 'please input roomID',
               ),
             ),
           ),
@@ -71,7 +70,7 @@ class _ZegoJoinLivePageState extends State<ZegoJoinLivePage> {
                 context,
                 MaterialPageRoute(
                     builder: (context) => ZegoLivePage(
-                          liveID: liveIDController.text,
+                          roomID: roomIDController.text,
                           role: ZegoLiveRole.host,
                         )));
           },
@@ -89,7 +88,7 @@ class _ZegoJoinLivePageState extends State<ZegoJoinLivePage> {
                 context,
                 MaterialPageRoute(
                     builder: (context) => ZegoLivePage(
-                          liveID: liveIDController.text,
+                          roomID: roomIDController.text,
                           role: ZegoLiveRole.audience,
                         )));
           },

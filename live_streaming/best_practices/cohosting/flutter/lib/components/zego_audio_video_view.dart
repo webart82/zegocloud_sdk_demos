@@ -14,10 +14,11 @@ class _ZegoAudioVideoViewState extends State<ZegoAudioVideoView> {
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder<bool>(
-        valueListenable: widget.userInfo.isCamerOnNoti,
-        builder: (context, isCameraOn, _) {
-          return createView(isCameraOn);
-        });
+      valueListenable: widget.userInfo.isCamerOnNotifier,
+      builder: (context, isCameraOn, _) {
+        return createView(isCameraOn);
+      },
+    );
   }
 
   Widget createView(bool isCameraOn) {
@@ -50,9 +51,9 @@ class _ZegoAudioVideoViewState extends State<ZegoAudioVideoView> {
           child: Container(
             width: 48,
             height: 48,
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               color: Colors.grey,
-              borderRadius: const BorderRadius.all(Radius.circular(24)),
+              borderRadius: BorderRadius.all(Radius.circular(24)),
               // border: Border.all(width: 1, color: Colors.white),
             ),
             child: Center(
@@ -68,13 +69,14 @@ class _ZegoAudioVideoViewState extends State<ZegoAudioVideoView> {
 
   Widget videoView() {
     return ValueListenableBuilder<Widget?>(
-        valueListenable: widget.userInfo.canvasNoti,
-        builder: (context, view, _) {
-          if (view != null) {
-            return view;
-          } else {
-            return Container();
-          }
-        });
+      valueListenable: widget.userInfo.canvasNotifier,
+      builder: (context, view, _) {
+        if (view != null) {
+          return view;
+        } else {
+          return Container();
+        }
+      },
+    );
   }
 }

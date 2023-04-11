@@ -9,17 +9,17 @@ import 'package:live_streaming_with_cohosting/utils/flutter_extension.dart';
 import 'package:live_streaming_with_cohosting/zego_sdk_manager.dart';
 import 'package:zego_express_engine/zego_express_engine.dart';
 
-import '../internal/zego_user_Info.dart';
+import '../internal/zego_user_info.dart';
 
 class ZegoLiveBottomBar extends StatefulWidget {
   const ZegoLiveBottomBar({
-    required this.coHostStreamNoti,
+    required this.cohostStreamNotifier,
     this.applyState,
     super.key,
   });
 
   final ValueNotifier<bool>? applyState;
-  final ListNotifier<String> coHostStreamNoti;
+  final ListNotifier<String> cohostStreamNotifier;
 
   @override
   State<ZegoLiveBottomBar> createState() => _ZegoLiveBottomBarState();
@@ -36,10 +36,11 @@ class _ZegoLiveBottomBarState extends State<ZegoLiveBottomBar> {
       return Container();
     } else {
       return ValueListenableBuilder<ZegoLiveRole>(
-          valueListenable: ZegoSDKManager.shared.localUser!.roleNoti,
-          builder: (context, role, _) {
-            return getBottomBar(role);
-          });
+        valueListenable: ZegoSDKManager.shared.localUser!.roleNotifier,
+        builder: (context, role, _) {
+          return getBottomBar(role);
+        },
+      );
     }
   }
 
@@ -59,13 +60,14 @@ class _ZegoLiveBottomBarState extends State<ZegoLiveBottomBar> {
       );
     } else if (role == ZegoLiveRole.audience) {
       return ValueListenableBuilder<bool>(
-          valueListenable: widget.applyState!,
-          builder: (context, state, _) {
-            return Container(
-              alignment: Alignment.centerRight,
-              child: state ? cancelApplyCohost() : applyCoHost(),
-            );
-          });
+        valueListenable: widget.applyState!,
+        builder: (context, state, _) {
+          return Container(
+            alignment: Alignment.centerRight,
+            child: state ? cancelApplyCohost() : applyCoHost(),
+          );
+        },
+      );
     } else {
       return Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -117,8 +119,7 @@ class _ZegoLiveBottomBarState extends State<ZegoLiveBottomBar> {
         child: ZegoSwitchCameraButton(
           onPressed: () {
             isFacingCamera = !isFacingCamera;
-            ZegoSDKManager.shared.expressService
-                .useFrontFacingCamera(isFacingCamera);
+            ZegoSDKManager.shared.expressService.useFrontFacingCamera(isFacingCamera);
           },
         ),
       );
@@ -130,24 +131,23 @@ class _ZegoLiveBottomBarState extends State<ZegoLiveBottomBar> {
       width: 120,
       height: 40,
       child: OutlinedButton(
-          style: OutlinedButton.styleFrom(
-              side: const BorderSide(width: 1, color: Colors.white)),
+          style: OutlinedButton.styleFrom(side: const BorderSide(width: 1, color: Colors.white)),
           onPressed: () {
             final command = jsonEncode({
-              'type': CustomCommandActionType.AudienceApplyToBecomeCoHost,
+              'type': CustomCommandActionType.audienceApplyToBecomeCoHost,
               'userID': ZegoSDKManager.shared.localUser?.userID ?? '',
             });
-            ZegoSDKManager.shared.expressService.sendCommandMessage(
-                command, [getHostUser()?.userID ?? '']).then((value) {
+            ZegoSDKManager.shared.expressService
+                .sendCommandMessage(command, [getHostUser()?.userID ?? '']).then((value) {
               if (value.errorCode != 0) {
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                    content: Text('apply cohost failed: ${value.errorCode}')));
+                ScaffoldMessenger.of(context)
+                    .showSnackBar(SnackBar(content: Text('apply cohost failed: ${value.errorCode}')));
               } else {
                 widget.applyState?.value = true;
               }
             });
           },
-          child: Text(
+          child: const Text(
             'applyCohost',
             style: TextStyle(color: Colors.white),
           )),
@@ -159,24 +159,23 @@ class _ZegoLiveBottomBarState extends State<ZegoLiveBottomBar> {
       width: 120,
       height: 40,
       child: OutlinedButton(
-          style: OutlinedButton.styleFrom(
-              side: const BorderSide(width: 1, color: Colors.white)),
+          style: OutlinedButton.styleFrom(side: const BorderSide(width: 1, color: Colors.white)),
           onPressed: () {
             final command = jsonEncode({
-              'type': CustomCommandActionType.AudienceCancelCoHostApply,
+              'type': CustomCommandActionType.audienceCancelCoHostApply,
               'userID': ZegoSDKManager.shared.localUser?.userID ?? '',
             });
-            ZegoSDKManager.shared.expressService.sendCommandMessage(
-                command, [getHostUser()?.userID ?? '']).then((value) {
+            ZegoSDKManager.shared.expressService
+                .sendCommandMessage(command, [getHostUser()?.userID ?? '']).then((value) {
               if (value.errorCode != 0) {
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                    content: Text('cancel apply cohost failed: ${value.errorCode}')));
+                ScaffoldMessenger.of(context)
+                    .showSnackBar(SnackBar(content: Text('cancel apply cohost failed: ${value.errorCode}')));
               } else {
                 widget.applyState?.value = false;
               }
             });
           },
-          child: Text(
+          child: const Text(
             'cancelApplyCohost',
             style: TextStyle(color: Colors.white),
           )),
@@ -184,7 +183,7 @@ class _ZegoLiveBottomBarState extends State<ZegoLiveBottomBar> {
   }
 
   ZegoUserInfo? getHostUser() {
-    if (ZegoSDKManager.shared.localUser?.roleNoti.value == ZegoLiveRole.host) {
+    if (ZegoSDKManager.shared.localUser?.roleNotifier.value == ZegoLiveRole.host) {
       return ZegoSDKManager.shared.localUser;
     } else {
       for (var userInfo in ZegoSDKManager.shared.expressService.userInfoList) {
@@ -203,15 +202,13 @@ class _ZegoLiveBottomBarState extends State<ZegoLiveBottomBar> {
       width: 120,
       height: 40,
       child: OutlinedButton(
-          style: OutlinedButton.styleFrom(
-              side: const BorderSide(width: 1, color: Colors.white)),
+          style: OutlinedButton.styleFrom(side: const BorderSide(width: 1, color: Colors.white)),
           onPressed: () {
-            widget.coHostStreamNoti.removeWhere((element) {
+            widget.cohostStreamNotifier.removeWhere((element) {
               return element == ZegoSDKManager.shared.localUser!.streamID;
             });
             ZegoSDKManager.shared.expressService.stopPreview();
-            ZegoSDKManager.shared.localUser?.roleNoti.value =
-                ZegoLiveRole.audience;
+            ZegoSDKManager.shared.localUser?.roleNotifier.value = ZegoLiveRole.audience;
             ZegoSDKManager.shared.expressService.stopPublishingStream();
           },
           child: const Text(

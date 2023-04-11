@@ -2,15 +2,13 @@ import 'dart:async';
 import 'dart:convert' as convert;
 import 'dart:convert';
 
-import 'package:flutter/material.dart';
-import 'package:live_streaming_with_cohosting/define.dart';
-import 'package:live_streaming_with_cohosting/zego_sdk_manager.dart';
-import 'package:zego_express_engine/zego_express_engine.dart';
-import 'zego_express_service_event.dart';
+import 'zego_service_define.dart';
 
+export 'package:live_streaming_with_cohosting/define.dart';
 export 'zego_service_define.dart';
+export 'package:zego_express_engine/zego_express_engine.dart';
 
-class ZegoExpressService with ZegoExpressServiceEvent {
+class ZegoExpressService {
   ZegoExpressService._internal();
   static final ZegoExpressService shared = ZegoExpressService._internal();
 
@@ -19,19 +17,10 @@ class ZegoExpressService with ZegoExpressServiceEvent {
   List<ZegoUserInfo> userInfoList = [];
   Map<String, String> streamMap = {};
 
-  StreamController<ZegoRoomUserListUpdateEvent> roomUserListUpdateStreamCtrl =
-      StreamController<ZegoRoomUserListUpdateEvent>.broadcast();
-  StreamController<ZegoRoomStreamListUpdateEvent> streamListUpdateStreamCtrl =
-      StreamController<ZegoRoomStreamListUpdateEvent>.broadcast();
-  StreamController<ZegoRoomCustomCommandEvent> customCommandStreamCtrl =
-      StreamController<ZegoRoomCustomCommandEvent>.broadcast();
-  StreamController<ZegoRoomStreamExtraInfoEvent> roomStreamExtraInfoStreamCtrl =
-      StreamController<ZegoRoomStreamExtraInfoEvent>.broadcast();
-
   Future<void> init({
     required int appID,
     String appSign = '',
-    ZegoScenario scenario = ZegoScenario.Default,
+    ZegoScenario scenario = ZegoScenario.Broadcast,
   }) async {
     final profile = ZegoEngineProfile(appID, scenario, appSign: appSign);
     initEventHandle();
@@ -84,13 +73,13 @@ class ZegoExpressService with ZegoExpressServiceEvent {
     return leaveResult;
   }
 
-  void resertLocalUser(){
+  void resertLocalUser() {
     localUser?.streamID = null;
-    localUser?.isCamerOnNoti.value = false;
-    localUser?.isMicOnNoti.value = false;
-    localUser?.canvasNoti.value = null;
+    localUser?.isCamerOnNotifier.value = false;
+    localUser?.isMicOnNotifier.value = false;
+    localUser?.canvasNotifier.value = null;
     localUser?.viewID = -1;
-    localUser?.roleNoti.value = ZegoLiveRole.audience;
+    localUser?.roleNotifier.value = ZegoLiveRole.audience;
   }
 
   void useFrontFacingCamera(bool isFrontFacing) {
@@ -99,9 +88,7 @@ class ZegoExpressService with ZegoExpressServiceEvent {
 
   void enableVideoMirroring(bool isVideoMirror) {
     ZegoExpressEngine.instance.setVideoMirrorMode(
-      isVideoMirror
-          ? ZegoVideoMirrorMode.BothMirror
-          : ZegoVideoMirrorMode.NoMirror,
+      isVideoMirror ? ZegoVideoMirrorMode.BothMirror : ZegoVideoMirrorMode.NoMirror,
     );
   }
 
@@ -110,9 +97,9 @@ class ZegoExpressService with ZegoExpressServiceEvent {
   }
 
   void turnCameraOn(bool isOn) {
-    localUser?.isCamerOnNoti.value = isOn;
+    localUser?.isCamerOnNotifier.value = isOn;
     final extraInfo = jsonEncode({
-      'mic': localUser?.isMicOnNoti.value ?? false ? 'on' : 'off',
+      'mic': localUser?.isMicOnNotifier.value ?? false ? 'on' : 'off',
       'cam': isOn ? 'on' : 'off',
     });
     ZegoExpressEngine.instance.setStreamExtraInfo(extraInfo);
@@ -120,10 +107,10 @@ class ZegoExpressService with ZegoExpressServiceEvent {
   }
 
   void turnMicrophoneOn(bool isOn) {
-    localUser?.isMicOnNoti.value = isOn;
+    localUser?.isMicOnNotifier.value = isOn;
     final extraInfo = jsonEncode({
       'mic': isOn ? 'on' : 'off',
-      'cam': localUser?.isCamerOnNoti.value ?? false ? 'on' : 'off',
+      'cam': localUser?.isCamerOnNotifier.value ?? false ? 'on' : 'off',
     });
     ZegoExpressEngine.instance.setStreamExtraInfo(extraInfo);
     ZegoExpressEngine.instance.muteMicrophone(!isOn);
@@ -133,14 +120,11 @@ class ZegoExpressService with ZegoExpressServiceEvent {
     String? userID = streamMap[streamID];
     ZegoUserInfo? userInfo = getUserInfo(userID ?? '');
     if (userInfo != null) {
-      userInfo.canvasNoti.value =
-          await ZegoExpressEngine.instance.createCanvasView((viewID) => {
-                userInfo.viewID = viewID,
-              });
-      ZegoCanvas canvas =
-          ZegoCanvas(userInfo.viewID, viewMode: ZegoViewMode.AspectFill);
-      await ZegoExpressEngine.instance
-          .startPlayingStream(streamID, canvas: canvas);
+      userInfo.canvasNotifier.value = await ZegoExpressEngine.instance.createCanvasView((viewID) => {
+            userInfo.viewID = viewID,
+          });
+      ZegoCanvas canvas = ZegoCanvas(userInfo.viewID, viewMode: ZegoViewMode.AspectFill);
+      await ZegoExpressEngine.instance.startPlayingStream(streamID, canvas: canvas);
     }
   }
 
@@ -149,7 +133,7 @@ class ZegoExpressService with ZegoExpressServiceEvent {
     ZegoUserInfo? userInfo = getUserInfo(userID ?? '');
     if (userInfo != null) {
       userInfo.streamID = '';
-      userInfo.canvasNoti.value = null;
+      userInfo.canvasNotifier.value = null;
       userInfo.viewID = -1;
     }
     await ZegoExpressEngine.instance.stopPlayingStream(streamID);
@@ -157,10 +141,9 @@ class ZegoExpressService with ZegoExpressServiceEvent {
 
   Future<void> startPreview() async {
     if (localUser != null) {
-      localUser!.canvasNoti.value =
-          await ZegoExpressEngine.instance.createCanvasView((viewID) => {
-                localUser!.viewID = viewID,
-              });
+      localUser!.canvasNotifier.value = await ZegoExpressEngine.instance.createCanvasView((viewID) => {
+            localUser!.viewID = viewID,
+          });
 
       final previewCanvas = ZegoCanvas(
         localUser!.viewID,
@@ -171,7 +154,7 @@ class ZegoExpressService with ZegoExpressServiceEvent {
   }
 
   Future<void> stopPreview() async {
-    localUser?.canvasNoti.value = null;
+    localUser?.canvasNotifier.value = null;
     localUser?.viewID = -1;
     await ZegoExpressEngine.instance.stopPreview();
   }
@@ -183,8 +166,8 @@ class ZegoExpressService with ZegoExpressServiceEvent {
 
   Future<void> stopPublishingStream() async {
     localUser?.streamID = null;
-    localUser?.isCamerOnNoti.value = false;
-    localUser?.isMicOnNoti.value = false;
+    localUser?.isCamerOnNotifier.value = false;
+    localUser?.isMicOnNotifier.value = false;
     await ZegoExpressEngine.instance.stopPublishingStream();
   }
 
@@ -198,37 +181,58 @@ class ZegoExpressService with ZegoExpressServiceEvent {
     return result;
   }
 
-  //MARK: - Express Listen
-  Future<void> onRoomStreamUpdate(String roomID, ZegoUpdateType updateType,
-      List<ZegoStream> streamList, Map<String, dynamic> extendedData) async {
+  final roomUserListUpdateStreamCtrl = StreamController<ZegoRoomUserListUpdateEvent>.broadcast();
+  final streamListUpdateStreamCtrl = StreamController<ZegoRoomStreamListUpdateEvent>.broadcast();
+  final customCommandStreamCtrl = StreamController<ZegoRoomCustomCommandEvent>.broadcast();
+  final roomStreamExtraInfoStreamCtrl = StreamController<ZegoRoomStreamExtraInfoEvent>.broadcast();
+  final roomStateChangedStreamCtrl = StreamController<ZegoRoomStateEvent>.broadcast();
+
+  void uninitEventHandle() {
+    ZegoExpressEngine.onRoomStreamUpdate = null;
+    ZegoExpressEngine.onRoomUserUpdate = null;
+    ZegoExpressEngine.onIMRecvCustomCommand = null;
+    ZegoExpressEngine.onRoomStreamExtraInfoUpdate = null;
+    ZegoExpressEngine.onRoomStateChanged = null;
+  }
+
+  void initEventHandle() {
+    ZegoExpressEngine.onRoomStreamUpdate = ZegoExpressService.shared.onRoomStreamUpdate;
+
+    ZegoExpressEngine.onRoomUserUpdate = ZegoExpressService.shared.onRoomUserUpdate;
+
+    ZegoExpressEngine.onIMRecvCustomCommand = ZegoExpressService.shared.onIMRecvCustomCommand;
+
+    ZegoExpressEngine.onRoomStreamExtraInfoUpdate = ZegoExpressService.shared.onRoomStreamExtraInfoUpdate;
+    ZegoExpressEngine.onRoomStateChanged = ZegoExpressService.shared.onRoomStateChanged;
+  }
+
+  Future<void> onRoomStreamUpdate(
+      String roomID, ZegoUpdateType updateType, List<ZegoStream> streamList, Map<String, dynamic> extendedData) async {
     for (ZegoStream stream in streamList) {
       if (updateType == ZegoUpdateType.Add) {
         streamMap[stream.streamID] = stream.user.userID;
         ZegoUserInfo? userInfo = getUserInfo(stream.user.userID);
         if (userInfo == null) {
-          userInfo = ZegoUserInfo(
-              userID: stream.user.userID, userName: stream.user.userName);
+          userInfo = ZegoUserInfo(userID: stream.user.userID, userName: stream.user.userName);
           userInfoList.add(userInfo);
         }
         userInfo.streamID = stream.streamID;
-        Map<String, dynamic> extraInfoMap =
-            convert.jsonDecode(stream.extraInfo);
+        Map<String, dynamic> extraInfoMap = convert.jsonDecode(stream.extraInfo);
         bool isMicOn = (extraInfoMap['mic'] == 'on') ? true : false;
         bool isCameraOn = (extraInfoMap['cam'] == 'on') ? true : false;
-        userInfo.isCamerOnNoti.value = isCameraOn;
-        userInfo.isMicOnNoti.value = isMicOn;
+        userInfo.isCamerOnNotifier.value = isCameraOn;
+        userInfo.isMicOnNotifier.value = isMicOn;
         startPlayingStream(stream.streamID);
       } else {
         streamMap[stream.streamID] = '';
         ZegoUserInfo? userInfo = getUserInfo(stream.user.userID);
         userInfo?.streamID = '';
-        userInfo?.isCamerOnNoti.value = false;
-        userInfo?.isMicOnNoti.value = false;
+        userInfo?.isCamerOnNotifier.value = false;
+        userInfo?.isMicOnNotifier.value = false;
         stopPlayingStream(stream.streamID);
       }
     }
-    streamListUpdateStreamCtrl.add(ZegoRoomStreamListUpdateEvent(
-        roomID, updateType, streamList, extendedData));
+    streamListUpdateStreamCtrl.add(ZegoRoomStreamListUpdateEvent(roomID, updateType, streamList, extendedData));
   }
 
   void onRoomUserUpdate(
@@ -254,29 +258,30 @@ class ZegoExpressService with ZegoExpressServiceEvent {
         });
       }
     }
-    roomUserListUpdateStreamCtrl
-        .add(ZegoRoomUserListUpdateEvent(roomID, updateType, userList));
+    roomUserListUpdateStreamCtrl.add(ZegoRoomUserListUpdateEvent(roomID, updateType, userList));
   }
 
   void onIMRecvCustomCommand(String roomID, ZegoUser fromUser, String command) {
-    customCommandStreamCtrl
-        .add(ZegoRoomCustomCommandEvent(roomID, fromUser, command));
+    customCommandStreamCtrl.add(ZegoRoomCustomCommandEvent(roomID, fromUser, command));
   }
 
   void onRoomStreamExtraInfoUpdate(String roomID, List<ZegoStream> streamList) {
     for (var user in userInfoList) {
       for (ZegoStream stream in streamList) {
         if (stream.streamID == user.streamID) {
-          Map<String, dynamic> extraInfoMap =
-              convert.jsonDecode(stream.extraInfo);
+          Map<String, dynamic> extraInfoMap = convert.jsonDecode(stream.extraInfo);
           bool isMicOn = (extraInfoMap['mic'] == 'on') ? true : false;
           bool isCameraOn = (extraInfoMap['cam'] == 'on') ? true : false;
-          user.isCamerOnNoti.value = isCameraOn;
-          user.isMicOnNoti.value = isMicOn;
+          user.isCamerOnNotifier.value = isCameraOn;
+          user.isMicOnNotifier.value = isMicOn;
         }
       }
     }
-    roomStreamExtraInfoStreamCtrl
-        .add(ZegoRoomStreamExtraInfoEvent(roomID, streamList));
+    roomStreamExtraInfoStreamCtrl.add(ZegoRoomStreamExtraInfoEvent(roomID, streamList));
+  }
+
+  void onRoomStateChanged(
+      String roomID, ZegoRoomStateChangedReason reason, int errorCode, Map<String, dynamic> extendedData) {
+    roomStateChangedStreamCtrl.add(ZegoRoomStateEvent(roomID, reason, errorCode, extendedData));
   }
 }

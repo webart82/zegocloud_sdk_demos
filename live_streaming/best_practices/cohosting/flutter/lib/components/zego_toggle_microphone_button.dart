@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../define.dart';
@@ -25,13 +24,11 @@ class ZegoToggleMicrophoneButton extends StatefulWidget {
   final Size? buttonSize;
 
   @override
-  State<ZegoToggleMicrophoneButton> createState() =>
-      _ZegoToggleMicrophoneButtonState();
+  State<ZegoToggleMicrophoneButton> createState() => _ZegoToggleMicrophoneButtonState();
 }
 
-class _ZegoToggleMicrophoneButtonState
-    extends State<ZegoToggleMicrophoneButton> {
-  ValueNotifier<bool> micStateNoti = ValueNotifier<bool>(false);
+class _ZegoToggleMicrophoneButtonState extends State<ZegoToggleMicrophoneButton> {
+  ValueNotifier<bool> micStateNotifier = ValueNotifier<bool>(false);
 
   @override
   void initState() {
@@ -40,16 +37,16 @@ class _ZegoToggleMicrophoneButtonState
 
   @override
   Widget build(BuildContext context) {
-    final containerSize = widget.buttonSize ?? Size(96, 96);
-    final sizeBoxSize = widget.iconSize ?? Size(56, 56);
+    final containerSize = widget.buttonSize ?? const Size(96, 96);
+    final sizeBoxSize = widget.iconSize ?? const Size(56, 56);
 
     return ValueListenableBuilder<bool>(
-        valueListenable: micStateNoti,
+        valueListenable: micStateNotifier,
         builder: (context, micState, _) {
           return GestureDetector(
             onTap: () {
               if (widget.onPressed != null) {
-                micStateNoti.value = !micStateNoti.value;
+                micStateNotifier.value = !micStateNotifier.value;
                 widget.onPressed!();
               }
             },
@@ -57,17 +54,14 @@ class _ZegoToggleMicrophoneButtonState
               width: containerSize.width,
               height: containerSize.height,
               decoration: BoxDecoration(
-                color: micState ? Colors.white : Color.fromARGB(255, 51, 52, 56).withOpacity(0.6),
+                color: micState ? Colors.white : const Color.fromARGB(255, 51, 52, 56).withOpacity(0.6),
                 shape: BoxShape.circle,
               ),
               child: SizedBox.fromSize(
                 size: sizeBoxSize,
                 child: micState
-                    ? Image(
-                        image: AssetImage('assets/icons/toolbar_mic_off.png'))
-                    : Image(
-                        image:
-                            AssetImage('assets/icons/toolbar_mic_normal.png')),
+                    ? const Image(image: AssetImage('assets/icons/toolbar_mic_off.png'))
+                    : const Image(image: AssetImage('assets/icons/toolbar_mic_normal.png')),
               ),
             ),
           );

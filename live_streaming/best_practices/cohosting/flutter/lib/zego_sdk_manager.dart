@@ -1,5 +1,3 @@
-import 'package:zego_express_engine/zego_express_engine.dart';
-
 import 'internal/zego_express_service.dart';
 
 class ZegoSDKManager {
@@ -17,10 +15,6 @@ class ZegoSDKManager {
 
   Future<void> connectUser(String userID, String userName) async {
     expressService.connectUser(userID, userName);
-  }
-
-  Future<ZegoRoomLoginResult> joinRoom(String roomID) async {
-    return expressService.joinRoom(roomID);
   }
 
   ZegoUserInfo? getUser(String userID) {

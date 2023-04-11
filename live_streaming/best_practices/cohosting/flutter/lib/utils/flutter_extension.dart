@@ -59,5 +59,5 @@ class ListNotifier<T> extends ValueNotifier<List<T>> {
     if (notify) notifyListeners();
   }
 
-  void triggerNotify() => notifyListeners();
+  void triggerNotifierfy() => notifyListeners();
 }

@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../define.dart';
@@ -29,7 +28,7 @@ class ZegoToggleCameraButton extends StatefulWidget {
 }
 
 class _ZegoToggleCameraButtonState extends State<ZegoToggleCameraButton> {
-  ValueNotifier<bool> cameraStateNoti = ValueNotifier<bool>(false);
+  ValueNotifier<bool> cameraStateNotifier = ValueNotifier<bool>(false);
 
   @override
   void initState() {
@@ -38,16 +37,16 @@ class _ZegoToggleCameraButtonState extends State<ZegoToggleCameraButton> {
 
   @override
   Widget build(BuildContext context) {
-    final containerSize = widget.buttonSize ?? Size(96, 96);
-    final sizeBoxSize = widget.iconSize ?? Size(56, 56);
+    final containerSize = widget.buttonSize ?? const Size(96, 96);
+    final sizeBoxSize = widget.iconSize ?? const Size(56, 56);
 
     return ValueListenableBuilder<bool>(
-        valueListenable: cameraStateNoti,
+        valueListenable: cameraStateNotifier,
         builder: ((context, cameraState, _) {
           return GestureDetector(
             onTap: () {
               if (widget.onPressed != null) {
-                cameraStateNoti.value = !cameraStateNoti.value;
+                cameraStateNotifier.value = !cameraStateNotifier.value;
                 widget.onPressed!();
               }
             },
@@ -55,18 +54,14 @@ class _ZegoToggleCameraButtonState extends State<ZegoToggleCameraButton> {
               width: containerSize.width,
               height: containerSize.height,
               decoration: BoxDecoration(
-                color: cameraState ? Colors.white : Color.fromARGB(255, 51, 52, 56).withOpacity(0.6),
+                color: cameraState ? Colors.white : const Color.fromARGB(255, 51, 52, 56).withOpacity(0.6),
                 shape: BoxShape.circle,
               ),
               child: SizedBox.fromSize(
                 size: sizeBoxSize,
                 child: cameraState
-                    ? Image(
-                        image:
-                            AssetImage('assets/icons/toolbar_camera_off.png'))
-                    : Image(
-                        image: AssetImage(
-                            'assets/icons/toolbar_camera_normal.png')),
+                    ? const Image(image: AssetImage('assets/icons/toolbar_camera_off.png'))
+                    : const Image(image: AssetImage('assets/icons/toolbar_camera_normal.png')),
               ),
             ),
           );
