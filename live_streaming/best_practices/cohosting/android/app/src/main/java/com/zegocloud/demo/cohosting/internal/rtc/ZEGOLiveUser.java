@@ -1,6 +1,7 @@
 package com.zegocloud.demo.cohosting.internal.rtc;
 
 import android.text.TextUtils;
+import android.util.Log;
 import java.util.Objects;
 
 public class ZEGOLiveUser {
@@ -25,7 +26,9 @@ public class ZEGOLiveUser {
         return !TextUtils.isEmpty(mainStreamID) && !TextUtils.isEmpty(shareStreamID);
     }
 
+    private static final String TAG = "ZEGOLiveUser";
     public void setStreamID(String streamID) {
+        Log.d(TAG, "setStreamID() called with: streamID = [" + streamID + "]");
         if (streamID.contains("main")) {
             this.mainStreamID = streamID;
         } else if (streamID.contains("share")) {

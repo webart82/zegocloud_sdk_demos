@@ -165,7 +165,12 @@ public class ZEGOExpressService {
                     + "], userList = [" + userList + "]");
                 List<ZEGOLiveUser> liveUserList = new ArrayList<>();
                 for (ZegoUser zegoUser : userList) {
-                    liveUserList.add(new ZEGOLiveUser(zegoUser.userID, zegoUser.userName));
+                    ZEGOLiveUser liveUser = getUser(zegoUser.userID);
+                    if (liveUser != null) {
+                        liveUserList.add(liveUser);
+                    } else {
+                        liveUserList.add(new ZEGOLiveUser(zegoUser.userID, zegoUser.userName));
+                    }
                 }
 
                 if (updateType == ZegoUpdateType.ADD) {

@@ -2,6 +2,7 @@ package com.zegocloud.demo.cohosting.components;
 
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,7 +30,7 @@ import java.util.Objects;
 
 public class MemberListAdapter extends RecyclerView.Adapter<ViewHolder> {
 
-    private List<ZEGOLiveUser> userList = new ArrayList<>();
+    private List<ZEGOLiveUser> adapterUserList = new ArrayList<>();
 
     @NonNull
     @Override
@@ -45,7 +46,7 @@ public class MemberListAdapter extends RecyclerView.Adapter<ViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        ZEGOLiveUser liveUser = userList.get(position);
+        ZEGOLiveUser liveUser = adapterUserList.get(position);
         ImageView customAvatar = holder.itemView.findViewById(R.id.live_member_item_custom);
         TextView memberName = holder.itemView.findViewById(R.id.live_member_item_name);
         TextView tag = holder.itemView.findViewById(R.id.live_member_item_tag);
@@ -171,24 +172,80 @@ public class MemberListAdapter extends RecyclerView.Adapter<ViewHolder> {
 
     @Override
     public int getItemCount() {
-        return userList.size();
+        return adapterUserList.size();
     }
 
     public void addUserList(List<ZEGOLiveUser> userList) {
-        if (this.userList.isEmpty()) {
-            this.userList.addAll(userList);
-            notifyDataSetChanged();
-        } else {
-            int index = this.userList.size();
-            this.userList.addAll(userList);
-            notifyItemRangeInserted(index, userList.size());
-        }
+        this.adapterUserList.addAll(userList);
+        sortList(this.adapterUserList);
+        notifyDataSetChanged();
+    }
 
+    private void sortList(List<ZEGOLiveUser> userList) {
+        List<ZEGOLiveUser> result = new ArrayList<>();
+        List<ZEGOLiveUser> speaker = new ArrayList<>();
+        List<ZEGOLiveUser> audience = new ArrayList<>();
+        List<ZEGOLiveUser> requested = new ArrayList<>();
+        List<ZEGOLiveUser> host = new ArrayList<>();
+        ZEGOLiveUser localUser = ZEGOSDKManager.getInstance().rtcService.getLocalUser();
+
+        for (ZEGOLiveUser liveUser : userList) {
+            boolean isYou = Objects.equals(liveUser, localUser);
+            if (liveUser.isHost()) {
+                host.add(liveUser);
+            } else {
+                if (isYou) {
+
+                } else {
+                    if (liveUser.isCoHost()) {
+                        speaker.add(liveUser);
+                    } else {
+                        boolean isRequested = ZEGOSDKManager.getInstance().invitationService.isOtherUserInviteExisted(
+                            liveUser.userID);
+                        if (isRequested) {
+                            requested.add(liveUser);
+                        } else {
+                            audience.add(liveUser);
+                        }
+                    }
+                }
+            }
+        }
+        Log.d(TAG, "sortList,result00: " + result);
+        Log.d(TAG, "sortList,host00: " + host);
+        if (localUser != null) {
+            if (!host.contains(localUser)) {
+                Log.d(TAG, "sortList: 111");
+                if (!host.isEmpty()) {
+                    result.addAll(host);
+                }
+                result.add(localUser);
+            } else {
+                Log.d(TAG, "sortList: 222");
+                host.remove(localUser);
+                host.add(0, localUser);
+                result.addAll(host);
+            }
+        } else {
+            result.addAll(host);
+        }
+        Log.d(TAG, "sortList,result11: " + result);
+        result.addAll(speaker);
+        result.addAll(requested);
+        result.addAll(audience);
+
+        Log.d(TAG, "sortList,host: " + host);
+        Log.d(TAG, "sortList,speaker: " + speaker);
+        Log.d(TAG, "sortList,requested: " + requested);
+        Log.d(TAG, "sortList,audience: " + audience);
+        Log.d(TAG, "sortList,result: " + result);
+        userList.clear();
+        userList.addAll(result);
     }
 
     public void removeUserList(List<ZEGOLiveUser> userList) {
-        int index = this.userList.size();
-        this.userList.removeAll(userList);
+        int index = this.adapterUserList.size();
+        this.adapterUserList.removeAll(userList);
         notifyItemRangeRemoved(index - userList.size(), userList.size());
     }
 }
