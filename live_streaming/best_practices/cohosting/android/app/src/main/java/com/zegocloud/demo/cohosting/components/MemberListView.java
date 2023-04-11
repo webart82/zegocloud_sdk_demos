@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.Window;
 import android.view.WindowManager;
@@ -34,6 +35,8 @@ public class MemberListView extends BottomSheetDialog {
         super(context, cancelable, cancelListener);
     }
 
+    private static final String TAG = "MemberListView";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,6 +60,8 @@ public class MemberListView extends BottomSheetDialog {
         CoordinatorLayout.LayoutParams params = new CoordinatorLayout.LayoutParams(-1, height);
         binding.liveMemberListLayout.setLayoutParams(params);
 
+        Log.d(TAG, "onCreate() called with: savedInstanceState = [" + savedInstanceState + "]");
+
         memberListAdapter = new MemberListAdapter();
         memberListAdapter.addUserList(ZEGOSDKManager.getInstance().rtcService.getUserList());
         binding.memberRecyclerview.setAdapter(memberListAdapter);
@@ -76,5 +81,11 @@ public class MemberListView extends BottomSheetDialog {
                 binding.liveMemberListCount.setText(String.valueOf(memberListAdapter.getItemCount()));
             }
         });
+    }
+
+    public void updateList() {
+        if (memberListAdapter != null) {
+            memberListAdapter.notifyDataSetChanged();
+        }
     }
 }

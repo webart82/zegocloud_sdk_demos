@@ -10,7 +10,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.RecyclerView.ViewHolder;
 import com.zegocloud.demo.cohosting.R;
 import com.zegocloud.demo.cohosting.ZEGOSDKManager;
+import com.zegocloud.demo.cohosting.internal.invitation.ZEGOInvitationService;
+import com.zegocloud.demo.cohosting.internal.invitation.common.AcceptInvitationCallback;
+import com.zegocloud.demo.cohosting.internal.invitation.common.RejectInvitationCallback;
+import com.zegocloud.demo.cohosting.internal.invitation.common.ZEGOInvitation;
 import com.zegocloud.demo.cohosting.internal.rtc.ZEGOLiveUser;
+import com.zegocloud.demo.cohosting.utils.ToastUtil;
 import com.zegocloud.demo.cohosting.utils.Utils;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,6 +34,8 @@ public class MemberListAdapter extends RecyclerView.Adapter<ViewHolder> {
         return new ViewHolder(view) {
         };
     }
+
+    private static final String TAG = "MemberListAdapter";
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
@@ -70,7 +77,8 @@ public class MemberListAdapter extends RecyclerView.Adapter<ViewHolder> {
         }
         tag.setText(builder.toString());
 
-        boolean userCoHostRequestExisted = ZEGOSDKManager.getInstance().imService.isUserInviteExisted(liveUser.userID);
+        ZEGOInvitationService invitationService = ZEGOSDKManager.getInstance().invitationService;
+        boolean userCoHostRequestExisted = invitationService.isOtherUserInviteExisted(liveUser.userID);
         if (isYou) {
             agree.setVisibility(View.GONE);
             disagree.setVisibility(View.GONE);
@@ -100,12 +108,29 @@ public class MemberListAdapter extends RecyclerView.Adapter<ViewHolder> {
         }
 
         agree.setOnClickListener(v -> {
-            //            invitationService.acceptInvitation(uiKitUser, null);
-            //            dismiss();
+            ZEGOInvitation userInvitation = invitationService.getUserInvitation(liveUser.userID);
+            if (userInvitation != null) {
+                invitationService.acceptInvite(userInvitation, new AcceptInvitationCallback() {
+                    @Override
+                    public void onResult(int errorCode, String invitationID) {
+                    }
+                });
+            } else {
+                ToastUtil.show(holder.itemView.getContext(), "userInvitation not existed");
+            }
         });
         disagree.setOnClickListener(v -> {
-            //            invitationService.refuseInvitation(uiKitUser, null);
-            //            dismiss();
+            ZEGOInvitation userInvitation = invitationService.getUserInvitation(liveUser.userID);
+            if (userInvitation != null) {
+                invitationService.rejectInvite(userInvitation, new RejectInvitationCallback() {
+                    @Override
+                    public void onResult(int errorCode, String invitationID) {
+
+                    }
+                });
+            } else {
+                ToastUtil.show(holder.itemView.getContext(), "userInvitation not existed");
+            }
         });
         more.setOnClickListener(v -> {
             //            if (memberListConfig != null && memberListConfig.memberListMoreButtonPressedListener != null) {

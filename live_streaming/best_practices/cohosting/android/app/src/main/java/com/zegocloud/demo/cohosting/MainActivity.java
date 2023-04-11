@@ -85,10 +85,10 @@ public class MainActivity extends AppCompatActivity {
 
     private void initAndSignInZEGOSDK() {
         ZEGOSDKManager.getInstance().initSDK(getApplication(), ZEGOSDKKeyCenter.appID, ZEGOSDKKeyCenter.appSign);
-        ZEGOSDKManager.getInstance().connectUser(userID, userName, errorInfo -> {
-            if (errorInfo.getCode() == ZIMErrorCode.SUCCESS) {
+        ZEGOSDKManager.getInstance().connectUser(userID, userName, (errorCode, message) -> {
+            if (errorCode == 0) {
             } else {
-                ToastUtil.show(MainActivity.this, "loginZIMSDK failed,errorCode: " + errorInfo.getCode());
+
             }
         });
     }

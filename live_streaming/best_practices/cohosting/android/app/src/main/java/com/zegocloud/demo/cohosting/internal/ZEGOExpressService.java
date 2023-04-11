@@ -4,11 +4,13 @@ import android.app.Application;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.TextureView;
+import com.zegocloud.demo.cohosting.ZEGOSDKManager;
 import com.zegocloud.demo.cohosting.internal.rtc.ZEGOLiveUser;
 import com.zegocloud.demo.cohosting.utils.LogUtil;
 import im.zego.zegoexpress.ZegoExpressEngine;
 import im.zego.zegoexpress.callback.IZegoCustomVideoProcessHandler;
 import im.zego.zegoexpress.callback.IZegoEventHandler;
+import im.zego.zegoexpress.callback.IZegoIMSendCustomCommandCallback;
 import im.zego.zegoexpress.callback.IZegoRoomLoginCallback;
 import im.zego.zegoexpress.constants.ZegoPublishChannel;
 import im.zego.zegoexpress.constants.ZegoPublisherState;
@@ -26,6 +28,7 @@ import im.zego.zegoexpress.entity.ZegoStream;
 import im.zego.zegoexpress.entity.ZegoUser;
 import im.zego.zegoexpress.entity.ZegoVideoConfig;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,11 +39,15 @@ public class ZEGOExpressService {
 
     private ZegoExpressEngine engine;
     private ZEGOLiveUser localUser;
+    private ZEGOLiveUser hostUser;
     private String currentRoomID;
-    private IZegoEventHandler eventHandler;
-    private RoomStateChangeListener roomStateChangeListener;
     private Map<String, ZEGOLiveUser> roomUserMap = new HashMap<>();
+    private RoomStateChangeListener roomStateChangeListener;
+
+    private IZegoEventHandler eventHandler;
     private List<RoomUserChangeListener> roomUserChangeListenerList = new ArrayList<>();
+    private List<RoomStreamChangeListener> roomStreamChangeListenerList = new ArrayList<>();
+    private List<IMRecvCustomCommandListener> customCommandListenerList = new ArrayList<>();
 
     // order by default time s
     private List<String> userIDList = new ArrayList<>();
@@ -67,6 +74,7 @@ public class ZEGOExpressService {
                 super.onRoomStreamUpdate(roomID, updateType, streamList, extendedData);
                 LogUtil.d("onRoomStreamUpdate() called with: roomID = [" + roomID + "], updateType = [" + updateType
                     + "], streamList = [" + streamList + "], extendedData = [" + extendedData + "]");
+                List<ZEGOLiveUser> userList = new ArrayList<>();
                 if (updateType == ZegoUpdateType.ADD) {
                     for (ZegoStream zegoStream : streamList) {
                         ZEGOLiveUser liveUser = getUser(zegoStream.user.userID);
@@ -83,18 +91,30 @@ public class ZEGOExpressService {
                                     videoUserIDList.remove(zegoStream.user.userID);
                                     videoUserIDList.set(0, zegoStream.user.userID);
                                 }
+                                hostUser = liveUser;
                             } else {
                                 videoUserIDList.add(liveUser.userID);
                             }
                         }
+                        userList.add(liveUser);
+                    }
+                    for (RoomStreamChangeListener listener : roomStreamChangeListenerList) {
+                        listener.onStreamAdd(userList);
                     }
                 } else {
+
                     for (ZegoStream zegoStream : streamList) {
                         ZEGOLiveUser liveUser = getUser(zegoStream.user.userID);
                         if (liveUser != null) {
                             liveUser.deleteStream(zegoStream.streamID);
+                            if (hostUser != null && hostUser.equals(liveUser)) {
+                                hostUser = null;
+                            }
                         }
                         videoUserIDList.remove(zegoStream.user.userID);
+                    }
+                    for (RoomStreamChangeListener listener : roomStreamChangeListenerList) {
+                        listener.onStreamRemove(userList);
                     }
                 }
 
@@ -107,6 +127,8 @@ public class ZEGOExpressService {
             public void onPublisherStateUpdate(String streamID, ZegoPublisherState state, int errorCode,
                 JSONObject extendedData) {
                 super.onPublisherStateUpdate(streamID, state, errorCode, extendedData);
+                Log.d(TAG, "onPublisherStateUpdate() called with: streamID = [" + streamID + "], state = [" + state
+                    + "], errorCode = [" + errorCode + "], extendedData = [" + extendedData + "]");
                 localUser.setStreamID(streamID);
 
                 ArrayList<ZegoStream> streamList = new ArrayList<>(1);
@@ -117,10 +139,16 @@ public class ZEGOExpressService {
                 streamList.add(zegoStream);
 
                 if (state == ZegoPublisherState.PUBLISHING) {
+                    for (RoomStreamChangeListener listener : roomStreamChangeListenerList) {
+                        listener.onStreamAdd(Collections.singletonList(localUser));
+                    }
                     if (eventHandler != null) {
                         eventHandler.onRoomStreamUpdate(currentRoomID, ZegoUpdateType.ADD, streamList, extendedData);
                     }
                 } else if (state == ZegoPublisherState.NO_PUBLISH) {
+                    for (RoomStreamChangeListener listener : roomStreamChangeListenerList) {
+                        listener.onStreamRemove(Collections.singletonList(localUser));
+                    }
                     if (eventHandler != null) {
                         eventHandler.onRoomStreamUpdate(currentRoomID, ZegoUpdateType.DELETE, streamList, extendedData);
                     }
@@ -131,7 +159,8 @@ public class ZEGOExpressService {
             @Override
             public void onRoomUserUpdate(String roomID, ZegoUpdateType updateType, ArrayList<ZegoUser> userList) {
                 super.onRoomUserUpdate(roomID, updateType, userList);
-
+                Log.d(TAG, "onRoomUserUpdate() called with: roomID = [" + roomID + "], updateType = [" + updateType
+                    + "], userList = [" + userList + "]");
                 List<ZEGOLiveUser> liveUserList = new ArrayList<>();
                 for (ZegoUser zegoUser : userList) {
                     liveUserList.add(new ZEGOLiveUser(zegoUser.userID, zegoUser.userName));
@@ -141,9 +170,15 @@ public class ZEGOExpressService {
                     for (ZEGOLiveUser liveUser : liveUserList) {
                         saveUserInfo(liveUser);
                     }
+                    for (RoomUserChangeListener listener : roomUserChangeListenerList) {
+                        listener.onUserEnter(liveUserList);
+                    }
                 } else {
                     for (ZEGOLiveUser liveUser : liveUserList) {
                         removeUserInfo(liveUser.userID);
+                    }
+                    for (RoomUserChangeListener listener : roomUserChangeListenerList) {
+                        listener.onUserLeft(liveUserList);
                     }
                 }
 
@@ -181,6 +216,19 @@ public class ZEGOExpressService {
                 }
                 if (roomStateChangeListener != null) {
                     roomStateChangeListener.onRoomStateChanged(roomID, reason, errorCode, extendedData);
+                }
+            }
+
+            @Override
+            public void onIMRecvCustomCommand(String roomID, ZegoUser fromUser, String command) {
+                super.onIMRecvCustomCommand(roomID, fromUser, command);
+                Log.d(TAG, "onIMRecvCustomCommand() called with: roomID = [" + roomID + "], fromUser = [" + fromUser
+                    + "], command = [" + command + "]");
+                for (IMRecvCustomCommandListener listener : customCommandListenerList) {
+                    listener.onIMRecvCustomCommand(roomID, fromUser, command);
+                }
+                if (eventHandler != null) {
+                    eventHandler.onIMRecvCustomCommand(roomID, fromUser, command);
                 }
             }
         });
@@ -290,6 +338,8 @@ public class ZEGOExpressService {
         userIDList.clear();
         videoUserIDList.clear();
         roomUserChangeListenerList.clear();
+        customCommandListenerList.clear();
+        roomStreamChangeListenerList.clear();
         currentRoomID = null;
     }
 
@@ -305,17 +355,23 @@ public class ZEGOExpressService {
         return localUser;
     }
 
+    public ZEGOLiveUser getHostUser() {
+        return hostUser;
+    }
+
     private void saveUserInfo(ZEGOLiveUser liveUser) {
+        Log.d(TAG, "saveUserInfo() called with: liveUser = [" + liveUser + "]");
         boolean contains = roomUserMap.containsKey(liveUser.userID);
         roomUserMap.put(liveUser.userID, liveUser);
 
         if (contains) {
             userIDList.remove(liveUser.userID);
-            userIDList.add(liveUser.userID);
         }
+        userIDList.add(liveUser.userID);
     }
 
     private void removeUserInfo(String userID) {
+        Log.d(TAG, "removeUserInfo() called with: userID = [" + userID + "]");
         roomUserMap.remove(userID);
         userIDList.remove(userID);
     }
@@ -418,6 +474,16 @@ public class ZEGOExpressService {
         engine.sendCustomVideoProcessedTextureData(textureID, width, height, referenceTimeMillisecond);
     }
 
+    public void sendCustomCommand(String command, ArrayList<ZegoUser> toUserList,
+        IZegoIMSendCustomCommandCallback callback) {
+        Log.d(TAG, "sendCustomCommand() called with: command = [" + command + "], toUserList = [" + toUserList
+            + "], callback = [" + callback + "]");
+        if (engine == null) {
+            return;
+        }
+        engine.sendCustomCommand(currentRoomID, command, toUserList, callback);
+    }
+
     public void setRoomStateChangeListener(RoomStateChangeListener roomStateChangeListener) {
         this.roomStateChangeListener = roomStateChangeListener;
     }
@@ -428,6 +494,22 @@ public class ZEGOExpressService {
 
     public void removeUserChangeListener(RoomUserChangeListener listener) {
         roomUserChangeListenerList.remove(listener);
+    }
+
+    public void addStreamChangeListener(RoomStreamChangeListener listener) {
+        roomStreamChangeListenerList.add(listener);
+    }
+
+    public void removeStreamChangeListener(RoomStreamChangeListener listener) {
+        roomStreamChangeListenerList.remove(listener);
+    }
+
+    public void addCustomCommandListener(IMRecvCustomCommandListener listener) {
+        customCommandListenerList.add(listener);
+    }
+
+    public void removeCustomCommandListener(IMRecvCustomCommandListener listener) {
+        customCommandListenerList.remove(listener);
     }
 
     public interface RoomStateChangeListener {
@@ -441,5 +523,17 @@ public class ZEGOExpressService {
         void onUserEnter(List<ZEGOLiveUser> userList);
 
         void onUserLeft(List<ZEGOLiveUser> userList);
+    }
+
+    public interface RoomStreamChangeListener {
+
+        void onStreamAdd(List<ZEGOLiveUser> userList);
+
+        void onStreamRemove(List<ZEGOLiveUser> userList);
+    }
+
+    public interface IMRecvCustomCommandListener {
+
+        void onIMRecvCustomCommand(String roomID, ZegoUser fromUser, String command);
     }
 }

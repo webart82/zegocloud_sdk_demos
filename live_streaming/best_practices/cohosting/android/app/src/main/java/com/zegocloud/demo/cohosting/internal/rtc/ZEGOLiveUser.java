@@ -91,4 +91,15 @@ public class ZEGOLiveUser {
     public int hashCode() {
         return Objects.hash(userID);
     }
+
+    @Override
+    public String toString() {
+        return "ZEGOLiveUser{" +
+            "userID='" + userID + '\'' +
+            ", userName='" + userName + '\'' +
+            ", mainStreamID='" + mainStreamID + '\'' +
+            ", shareStreamID='" + shareStreamID + '\'' +
+            ", role=" + role +
+            '}';
+    }
 }

@@ -50,9 +50,14 @@ public class CoHostAdapter extends RecyclerView.Adapter<ViewHolder> {
     }
 
     public void addUserIDList(List<String> list) {
-        int position = userIDList.size();
         userIDList.addAll(list);
-        notifyItemRangeInserted(position, userIDList.size());
+        notifyDataSetChanged();
         Log.d(TAG, "addUserIDList() after with: userIDList = [" + this.userIDList + "]");
+    }
+
+    public void removeUserIDList(List<String> list) {
+        userIDList.removeAll(list);
+        notifyDataSetChanged();
+        Log.d(TAG, "removeUserIDList() after with: userIDList = [" + this.userIDList + "]");
     }
 }

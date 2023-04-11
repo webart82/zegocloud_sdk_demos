@@ -2,15 +2,15 @@ package com.zegocloud.demo.cohosting;
 
 import android.app.Application;
 import com.zegocloud.demo.cohosting.internal.ZEGOExpressService;
-import com.zegocloud.demo.cohosting.internal.ZEGOIMService;
+import com.zegocloud.demo.cohosting.internal.invitation.common.ConnectCallback;
+import com.zegocloud.demo.cohosting.internal.invitation.ZEGOInvitationService;
 import com.zegocloud.demo.cohosting.utils.LogUtil;
 import im.zego.zegoexpress.callback.IZegoRoomLoginCallback;
-import im.zego.zim.callback.ZIMLoggedInCallback;
 
 public class ZEGOSDKManager {
 
     public ZEGOExpressService rtcService = new ZEGOExpressService();
-    public ZEGOIMService imService = new ZEGOIMService();
+    public ZEGOInvitationService invitationService = new ZEGOInvitationService();
 
     private static final class Holder {
 
@@ -23,16 +23,16 @@ public class ZEGOSDKManager {
 
     public void initSDK(Application application, long appID, String appSign) {
         rtcService.initSDK(application, appID, appSign);
-        imService.initSDK(application, appID, appSign);
+        invitationService.initSDK(application, appID, appSign);
     }
 
-    public void connectUser(String userID, String userName, ZIMLoggedInCallback callback) {
-        imService.connectUser(userID, userName, callback);
+    public void connectUser(String userID, String userName, ConnectCallback callback) {
+        invitationService.connectUser(userID, userName, callback);
         rtcService.connectUser(userID, userName);
     }
 
     public void disconnectUser() {
-        imService.disconnectUser();
+        invitationService.disconnectUser();
         rtcService.disConnectUser();
     }
 
@@ -46,11 +46,11 @@ public class ZEGOSDKManager {
     }
 
     public void setBusy(boolean busy) {
-        imService.setBusy(busy);
+        invitationService.setBusy(busy);
     }
 
     public boolean isBusy() {
-        return imService.isBusy();
+        return invitationService.isBusy();
     }
 
 
