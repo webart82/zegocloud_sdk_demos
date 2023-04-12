@@ -4,8 +4,8 @@ import android.app.Activity;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Gravity;
-import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.LinearLayout;
@@ -14,6 +14,7 @@ import com.zegocloud.demo.cohosting.R;
 import com.zegocloud.demo.cohosting.ZEGOSDKManager;
 import com.zegocloud.demo.cohosting.internal.ZEGOExpressService.CameraListener;
 import com.zegocloud.demo.cohosting.internal.ZEGOExpressService.MicrophoneListener;
+import com.zegocloud.demo.cohosting.internal.invitation.common.ZEGOInvitation;
 import com.zegocloud.demo.cohosting.internal.rtc.ZEGOLiveUser;
 import com.zegocloud.demo.cohosting.utils.Utils;
 import java.util.List;
@@ -24,7 +25,6 @@ public class BottomMenuBar extends LinearLayout {
     private MemberListView memberListView;
     private CoHostButton coHostButton;
     private LinearLayout childLinearLayout;
-    private ViewGroup bottomInputView;
     private ToggleCameraButton cameraButton;
     private ToggleMicrophoneButton microphoneButton;
     private SwitchCameraButton switchCameraButton;
@@ -87,9 +87,6 @@ public class BottomMenuBar extends LinearLayout {
         });
         childLinearLayout.addView(memberListButton, generateChildImageLayoutParams());
 
-        coHostButton = new CoHostButton(getContext());
-        childLinearLayout.addView(coHostButton, generateChildTextLayoutParams());
-
         ZEGOLiveUser localUser = ZEGOSDKManager.getInstance().rtcService.getLocalUser();
         cameraButton = new ToggleCameraButton(getContext());
         cameraButton.updateState(localUser.isCameraOpen());
@@ -118,6 +115,12 @@ public class BottomMenuBar extends LinearLayout {
 
         switchCameraButton = new SwitchCameraButton(getContext());
         childLinearLayout.addView(switchCameraButton, generateChildImageLayoutParams());
+
+        coHostButton = new CoHostButton(getContext());
+        ZEGOInvitation invitation = new ZEGOInvitation();
+        coHostButton.setInvitation(invitation);
+        childLinearLayout.addView(coHostButton, generateChildTextLayoutParams());
+
     }
 
     private LayoutParams generateChildImageLayoutParams() {
@@ -144,11 +147,6 @@ public class BottomMenuBar extends LinearLayout {
         return layoutParams;
     }
 
-    public void onUserJoinRoom() {
-        coHostButton.onUserJoinRoom();
-        checkBottomsButtons();
-    }
-
     public void checkRedPoint() {
         ZEGOLiveUser localUser = ZEGOSDKManager.getInstance().rtcService.getLocalUser();
         if (localUser.isHost()) {
@@ -169,15 +167,23 @@ public class BottomMenuBar extends LinearLayout {
         }
     }
 
+    private static final String TAG = "BottomMenuBar";
+
     public void checkBottomsButtons() {
         ZEGOLiveUser localUser = ZEGOSDKManager.getInstance().rtcService.getLocalUser();
-        if (localUser.isAudience()) {
+        Log.d(TAG, "checkBottomsButtons: " + localUser);
+        if (localUser.isAudience() || localUser.isCoHost()) {
             coHostButton.setVisibility(VISIBLE);
+        } else {
+            coHostButton.setVisibility(GONE);
+        }
+        coHostButton.updateUI();
+
+        if (localUser.isAudience()) {
             cameraButton.setVisibility(GONE);
             microphoneButton.setVisibility(GONE);
             switchCameraButton.setVisibility(GONE);
         } else {
-            coHostButton.setVisibility(GONE);
             cameraButton.setVisibility(VISIBLE);
             microphoneButton.setVisibility(VISIBLE);
             switchCameraButton.setVisibility(VISIBLE);

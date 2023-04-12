@@ -24,7 +24,7 @@ public class SwitchCameraButton extends ZEGOImageButton {
     @Override
     protected void initView() {
         super.initView();
-        setImageResource(R.drawable.call_icon_camera_flip);
+        setImageResource(R.drawable.call_icon_camera_flip, R.drawable.call_icon_camera_flip);
     }
 
     @Override

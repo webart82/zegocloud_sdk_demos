@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.zegocloud.demo.cohosting.R;
 import com.zegocloud.demo.cohosting.ZEGOSDKManager;
+import com.zegocloud.demo.cohosting.internal.ZEGOExpressService;
 import com.zegocloud.demo.cohosting.internal.ZEGOInvitationService;
 import com.zegocloud.demo.cohosting.internal.invitation.common.AcceptInvitationCallback;
 import com.zegocloud.demo.cohosting.internal.invitation.common.CancelInvitationCallback;
@@ -26,7 +27,7 @@ import java.util.Objects;
 
 public class CoHostButton extends ZEGOTextButton {
 
-    private ZEGOInvitation invitation;
+    private ZEGOInvitation mInvitationData;
 
     public CoHostButton(@NonNull Context context) {
         super(context);
@@ -42,7 +43,6 @@ public class CoHostButton extends ZEGOTextButton {
 
     protected void initView() {
         super.initView();
-        setBackgroundResource(R.drawable.bg_cohost_btn);
 
         setTextColor(Color.WHITE);
         setTextSize(13);
@@ -51,18 +51,16 @@ public class CoHostButton extends ZEGOTextButton {
         setPadding(Utils.dp2px(14, displayMetrics), 0, Utils.dp2px(16, displayMetrics), 0);
         setCompoundDrawablePadding(Utils.dp2px(6, displayMetrics));
 
-        update();
-
         ZEGOSDKManager.getInstance().invitationService.addOutgoingInvitationListener(new OutgoingInvitationListener() {
             @Override
             public void onActionSendInvitation(int errorCode, String invitationID, String extendedData,
                 List<String> errorInvitees) {
-                if (invitation == null) {
+                if (mInvitationData == null) {
                     return;
                 }
-                if (Objects.equals(invitationID, invitation.invitationID)) {
-                    if (!TextUtils.isEmpty(invitation.extendedData)) {
-                        CoHostProtocol protocol = CoHostProtocol.parse(invitation.extendedData);
+                if (Objects.equals(invitationID, mInvitationData.invitationID)) {
+                    if (!TextUtils.isEmpty(mInvitationData.extendedData)) {
+                        CoHostProtocol protocol = CoHostProtocol.parse(mInvitationData.extendedData);
                         if (protocol != null) {
                             if (protocol.isRequest()) {
                                 protocol.setActionType(CoHostProtocol.AudienceCancelCoHostApply);
@@ -70,20 +68,20 @@ public class CoHostButton extends ZEGOTextButton {
                                 protocol.setActionType(CoHostProtocol.HostCancelCoHostInvitation);
                             }
                         }
-                        invitation.extendedData = protocol.toString();
-                        update();
+                        mInvitationData.extendedData = protocol.toString();
+                        updateUI();
                     }
                 }
             }
 
             @Override
             public void onActionCancelInvitation(int errorCode, String invitationID, List<String> errorInvitees) {
-                if (invitation == null) {
+                if (mInvitationData == null) {
                     return;
                 }
-                if (Objects.equals(invitationID, invitation.invitationID)) {
-                    if (!TextUtils.isEmpty(invitation.extendedData)) {
-                        CoHostProtocol protocol = CoHostProtocol.parse(invitation.extendedData);
+                if (Objects.equals(invitationID, mInvitationData.invitationID)) {
+                    if (!TextUtils.isEmpty(mInvitationData.extendedData)) {
+                        CoHostProtocol protocol = CoHostProtocol.parse(mInvitationData.extendedData);
                         if (protocol != null) {
                             if (protocol.isCancelRequest()) {
                                 protocol.setActionType(CoHostProtocol.AudienceApplyToBecomeCoHost);
@@ -91,20 +89,20 @@ public class CoHostButton extends ZEGOTextButton {
                                 protocol.setActionType(CoHostProtocol.HostInviteAudienceToBecomeCoHost);
                             }
                         }
-                        invitation.extendedData = protocol.toString();
-                        update();
+                        mInvitationData.extendedData = protocol.toString();
+                        updateUI();
                     }
                 }
             }
 
             @Override
             public void onSendInvitationButReceiveResponseTimeout(String invitationID, List<String> invitees) {
-                if (invitation == null) {
+                if (mInvitationData == null) {
                     return;
                 }
-                if (Objects.equals(invitationID, invitation.invitationID)) {
-                    if (!TextUtils.isEmpty(invitation.extendedData)) {
-                        CoHostProtocol protocol = CoHostProtocol.parse(invitation.extendedData);
+                if (Objects.equals(invitationID, mInvitationData.invitationID)) {
+                    if (!TextUtils.isEmpty(mInvitationData.extendedData)) {
+                        CoHostProtocol protocol = CoHostProtocol.parse(mInvitationData.extendedData);
                         if (protocol != null) {
                             if (protocol.isCancelRequest()) {
                                 protocol.setActionType(CoHostProtocol.AudienceApplyToBecomeCoHost);
@@ -112,20 +110,20 @@ public class CoHostButton extends ZEGOTextButton {
                                 protocol.setActionType(CoHostProtocol.HostInviteAudienceToBecomeCoHost);
                             }
                         }
-                        invitation.extendedData = protocol.toString();
-                        update();
+                        mInvitationData.extendedData = protocol.toString();
+                        updateUI();
                     }
                 }
             }
 
             @Override
             public void onSendInvitationAndIsAccepted(String invitationID, String invitee, String extendedData) {
-                if (invitation == null) {
+                if (mInvitationData == null) {
                     return;
                 }
-                if (Objects.equals(invitationID, invitation.invitationID)) {
-                    if (!TextUtils.isEmpty(invitation.extendedData)) {
-                        CoHostProtocol protocol = CoHostProtocol.parse(invitation.extendedData);
+                if (Objects.equals(invitationID, mInvitationData.invitationID)) {
+                    if (!TextUtils.isEmpty(mInvitationData.extendedData)) {
+                        CoHostProtocol protocol = CoHostProtocol.parse(mInvitationData.extendedData);
                         if (protocol != null) {
                             if (protocol.isCancelRequest()) {
                                 protocol.setActionType(CoHostProtocol.AudienceApplyToBecomeCoHost);
@@ -133,20 +131,20 @@ public class CoHostButton extends ZEGOTextButton {
                                 protocol.setActionType(CoHostProtocol.HostInviteAudienceToBecomeCoHost);
                             }
                         }
-                        invitation.extendedData = protocol.toString();
-                        update();
+                        mInvitationData.extendedData = protocol.toString();
+                        updateUI();
                     }
                 }
             }
 
             @Override
             public void onSendInvitationButIsRejected(String invitationID, String invitee, String extendedData) {
-                if (invitation == null) {
+                if (mInvitationData == null) {
                     return;
                 }
-                if (Objects.equals(invitationID, invitation.invitationID)) {
-                    if (!TextUtils.isEmpty(invitation.extendedData)) {
-                        CoHostProtocol protocol = CoHostProtocol.parse(invitation.extendedData);
+                if (Objects.equals(invitationID, mInvitationData.invitationID)) {
+                    if (!TextUtils.isEmpty(mInvitationData.extendedData)) {
+                        CoHostProtocol protocol = CoHostProtocol.parse(mInvitationData.extendedData);
                         if (protocol != null) {
                             if (protocol.isCancelRequest()) {
                                 protocol.setActionType(CoHostProtocol.AudienceApplyToBecomeCoHost);
@@ -154,8 +152,8 @@ public class CoHostButton extends ZEGOTextButton {
                                 protocol.setActionType(CoHostProtocol.HostInviteAudienceToBecomeCoHost);
                             }
                         }
-                        invitation.extendedData = protocol.toString();
-                        update();
+                        mInvitationData.extendedData = protocol.toString();
+                        updateUI();
                     }
                 }
             }
@@ -163,48 +161,13 @@ public class CoHostButton extends ZEGOTextButton {
     }
 
     public void setInvitation(ZEGOInvitation invitation) {
-        this.invitation = invitation;
-        update();
+        this.mInvitationData = invitation;
+        ZEGOLiveUser localUser = ZEGOSDKManager.getInstance().rtcService.getLocalUser();
+        mInvitationData.inviter = localUser.userID;
+        updateUI();
     }
 
     private static final String TAG = "CoHostButton";
-
-    private void update() {
-        if (invitation == null || TextUtils.isEmpty(invitation.extendedData)) {
-            return;
-        }
-        CoHostProtocol protocol = CoHostProtocol.parse(invitation.extendedData);
-        if (protocol == null) {
-            return;
-        }
-
-        if (protocol.isRequest()) {
-            setText("Apply to CoHost");
-            setCompoundDrawablesWithIntrinsicBounds(R.drawable.liveaudioroom_bottombar_cohost, 0, 0, 0);
-        } else if (protocol.isInvite()) {
-            setText("Invite CoHost");
-            setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
-        } else if (protocol.isCancelRequest()) {
-            setText("Cancel CoHost");
-            setCompoundDrawablesWithIntrinsicBounds(R.drawable.liveaudioroom_bottombar_cohost, 0, 0, 0);
-        } else if (protocol.isCancelInvite()) {
-            setText("Cancel Invite");
-            setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
-        } else if (protocol.isAcceptRequest()) {
-            setText("Accept CoHost");
-            setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
-        } else if (protocol.isAcceptInvite()) {
-            setText("Accept Invite");
-            setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
-        } else if (protocol.isRefuseInvite()) {
-            setText("Refuse Invite");
-            setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
-        } else if (protocol.isRefuseRequest()) {
-            setText("Refuse CoHost");
-            setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
-        }
-
-    }
 
     @Override
     protected void afterClick() {
@@ -215,66 +178,86 @@ public class CoHostButton extends ZEGOTextButton {
             return;
         }
 
-        // host ,default is null
-        if (invitation == null || TextUtils.isEmpty(invitation.extendedData)) {
-            return;
-        }
-        CoHostProtocol protocol = CoHostProtocol.parse(invitation.extendedData);
-        if (protocol == null) {
-            return;
-        }
+        ZEGOExpressService rtcService = ZEGOSDKManager.getInstance().rtcService;
+        if (localUser.isCoHost()) {
+            rtcService.openMicrophone(false);
+            rtcService.enableCamera(false);
+            rtcService.stopPublishLocalAudioVideo();
+        } else {
+            if (mInvitationData == null) {
+                return;
+            }
+            CoHostProtocol protocol = CoHostProtocol.parse(mInvitationData.extendedData);
+            if (protocol == null) {
+                protocol = new CoHostProtocol();
+            }
+            if (localUser.isAudience()) {
+                mInvitationData.invitees = Collections.singletonList(hostUser.userID);
+                protocol.setOperatorID(localUser.userID);
+                protocol.setTargetID(hostUser.userID);
+                protocol.setActionType(CoHostProtocol.AudienceApplyToBecomeCoHost);
+                mInvitationData.extendedData = protocol.toString();
+            }
 
-        if (localUser.isAudience()) {
-            invitation.invitees = Collections.singletonList(hostUser.userID);
-            protocol.setTargetID(hostUser.userID);
-            invitation.extendedData = protocol.toString();
-            update();
-        }
+            ZEGOInvitationService invitationService = ZEGOSDKManager.getInstance().invitationService;
+            if (protocol.isRequest() || protocol.isInvite()) {
+                invitationService.inviteUser(protocol.getTargetID(), mInvitationData.extendedData,
+                    new SendInvitationCallback() {
+                        @Override
+                        public void onResult(int errorCode, String invitationID, List<String> errorInvitees) {
+                            if (errorCode == 0) {
+                                mInvitationData.invitationID = invitationID;
+                            }
+                        }
+                    });
+            } else if (protocol.isCancelInvite() || protocol.isCancelRequest()) {
+                invitationService.cancelInvite(mInvitationData, new CancelInvitationCallback() {
+                    @Override
+                    public void onResult(int errorCode, String invitationID, List<String> errorInvitees) {
 
-        ZEGOInvitationService invitationService = ZEGOSDKManager.getInstance().invitationService;
-        if (protocol.isRequest() || protocol.isInvite()) {
-            invitationService.inviteUser(protocol.getTargetID(), invitation.extendedData, new SendInvitationCallback() {
-                @Override
-                public void onResult(int errorCode, String invitationID, List<String> errorInvitees) {
-                    if (errorCode == 0) {
-                        invitation.invitationID = invitationID;
                     }
-                }
-            });
-        } else if (protocol.isCancelInvite() || protocol.isCancelRequest()) {
-            invitationService.cancelInvite(invitation, new CancelInvitationCallback() {
-                @Override
-                public void onResult(int errorCode, String invitationID, List<String> errorInvitees) {
+                });
+            } else if (protocol.isRefuseRequest() || protocol.isRefuseInvite()) {
+                invitationService.rejectInvite(mInvitationData, new RejectInvitationCallback() {
+                    @Override
+                    public void onResult(int errorCode, String invitationID) {
 
-                }
-            });
-        } else if (protocol.isRefuseRequest() || protocol.isRefuseInvite()) {
-            invitationService.rejectInvite(invitation, new RejectInvitationCallback() {
-                @Override
-                public void onResult(int errorCode, String invitationID) {
-
-                }
-            });
-        } else if (protocol.isAcceptInvite() || protocol.isAcceptRequest()) {
-            invitationService.acceptInvite(invitation, new AcceptInvitationCallback() {
-                @Override
-                public void onResult(int errorCode, String invitationID) {
-                }
-            });
+                    }
+                });
+            } else if (protocol.isAcceptInvite() || protocol.isAcceptRequest()) {
+                invitationService.acceptInvite(mInvitationData, new AcceptInvitationCallback() {
+                    @Override
+                    public void onResult(int errorCode, String invitationID) {
+                    }
+                });
+            }
         }
     }
 
+    public void updateUI() {
+        if (mInvitationData == null) {
+            return;
+        }
 
-    public void onUserJoinRoom() {
         ZEGOLiveUser localUser = ZEGOSDKManager.getInstance().rtcService.getLocalUser();
-        if (localUser.isAudience()) {
-            invitation = new ZEGOInvitation();
-            invitation.inviter = localUser.userID;
-            CoHostProtocol temp = new CoHostProtocol();
-            temp.setOperatorID(localUser.userID);
-            temp.setActionType(CoHostProtocol.AudienceApplyToBecomeCoHost);
-            invitation.extendedData = temp.toString();
-            update();
+        ZEGOInvitationService invitationService = ZEGOSDKManager.getInstance().invitationService;
+        ZEGOInvitation zegoInvitation = invitationService.getZEGOInvitation(mInvitationData.invitationID);
+        if (localUser.isHost()) {
+
+        } else if (localUser.isCoHost()) {
+            setText("End");
+            setBackgroundResource(R.drawable.livestreaming_bg_end_cohost_btn);
+            setCompoundDrawablesWithIntrinsicBounds(R.drawable.liveaudioroom_bottombar_cohost, 0, 0, 0);
+        } else if (localUser.isAudience()) {
+            if (zegoInvitation == null || zegoInvitation.isFinished()) {
+                setText("Apply to CoHost");
+                setBackgroundResource(R.drawable.bg_cohost_btn);
+                setCompoundDrawablesWithIntrinsicBounds(R.drawable.liveaudioroom_bottombar_cohost, 0, 0, 0);
+            } else {
+                setText("Cancel CoHost");
+                setBackgroundResource(R.drawable.bg_cohost_btn);
+                setCompoundDrawablesWithIntrinsicBounds(R.drawable.liveaudioroom_bottombar_cohost, 0, 0, 0);
+            }
         }
     }
 }

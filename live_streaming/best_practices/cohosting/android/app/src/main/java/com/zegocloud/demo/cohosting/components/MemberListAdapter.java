@@ -47,6 +47,7 @@ public class MemberListAdapter extends RecyclerView.Adapter<ViewHolder> {
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         ZEGOLiveUser liveUser = adapterUserList.get(position);
+        Log.d(TAG, "onBindViewHolder: liveUser: " + liveUser);
         ImageView customAvatar = holder.itemView.findViewById(R.id.live_member_item_custom);
         TextView memberName = holder.itemView.findViewById(R.id.live_member_item_name);
         TextView tag = holder.itemView.findViewById(R.id.live_member_item_tag);

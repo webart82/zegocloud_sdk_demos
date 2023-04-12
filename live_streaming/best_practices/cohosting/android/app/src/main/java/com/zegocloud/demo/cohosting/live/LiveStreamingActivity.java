@@ -97,7 +97,7 @@ public class LiveStreamingActivity extends AppCompatActivity {
         binding.mainSmallViewParent.setAdapter(coHostAdapter);
 
         binding.liveBottomMenuBar.setVisibility(View.VISIBLE);
-        binding.liveBottomMenuBar.onUserJoinRoom();
+        binding.liveBottomMenuBar.checkBottomsButtons();
 
         addUserVideos();
     }
@@ -122,6 +122,7 @@ public class LiveStreamingActivity extends AppCompatActivity {
         super.onStop();
         if (isFinishing()) {
             ZEGOSDKManager.getInstance().leaveRTCRoom();
+            ZEGOSDKManager.getInstance().rtcService.clear();
         }
     }
 
@@ -129,6 +130,16 @@ public class LiveStreamingActivity extends AppCompatActivity {
         ZEGOSDKManager.getInstance().rtcService.addCameraListener(new CameraListener() {
             @Override
             public void onCameraOpen(String userID, boolean open) {
+                ZEGOLiveUser hostUser = ZEGOSDKManager.getInstance().rtcService.getHostUser();
+                if (hostUser != null && Objects.equals(hostUser.userID, userID)) {
+                    if (open) {
+                        binding.mainFullVideo.setVisibility(View.VISIBLE);
+                    } else {
+                        binding.mainFullVideo.setVisibility(View.GONE);
+                    }
+                } else {
+                    coHostAdapter.notifyDataSetChanged();
+                }
                 Log.d(TAG, "onCameraOpen() called with: userID = [" + userID + "], open = [" + open + "]");
             }
         });
@@ -141,10 +152,12 @@ public class LiveStreamingActivity extends AppCompatActivity {
         ZEGOSDKManager.getInstance().rtcService.addStreamChangeListener(new RoomStreamChangeListener() {
             @Override
             public void onStreamAdd(List<ZEGOLiveUser> userList) {
+                Log.d(TAG, "onStreamAdd() called with: userList = [" + userList + "]");
                 List<String> coHostUserIDList = new ArrayList<>();
                 for (ZEGOLiveUser liveUser : userList) {
                     if (liveUser.isHost()) {
                         binding.mainFullVideo.setUserID(liveUser.userID);
+                        binding.mainFullVideo.setVisibility(View.VISIBLE);
                     } else {
                         coHostUserIDList.add(liveUser.userID);
                     }
@@ -159,10 +172,12 @@ public class LiveStreamingActivity extends AppCompatActivity {
 
             @Override
             public void onStreamRemove(List<ZEGOLiveUser> userList) {
+                Log.d(TAG, "onStreamRemove() called with: userList = [" + userList + "]");
                 List<String> coHostUserIDList = new ArrayList<>();
                 for (ZEGOLiveUser liveUser : userList) {
                     if (Objects.equals(binding.mainFullVideo.getUserID(), liveUser.userID)) {
                         binding.mainFullVideo.setUserID("");
+                        binding.mainFullVideo.setVisibility(View.GONE);
                     } else {
                         coHostUserIDList.add(liveUser.userID);
                     }

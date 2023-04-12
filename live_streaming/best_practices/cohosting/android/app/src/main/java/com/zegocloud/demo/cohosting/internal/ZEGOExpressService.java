@@ -136,15 +136,32 @@ public class ZEGOExpressService {
                         listener.onStreamAdd(userList);
                     }
                 } else {
-
                     for (ZegoStream zegoStream : streamList) {
                         ZEGOLiveUser liveUser = getUser(zegoStream.user.userID);
                         if (liveUser != null) {
                             liveUser.deleteStream(zegoStream.streamID);
+                            boolean notifyCamera = liveUser.isCameraOpen();
+                            boolean notifyMic = liveUser.isMicrophoneOpen();
+                            liveUser.setCameraOpen(false);
+                            liveUser.setMicrophoneOpen(false);
+                            if (notifyCamera) {
+                                for (CameraListener listener : cameraListenerList) {
+                                    listener.onCameraOpen(liveUser.userID, false);
+                                }
+                            }
+                            if (notifyMic) {
+                                for (MicrophoneListener listener : microphoneListenerList) {
+                                    listener.onMicrophoneOpen(liveUser.userID, false);
+                                }
+                            }
                             if (hostUser != null && hostUser.equals(liveUser)) {
                                 hostUser = null;
                             }
+
+                        } else {
+                            liveUser = new ZEGOLiveUser(zegoStream.user.userID, zegoStream.user.userName);
                         }
+                        userList.add(liveUser);
                         videoUserIDList.remove(zegoStream.user.userID);
                     }
                     for (RoomStreamChangeListener listener : roomStreamChangeListenerList) {
@@ -163,8 +180,6 @@ public class ZEGOExpressService {
                 super.onPublisherStateUpdate(streamID, state, errorCode, extendedData);
                 Log.d(TAG, "onPublisherStateUpdate() called with: streamID = [" + streamID + "], state = [" + state
                     + "], errorCode = [" + errorCode + "], extendedData = [" + extendedData + "]");
-                localUser.setStreamID(streamID);
-
                 ArrayList<ZegoStream> streamList = new ArrayList<>(1);
                 ZegoStream zegoStream = new ZegoStream();
                 zegoStream.user = new ZegoUser(localUser.userID, localUser.userName);
@@ -173,6 +188,8 @@ public class ZEGOExpressService {
                 streamList.add(zegoStream);
 
                 if (state == ZegoPublisherState.PUBLISHING) {
+                    localUser.setStreamID(streamID);
+
                     for (RoomStreamChangeListener listener : roomStreamChangeListenerList) {
                         listener.onStreamAdd(Collections.singletonList(localUser));
                     }
@@ -180,6 +197,8 @@ public class ZEGOExpressService {
                         eventHandler.onRoomStreamUpdate(currentRoomID, ZegoUpdateType.ADD, streamList, extendedData);
                     }
                 } else if (state == ZegoPublisherState.NO_PUBLISH) {
+                    localUser.deleteStream(streamID);
+
                     for (RoomStreamChangeListener listener : roomStreamChangeListenerList) {
                         listener.onStreamRemove(Collections.singletonList(localUser));
                     }
@@ -269,6 +288,20 @@ public class ZEGOExpressService {
                 super.onRemoteCameraStateUpdate(streamID, state);
                 LogUtil.d(
                     "onRemoteCameraStateUpdate() called with: streamID = [" + streamID + "], state = [" + state + "]");
+
+                boolean isCameraOpen = state == ZegoRemoteDeviceState.OPEN;
+                ZEGOLiveUser liveUser = getUserFromStreamID(streamID);
+                if (liveUser == null) {
+                    return;
+                }
+                boolean changed = liveUser.isCameraOpen() != isCameraOpen;
+                liveUser.setCameraOpen(isCameraOpen);
+                if (changed) {
+                    for (CameraListener listener : cameraListenerList) {
+                        listener.onCameraOpen(liveUser.userID, isCameraOpen);
+                    }
+                }
+
                 if (eventHandler != null) {
                     eventHandler.onRemoteCameraStateUpdate(streamID, state);
                 }
@@ -277,6 +310,22 @@ public class ZEGOExpressService {
             @Override
             public void onRemoteMicStateUpdate(String streamID, ZegoRemoteDeviceState state) {
                 super.onRemoteMicStateUpdate(streamID, state);
+                Log.d(TAG,
+                    "onRemoteMicStateUpdate() called with: streamID = [" + streamID + "], state = [" + state + "]");
+
+                boolean isMicOpen = state == ZegoRemoteDeviceState.OPEN;
+                ZEGOLiveUser liveUser = getUserFromStreamID(streamID);
+                if (liveUser == null) {
+                    return;
+                }
+                boolean changed = liveUser.isMicrophoneOpen() != isMicOpen;
+                liveUser.setMicrophoneOpen(isMicOpen);
+                if (changed) {
+                    for (MicrophoneListener listener : microphoneListenerList) {
+                        listener.onMicrophoneOpen(liveUser.userID, isMicOpen);
+                    }
+                }
+
                 if (eventHandler != null) {
                     eventHandler.onRemoteMicStateUpdate(streamID, state);
                 }
@@ -425,6 +474,10 @@ public class ZEGOExpressService {
             return;
         }
         engine.logoutRoom();
+
+    }
+
+    public void clear() {
         roomUserMap.clear();
         userIDList.clear();
         videoUserIDList.clear();
@@ -556,6 +609,18 @@ public class ZEGOExpressService {
             return;
         }
         engine.useFrontCamera(useFront);
+    }
+
+    public ZEGOLiveUser getUserFromStreamID(String streamID) {
+        if (getLocalUser() != null && Objects.equals(getLocalUser().getMainStreamID(), streamID)) {
+            return getLocalUser();
+        }
+        for (ZEGOLiveUser liveUser : roomUserMap.values()) {
+            if (Objects.equals(liveUser.getMainStreamID(), streamID)) {
+                return liveUser;
+            }
+        }
+        return null;
     }
 
     public void audioRouteToSpeaker(boolean routeToSpeaker) {

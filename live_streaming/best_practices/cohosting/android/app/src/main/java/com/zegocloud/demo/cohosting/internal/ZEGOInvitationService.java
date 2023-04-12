@@ -3,7 +3,6 @@ package com.zegocloud.demo.cohosting.internal;
 import android.app.Application;
 import android.util.Log;
 import com.zegocloud.demo.cohosting.ZEGOSDKManager;
-import com.zegocloud.demo.cohosting.internal.ZEGOExpressService;
 import com.zegocloud.demo.cohosting.internal.invitation.common.AcceptInvitationCallback;
 import com.zegocloud.demo.cohosting.internal.invitation.common.CancelInvitationCallback;
 import com.zegocloud.demo.cohosting.internal.invitation.common.ConnectCallback;
@@ -40,6 +39,9 @@ public class ZEGOInvitationService {
     private static final String TAG = "ZEGOInvitationService";
 
     public ZEGOInvitation getZEGOInvitation(String invitationID) {
+        if (invitationID == null) {
+            return null;
+        }
         ZEGOInvitation invitation = zegoInvitationMap.get(invitationID);
         if (invitation == null) {
             for (String key : zegoInvitationMap.keySet()) {

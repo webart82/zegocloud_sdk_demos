@@ -11,13 +11,8 @@ import androidx.annotation.Nullable;
 import com.zegocloud.demo.cohosting.ZEGOSDKManager;
 import com.zegocloud.demo.cohosting.internal.ZEGOExpressService;
 import com.zegocloud.demo.cohosting.internal.rtc.ZEGOLiveUser;
-import im.zego.zegoexpress.constants.ZegoRemoteDeviceState;
-import im.zego.zegoexpress.constants.ZegoUpdateType;
 import im.zego.zegoexpress.constants.ZegoViewMode;
-import im.zego.zegoexpress.entity.ZegoStream;
-import java.util.ArrayList;
 import java.util.Objects;
-import org.json.JSONObject;
 
 /**
  * if mUserID is set to local,will preview camera and publish.
@@ -110,35 +105,6 @@ public class ZEGOVideoView extends FrameLayout {
         } else {
             String streamID = rtcService.generateStream(mUserID);
             ZEGOSDKManager.getInstance().rtcService.stopPlayRemoteAudioVideo(streamID);
-        }
-    }
-
-    public void onRoomStreamUpdate(String roomID, ZegoUpdateType updateType, ArrayList<ZegoStream> streamList,
-        JSONObject extendedData) {
-        for (ZegoStream stream : streamList) {
-            if (stream.user.userID.equals(mUserID)) {
-                if (updateType == ZegoUpdateType.ADD) {
-                    ZEGOSDKManager.getInstance().rtcService.startPlayRemoteAudioVideo(textureView, stream.streamID,
-                        zegoViewMode);
-                } else {
-                    ZEGOSDKManager.getInstance().rtcService.stopPlayRemoteAudioVideo(stream.streamID);
-                }
-                break;
-            }
-        }
-    }
-
-    public void onRemoteCameraStateUpdate(String streamID, ZegoRemoteDeviceState state) {
-        String mStreamID = rtcService.generateStream(mUserID);
-        if (Objects.equals(streamID, mStreamID)) {
-
-        }
-    }
-
-    public void onRemoteMicStateUpdate(String streamID, ZegoRemoteDeviceState state) {
-        String mStreamID = rtcService.generateStream(mUserID);
-        if (Objects.equals(mStreamID, streamID)) {
-
         }
     }
 }
