@@ -3,6 +3,7 @@ package com.zegocloud.demo.cohosting.live;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AlertDialog.Builder;
@@ -12,6 +13,8 @@ import com.zegocloud.demo.cohosting.R;
 import com.zegocloud.demo.cohosting.ZEGOSDKManager;
 import com.zegocloud.demo.cohosting.databinding.ActivityLiveStreamingBinding;
 import com.zegocloud.demo.cohosting.internal.ZEGOExpressService;
+import com.zegocloud.demo.cohosting.internal.ZEGOExpressService.CameraListener;
+import com.zegocloud.demo.cohosting.internal.ZEGOExpressService.MicrophoneListener;
 import com.zegocloud.demo.cohosting.internal.ZEGOExpressService.RoomStreamChangeListener;
 import com.zegocloud.demo.cohosting.internal.invitation.common.IncomingInvitationListener;
 import com.zegocloud.demo.cohosting.internal.invitation.common.OutgoingInvitationListener;
@@ -123,6 +126,18 @@ public class LiveStreamingActivity extends AppCompatActivity {
     }
 
     public void listenRTCEvent() {
+        ZEGOSDKManager.getInstance().rtcService.addCameraListener(new CameraListener() {
+            @Override
+            public void onCameraOpen(String userID, boolean open) {
+                Log.d(TAG, "onCameraOpen() called with: userID = [" + userID + "], open = [" + open + "]");
+            }
+        });
+        ZEGOSDKManager.getInstance().rtcService.addMicrophoneListener(new MicrophoneListener() {
+            @Override
+            public void onMicrophoneOpen(String userID, boolean open) {
+                Log.d(TAG, "onMicrophoneOpen() called with: userID = [" + userID + "], open = [" + open + "]");
+            }
+        });
         ZEGOSDKManager.getInstance().rtcService.addStreamChangeListener(new RoomStreamChangeListener() {
             @Override
             public void onStreamAdd(List<ZEGOLiveUser> userList) {
@@ -139,7 +154,7 @@ public class LiveStreamingActivity extends AppCompatActivity {
                 }
 
                 binding.liveBottomMenuBar.updateList();
-                binding.liveBottomMenuBar.checkCoHostButton();
+                binding.liveBottomMenuBar.checkBottomsButtons();
             }
 
             @Override
@@ -154,7 +169,7 @@ public class LiveStreamingActivity extends AppCompatActivity {
                 }
                 coHostAdapter.removeUserIDList(coHostUserIDList);
                 binding.liveBottomMenuBar.updateList();
-                binding.liveBottomMenuBar.checkCoHostButton();
+                binding.liveBottomMenuBar.checkBottomsButtons();
             }
         });
         ZEGOSDKManager.getInstance().invitationService.addOutgoingInvitationListener(new OutgoingInvitationListener() {

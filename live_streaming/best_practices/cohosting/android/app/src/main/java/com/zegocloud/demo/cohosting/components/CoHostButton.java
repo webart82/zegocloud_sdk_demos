@@ -5,13 +5,12 @@ import android.graphics.Color;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.Gravity;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.zegocloud.demo.cohosting.R;
 import com.zegocloud.demo.cohosting.ZEGOSDKManager;
-import com.zegocloud.demo.cohosting.internal.invitation.ZEGOInvitationService;
+import com.zegocloud.demo.cohosting.internal.ZEGOInvitationService;
 import com.zegocloud.demo.cohosting.internal.invitation.common.AcceptInvitationCallback;
 import com.zegocloud.demo.cohosting.internal.invitation.common.CancelInvitationCallback;
 import com.zegocloud.demo.cohosting.internal.invitation.common.OutgoingInvitationListener;
@@ -179,7 +178,6 @@ public class CoHostButton extends ZEGOTextButton {
             return;
         }
 
-        Log.d(TAG, "update: " + protocol);
         if (protocol.isRequest()) {
             setText("Apply to CoHost");
             setCompoundDrawablesWithIntrinsicBounds(R.drawable.liveaudioroom_bottombar_cohost, 0, 0, 0);

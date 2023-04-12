@@ -3,7 +3,7 @@ package com.zegocloud.demo.cohosting;
 import android.app.Application;
 import com.zegocloud.demo.cohosting.internal.ZEGOExpressService;
 import com.zegocloud.demo.cohosting.internal.invitation.common.ConnectCallback;
-import com.zegocloud.demo.cohosting.internal.invitation.ZEGOInvitationService;
+import com.zegocloud.demo.cohosting.internal.ZEGOInvitationService;
 import com.zegocloud.demo.cohosting.utils.LogUtil;
 import im.zego.zegoexpress.callback.IZegoRoomLoginCallback;
 

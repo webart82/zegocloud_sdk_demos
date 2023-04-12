@@ -10,6 +10,8 @@ public class ZEGOLiveUser {
     public String userName;
     private String mainStreamID;
     private String shareStreamID;
+    private boolean isCameraOpen;
+    private boolean isMicrophoneOpen;
     private ZEGOLiveRole role;
 
     public ZEGOLiveUser(String userID, String userName) {
@@ -27,6 +29,7 @@ public class ZEGOLiveUser {
     }
 
     private static final String TAG = "ZEGOLiveUser";
+
     public void setStreamID(String streamID) {
         Log.d(TAG, "setStreamID() called with: streamID = [" + streamID + "]");
         if (streamID.contains("main")) {
@@ -78,6 +81,22 @@ public class ZEGOLiveUser {
         return role == ZEGOLiveRole.AUDIENCE;
     }
 
+    public boolean isCameraOpen() {
+        return isCameraOpen;
+    }
+
+    public void setCameraOpen(boolean cameraOpen) {
+        isCameraOpen = cameraOpen;
+    }
+
+    public boolean isMicrophoneOpen() {
+        return isMicrophoneOpen;
+    }
+
+    public void setMicrophoneOpen(boolean microphoneOpen) {
+        isMicrophoneOpen = microphoneOpen;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -102,6 +121,8 @@ public class ZEGOLiveUser {
             ", userName='" + userName + '\'' +
             ", mainStreamID='" + mainStreamID + '\'' +
             ", shareStreamID='" + shareStreamID + '\'' +
+            ", isCameraOpen=" + isCameraOpen +
+            ", isMicrophoneOpen=" + isMicrophoneOpen +
             ", role=" + role +
             '}';
     }

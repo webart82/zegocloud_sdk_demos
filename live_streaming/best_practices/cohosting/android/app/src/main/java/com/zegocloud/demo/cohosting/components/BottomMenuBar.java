@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -13,6 +12,8 @@ import android.widget.LinearLayout;
 import androidx.annotation.Nullable;
 import com.zegocloud.demo.cohosting.R;
 import com.zegocloud.demo.cohosting.ZEGOSDKManager;
+import com.zegocloud.demo.cohosting.internal.ZEGOExpressService.CameraListener;
+import com.zegocloud.demo.cohosting.internal.ZEGOExpressService.MicrophoneListener;
 import com.zegocloud.demo.cohosting.internal.rtc.ZEGOLiveUser;
 import com.zegocloud.demo.cohosting.utils.Utils;
 import java.util.List;
@@ -24,6 +25,9 @@ public class BottomMenuBar extends LinearLayout {
     private CoHostButton coHostButton;
     private LinearLayout childLinearLayout;
     private ViewGroup bottomInputView;
+    private ToggleCameraButton cameraButton;
+    private ToggleMicrophoneButton microphoneButton;
+    private SwitchCameraButton switchCameraButton;
 
     public BottomMenuBar(Context context) {
         super(context);
@@ -85,6 +89,35 @@ public class BottomMenuBar extends LinearLayout {
 
         coHostButton = new CoHostButton(getContext());
         childLinearLayout.addView(coHostButton, generateChildTextLayoutParams());
+
+        ZEGOLiveUser localUser = ZEGOSDKManager.getInstance().rtcService.getLocalUser();
+        cameraButton = new ToggleCameraButton(getContext());
+        cameraButton.updateState(localUser.isCameraOpen());
+        childLinearLayout.addView(cameraButton, generateChildImageLayoutParams());
+        ZEGOSDKManager.getInstance().rtcService.addCameraListener(new CameraListener() {
+            @Override
+            public void onCameraOpen(String userID, boolean open) {
+                if (userID.equals(localUser.userID)) {
+                    cameraButton.updateState(open);
+                }
+            }
+        });
+
+        microphoneButton = new ToggleMicrophoneButton(getContext());
+        microphoneButton.updateState(localUser.isMicrophoneOpen());
+        childLinearLayout.addView(microphoneButton, generateChildImageLayoutParams());
+        ZEGOSDKManager.getInstance().rtcService.addMicrophoneListener(new MicrophoneListener() {
+            @Override
+            public void onMicrophoneOpen(String userID, boolean open) {
+                ZEGOLiveUser localUser = ZEGOSDKManager.getInstance().rtcService.getLocalUser();
+                if (userID.equals(localUser.userID)) {
+                    microphoneButton.updateState(open);
+                }
+            }
+        });
+
+        switchCameraButton = new SwitchCameraButton(getContext());
+        childLinearLayout.addView(switchCameraButton, generateChildImageLayoutParams());
     }
 
     private LayoutParams generateChildImageLayoutParams() {
@@ -113,10 +146,8 @@ public class BottomMenuBar extends LinearLayout {
 
     public void onUserJoinRoom() {
         coHostButton.onUserJoinRoom();
-        checkCoHostButton();
+        checkBottomsButtons();
     }
-
-    private static final String TAG = "BottomMenuBar";
 
     public void checkRedPoint() {
         ZEGOLiveUser localUser = ZEGOSDKManager.getInstance().rtcService.getLocalUser();
@@ -138,13 +169,18 @@ public class BottomMenuBar extends LinearLayout {
         }
     }
 
-    public void checkCoHostButton() {
+    public void checkBottomsButtons() {
         ZEGOLiveUser localUser = ZEGOSDKManager.getInstance().rtcService.getLocalUser();
-        Log.d(TAG, "checkCoHostButton() called :" + localUser);
         if (localUser.isAudience()) {
             coHostButton.setVisibility(VISIBLE);
+            cameraButton.setVisibility(GONE);
+            microphoneButton.setVisibility(GONE);
+            switchCameraButton.setVisibility(GONE);
         } else {
             coHostButton.setVisibility(GONE);
+            cameraButton.setVisibility(VISIBLE);
+            microphoneButton.setVisibility(VISIBLE);
+            switchCameraButton.setVisibility(VISIBLE);
         }
     }
 }

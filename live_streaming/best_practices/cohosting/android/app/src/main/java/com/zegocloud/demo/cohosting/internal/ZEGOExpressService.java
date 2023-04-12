@@ -34,6 +34,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 public class ZEGOExpressService {
@@ -50,6 +51,8 @@ public class ZEGOExpressService {
     private List<RoomStreamChangeListener> roomStreamChangeListenerList = new ArrayList<>();
     private List<IMCustomCommandListener> customCommandListenerList = new ArrayList<>();
     private List<IMBarrageMessageListener> barrageMessageListenerList = new ArrayList<>();
+    private List<CameraListener> cameraListenerList = new ArrayList<>();
+    private List<MicrophoneListener> microphoneListenerList = new ArrayList<>();
 
     // order by default time s
     private List<String> userIDList = new ArrayList<>();
@@ -79,6 +82,8 @@ public class ZEGOExpressService {
                 List<ZEGOLiveUser> userList = new ArrayList<>();
                 if (updateType == ZegoUpdateType.ADD) {
                     for (ZegoStream zegoStream : streamList) {
+                        Log.d(TAG, "onRoomStreamUpdate streamID: " + zegoStream.streamID + ",extraInfo: "
+                            + zegoStream.extraInfo);
                         ZEGOLiveUser liveUser = getUser(zegoStream.user.userID);
                         if (liveUser == null) {
                             liveUser = new ZEGOLiveUser(zegoStream.user.userID, zegoStream.user.userName);
@@ -96,6 +101,33 @@ public class ZEGOExpressService {
                                 hostUser = liveUser;
                             } else {
                                 videoUserIDList.add(liveUser.userID);
+                            }
+                        }
+                        if (!TextUtils.isEmpty(zegoStream.extraInfo)) {
+                            try {
+                                JSONObject jsonObject = new JSONObject(zegoStream.extraInfo);
+                                if (jsonObject.has("cam")) {
+                                    boolean isCameraOpen = jsonObject.getBoolean("cam");
+                                    boolean changed = liveUser.isCameraOpen() != isCameraOpen;
+                                    liveUser.setCameraOpen(isCameraOpen);
+                                    if (changed) {
+                                        for (CameraListener listener : cameraListenerList) {
+                                            listener.onCameraOpen(liveUser.userID, isCameraOpen);
+                                        }
+                                    }
+                                }
+                                if (jsonObject.has("mic")) {
+                                    boolean isMicOpen = jsonObject.getBoolean("mic");
+                                    boolean changed = liveUser.isMicrophoneOpen() != isMicOpen;
+                                    liveUser.setMicrophoneOpen(isMicOpen);
+                                    if (changed) {
+                                        for (MicrophoneListener listener : microphoneListenerList) {
+                                            listener.onMicrophoneOpen(liveUser.userID, isMicOpen);
+                                        }
+                                    }
+                                }
+                            } catch (JSONException e) {
+                                throw new RuntimeException(e);
                             }
                         }
                         userList.add(liveUser);
@@ -159,6 +191,45 @@ public class ZEGOExpressService {
             }
 
             @Override
+            public void onRoomStreamExtraInfoUpdate(String roomID, ArrayList<ZegoStream> streamList) {
+                super.onRoomStreamExtraInfoUpdate(roomID, streamList);
+
+                for (ZegoStream zegoStream : streamList) {
+                    Log.d(TAG, "onRoomStreamExtraInfoUpdate() called with: zegoStream = [" + zegoStream.streamID
+                        + "], extraInfo = [" + zegoStream.extraInfo + "]");
+                    if (!TextUtils.isEmpty(zegoStream.extraInfo)) {
+                        ZEGOLiveUser liveUser = getUser(zegoStream.user.userID);
+                        try {
+                            JSONObject jsonObject = new JSONObject(zegoStream.extraInfo);
+                            if (jsonObject.has("cam")) {
+                                boolean isCameraOpen = jsonObject.getBoolean("cam");
+                                boolean changed = liveUser.isCameraOpen() != isCameraOpen;
+                                liveUser.setCameraOpen(isCameraOpen);
+                                if (changed) {
+                                    for (CameraListener listener : cameraListenerList) {
+                                        listener.onCameraOpen(liveUser.userID, isCameraOpen);
+                                    }
+                                }
+                            }
+                            if (jsonObject.has("mic")) {
+                                boolean isMicOpen = jsonObject.getBoolean("mic");
+                                boolean changed = liveUser.isMicrophoneOpen() != isMicOpen;
+                                liveUser.setMicrophoneOpen(isMicOpen);
+                                if (changed) {
+                                    for (MicrophoneListener listener : microphoneListenerList) {
+                                        listener.onMicrophoneOpen(liveUser.userID, isMicOpen);
+                                    }
+                                }
+                            }
+                        } catch (JSONException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                }
+
+            }
+
+            @Override
             public void onRoomUserUpdate(String roomID, ZegoUpdateType updateType, ArrayList<ZegoUser> userList) {
                 super.onRoomUserUpdate(roomID, updateType, userList);
                 Log.d(TAG, "onRoomUserUpdate() called with: roomID = [" + roomID + "], updateType = [" + updateType
@@ -167,7 +238,6 @@ public class ZEGOExpressService {
                 for (ZegoUser zegoUser : userList) {
                     ZEGOLiveUser liveUser = getUser(zegoUser.userID);
                     if (liveUser != null) {
-                        liveUserList.add(liveUser);
                     } else {
                         liveUserList.add(new ZEGOLiveUser(zegoUser.userID, zegoUser.userName));
                     }
@@ -360,6 +430,9 @@ public class ZEGOExpressService {
         videoUserIDList.clear();
         roomUserChangeListenerList.clear();
         roomStreamChangeListenerList.clear();
+        barrageMessageListenerList.clear();
+        cameraListenerList.clear();
+        microphoneListenerList.clear();
         currentRoomID = null;
     }
 
@@ -432,14 +505,50 @@ public class ZEGOExpressService {
         if (engine == null) {
             return;
         }
+        if (localUser != null) {
+            boolean changed = enable != localUser.isCameraOpen();
+            localUser.setCameraOpen(enable);
+            if (changed) {
+                for (CameraListener listener : cameraListenerList) {
+                    listener.onCameraOpen(localUser.userID, enable);
+                }
+            }
+        }
         engine.enableCamera(enable);
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("cam", enable);
+            jsonObject.put("mic", localUser.isMicrophoneOpen());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        String extraInfo = jsonObject.toString();
+        engine.setStreamExtraInfo(extraInfo, null);
     }
 
     public void openMicrophone(boolean open) {
         if (engine == null) {
             return;
         }
+        if (localUser != null) {
+            boolean changed = localUser.isMicrophoneOpen() != open;
+            localUser.setMicrophoneOpen(open);
+            if (changed) {
+                for (MicrophoneListener listener : microphoneListenerList) {
+                    listener.onMicrophoneOpen(localUser.userID, open);
+                }
+            }
+        }
         engine.muteMicrophone(!open);
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("cam", localUser.isCameraOpen());
+            jsonObject.put("mic", open);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        String extraInfo = jsonObject.toString();
+        engine.setStreamExtraInfo(extraInfo, null);
     }
 
     public void useFrontCamera(boolean useFront) {
@@ -557,6 +666,22 @@ public class ZEGOExpressService {
         barrageMessageListenerList.remove(listener);
     }
 
+    public void addCameraListener(CameraListener listener) {
+        cameraListenerList.add(listener);
+    }
+
+    public void removeCameraListener(CameraListener listener) {
+        cameraListenerList.remove(listener);
+    }
+
+    public void addMicrophoneListener(MicrophoneListener listener) {
+        microphoneListenerList.add(listener);
+    }
+
+    public void removeMicrophoneListener(MicrophoneListener listener) {
+        microphoneListenerList.remove(listener);
+    }
+
     public interface RoomStateChangeListener {
 
         void onRoomStateChanged(String roomID, ZegoRoomStateChangedReason reason, int errorCode,
@@ -587,5 +712,15 @@ public class ZEGOExpressService {
         void onIMRecvBarrageMessage(String roomID, ArrayList<ZegoBarrageMessageInfo> messageList);
 
         void onIMSendBarrageMessageResult(int errorCode, String message, String messageID);
+    }
+
+    public interface CameraListener {
+
+        void onCameraOpen(String userID, boolean open);
+    }
+
+    public interface MicrophoneListener {
+
+        void onMicrophoneOpen(String userID, boolean open);
     }
 }

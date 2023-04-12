@@ -15,7 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.RecyclerView.ViewHolder;
 import com.zegocloud.demo.cohosting.R;
 import com.zegocloud.demo.cohosting.ZEGOSDKManager;
-import com.zegocloud.demo.cohosting.internal.invitation.ZEGOInvitationService;
+import com.zegocloud.demo.cohosting.internal.ZEGOInvitationService;
 import com.zegocloud.demo.cohosting.internal.invitation.common.AcceptInvitationCallback;
 import com.zegocloud.demo.cohosting.internal.invitation.common.RejectInvitationCallback;
 import com.zegocloud.demo.cohosting.internal.invitation.common.SendInvitationCallback;

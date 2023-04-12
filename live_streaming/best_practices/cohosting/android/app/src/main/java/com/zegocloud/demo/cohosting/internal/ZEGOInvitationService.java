@@ -1,4 +1,4 @@
-package com.zegocloud.demo.cohosting.internal.invitation;
+package com.zegocloud.demo.cohosting.internal;
 
 import android.app.Application;
 import android.util.Log;

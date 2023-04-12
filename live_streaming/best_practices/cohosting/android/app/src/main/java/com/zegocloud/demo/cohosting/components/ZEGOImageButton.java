@@ -71,20 +71,31 @@ public class ZEGOImageButton extends androidx.appcompat.widget.AppCompatImageVie
     public void setImageResource(@DrawableRes int openDrawable, @DrawableRes int closeDrawable) {
         this.openDrawable = openDrawable;
         this.closeDrawable = closeDrawable;
-        setState(open);
+        updateState(open);
     }
 
+    /**
+     * should override to imply function
+     */
     public void open() {
-        setActivated(true);
+        this.open = true;
+        updateState(true);
     }
 
+    /**
+     * should override to imply function
+     */
     public void close() {
-        setActivated(false);
+        this.open = false;
+        updateState(false);
     }
 
-    public void setState(boolean state) {
+    /**
+     * only update ui,don't override
+     */
+    public void updateState(boolean state) {
         this.open = state;
-        if (open) {
+        if (state) {
             setImageResource(openDrawable);
         } else {
             setImageResource(closeDrawable);
@@ -97,6 +108,10 @@ public class ZEGOImageButton extends androidx.appcompat.widget.AppCompatImageVie
 
     public void toggle() {
         boolean open = isOpen();
-        setState(!open);
+        if (open) {
+            close();
+        } else {
+            open();
+        }
     }
 }

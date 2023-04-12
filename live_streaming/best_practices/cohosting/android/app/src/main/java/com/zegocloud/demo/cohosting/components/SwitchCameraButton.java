@@ -44,10 +44,4 @@ public class SwitchCameraButton extends ZEGOImageButton {
         super.close();
         ZEGOSDKManager.getInstance().rtcService.useFrontCamera(false);
     }
-
-    @Override
-    public void setState(boolean state) {
-        super.setState(state);
-        ZEGOSDKManager.getInstance().rtcService.useFrontCamera(state);
-    }
 }

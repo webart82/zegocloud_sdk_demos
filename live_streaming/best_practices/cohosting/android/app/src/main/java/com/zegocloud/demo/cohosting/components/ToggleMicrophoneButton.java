@@ -44,10 +44,4 @@ public class ToggleMicrophoneButton extends ZEGOImageButton {
         super.close();
         ZEGOSDKManager.getInstance().rtcService.openMicrophone(false);
     }
-
-    @Override
-    public void setState(boolean state) {
-        super.setState(state);
-        ZEGOSDKManager.getInstance().rtcService.openMicrophone(state);
-    }
 }
