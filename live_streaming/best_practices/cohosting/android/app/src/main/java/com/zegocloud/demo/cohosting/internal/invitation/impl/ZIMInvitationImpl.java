@@ -34,6 +34,7 @@ import im.zego.zim.enums.ZIMMessageType;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -67,24 +68,27 @@ public class ZIMInvitationImpl implements InvitationInterface {
                     if (zimMessage.getType() == ZIMMessageType.COMMAND) {
                         ZIMCommandMessage commandMessage = (ZIMCommandMessage) zimMessage;
                         String message = new String(commandMessage.message, StandardCharsets.UTF_8);
-                        Log.d(TAG, "onReceiveRoomMessage,message: " + message);
-                        Log.d(TAG, "onReceiveRoomMessage,extendedData: " + commandMessage.extendedData);
                         CoHostProtocol protocol = CoHostProtocol.parse(message);
                         if (invitationListener == null) {
                             return;
                         }
-                        if (protocol != null) {
+                        ZEGOExpressService rtcService = ZEGOSDKManager.getInstance().rtcService;
+                        ZEGOLiveUser localUser = rtcService.getLocalUser();
+                        if (protocol != null && localUser != null && Objects.equals(localUser.userID,
+                            protocol.getTargetID())) {
                             String operatorID = protocol.getOperatorID();
                             if (protocol.isInvite() || protocol.isRequest()) {
-                                invitationListener.onInComingNewInvitation(String.valueOf(commandMessage.getMessageID()), operatorID,
-                                    message);
+                                invitationListener.onInComingNewInvitation(
+                                    String.valueOf(commandMessage.getMessageID()), operatorID, message);
                             } else if (protocol.isCancelInvite() || protocol.isCancelRequest()) {
-                                invitationListener.onInComingInvitationButIsCancelled(commandMessage.extendedData, operatorID,
-                                    message);
+                                invitationListener.onInComingInvitationButIsCancelled(commandMessage.extendedData,
+                                    operatorID, message);
                             } else if (protocol.isRefuseInvite() || protocol.isRefuseRequest()) {
-                                invitationListener.onOutgoingInvitationButIsRejected(commandMessage.extendedData, operatorID, message);
+                                invitationListener.onOutgoingInvitationButIsRejected(commandMessage.extendedData,
+                                    operatorID, message);
                             } else if (protocol.isAcceptInvite() || protocol.isAcceptRequest()) {
-                                invitationListener.onOutgoingInvitationAndIsAccepted(commandMessage.extendedData, operatorID, message);
+                                invitationListener.onOutgoingInvitationAndIsAccepted(commandMessage.extendedData,
+                                    operatorID, message);
                             }
                         }
                     }

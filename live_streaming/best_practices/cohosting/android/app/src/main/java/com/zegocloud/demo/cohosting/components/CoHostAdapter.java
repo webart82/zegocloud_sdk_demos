@@ -1,4 +1,4 @@
-package com.zegocloud.demo.cohosting.live;
+package com.zegocloud.demo.cohosting.components;
 
 import android.util.DisplayMetrics;
 import android.util.Log;

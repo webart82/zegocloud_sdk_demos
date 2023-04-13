@@ -11,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import com.zegocloud.demo.cohosting.R;
 import com.zegocloud.demo.cohosting.ZEGOSDKManager;
+import com.zegocloud.demo.cohosting.components.CoHostAdapter;
 import com.zegocloud.demo.cohosting.databinding.ActivityLiveStreamingBinding;
 import com.zegocloud.demo.cohosting.internal.ZEGOExpressService;
 import com.zegocloud.demo.cohosting.internal.ZEGOExpressService.CameraListener;

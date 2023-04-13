@@ -141,33 +141,36 @@ public class MemberListAdapter extends RecyclerView.Adapter<ViewHolder> {
             }
         });
         more.setOnClickListener(v -> {
-            AlertDialog.Builder alertBuilder = new Builder(more.getContext());
-            alertBuilder.setTitle("Invite CoHost");
-            alertBuilder.setMessage("Are you sure to invite " + liveUser.userName + " to CoHost?");
-            alertBuilder.setPositiveButton(R.string.ok, new OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    CoHostProtocol protocol = new CoHostProtocol();
-                    protocol.setActionType(CoHostProtocol.HostInviteAudienceToBecomeCoHost);
-                    protocol.setTargetID(liveUser.userID);
-                    protocol.setOperatorID(localUser.userID);
-                    invitationService.inviteUser(liveUser.userID, protocol.toString(), new SendInvitationCallback() {
-                        @Override
-                        public void onResult(int errorCode, String invitationID, List<String> errorInvitees) {
+            if (liveUser.isAudience()) {
+                AlertDialog.Builder alertBuilder = new Builder(more.getContext());
+                alertBuilder.setTitle("Invite CoHost");
+                alertBuilder.setMessage("Are you sure to invite " + liveUser.userName + " to CoHost?");
+                alertBuilder.setPositiveButton(R.string.ok, new OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        CoHostProtocol protocol = new CoHostProtocol();
+                        protocol.setActionType(CoHostProtocol.HostInviteAudienceToBecomeCoHost);
+                        protocol.setTargetID(liveUser.userID);
+                        protocol.setOperatorID(localUser.userID);
+                        invitationService.inviteUser(liveUser.userID, protocol.toString(),
+                            new SendInvitationCallback() {
+                                @Override
+                                public void onResult(int errorCode, String invitationID, List<String> errorInvitees) {
 
-                        }
-                    });
-                    dialog.dismiss();
-                }
-            });
-            alertBuilder.setNegativeButton(R.string.cancel, new OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    dialog.dismiss();
-                }
-            });
-            AlertDialog alertDialog = alertBuilder.create();
-            alertDialog.show();
+                                }
+                            });
+                        dialog.dismiss();
+                    }
+                });
+                alertBuilder.setNegativeButton(R.string.cancel, new OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+                AlertDialog alertDialog = alertBuilder.create();
+                alertDialog.show();
+            }
         });
     }
 
