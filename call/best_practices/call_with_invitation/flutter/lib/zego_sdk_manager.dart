@@ -24,9 +24,9 @@ class ZEGOSDKManager {
     await zimService.connectUser(userID, userName);
   }
 
-  Future<void> disConnectUser(String userID, String userName) async {
-    await expressService.disConnectUser(userID, userName);
-    await zimService.disConnectUser();
+  Future<void> disconnectUser(String userID, String userName) async {
+    await expressService.disconnectUser(userID, userName);
+    await zimService.disconnectUser();
   }
 
   ValueNotifier<Widget?> getVideoViewNotifier(String? userID) {

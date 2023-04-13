@@ -7,7 +7,6 @@ import 'package:live_streaming_with_cohosting/components/zego_toggle_microphone_
 import 'package:live_streaming_with_cohosting/define.dart';
 import 'package:live_streaming_with_cohosting/utils/flutter_extension.dart';
 import 'package:live_streaming_with_cohosting/zego_sdk_manager.dart';
-import 'package:zego_express_engine/zego_express_engine.dart';
 
 import '../internal/zego_user_info.dart';
 
@@ -32,11 +31,11 @@ class _ZegoLiveBottomBarState extends State<ZegoLiveBottomBar> {
 
   @override
   Widget build(BuildContext context) {
-    if (ZegoSDKManager.shared.localUser == null) {
+    if (ZEGOSDKManager.instance.localUser == null) {
       return Container();
     } else {
       return ValueListenableBuilder<ZegoLiveRole>(
-        valueListenable: ZegoSDKManager.shared.localUser!.roleNotifier,
+        valueListenable: ZEGOSDKManager.instance.localUser!.roleNotifier,
         builder: (context, role, _) {
           return getBottomBar(role);
         },
@@ -89,7 +88,7 @@ class _ZegoLiveBottomBarState extends State<ZegoLiveBottomBar> {
         child: ZegoToggleMicrophoneButton(
           onPressed: () {
             isMicOn = !isMicOn;
-            ZegoSDKManager.shared.expressService.turnMicrophoneOn(isMicOn);
+            ZEGOSDKManager.instance.expressService.turnMicrophoneOn(isMicOn);
           },
         ),
       );
@@ -104,7 +103,7 @@ class _ZegoLiveBottomBarState extends State<ZegoLiveBottomBar> {
         child: ZegoToggleCameraButton(
           onPressed: () {
             isCameraOn = !isCameraOn;
-            ZegoSDKManager.shared.expressService.turnCameraOn(isCameraOn);
+            ZEGOSDKManager.instance.expressService.turnCameraOn(isCameraOn);
           },
         ),
       );
@@ -119,7 +118,7 @@ class _ZegoLiveBottomBarState extends State<ZegoLiveBottomBar> {
         child: ZegoSwitchCameraButton(
           onPressed: () {
             isFacingCamera = !isFacingCamera;
-            ZegoSDKManager.shared.expressService.useFrontFacingCamera(isFacingCamera);
+            ZEGOSDKManager.instance.expressService.useFrontFacingCamera(isFacingCamera);
           },
         ),
       );
@@ -135,17 +134,26 @@ class _ZegoLiveBottomBarState extends State<ZegoLiveBottomBar> {
           onPressed: () {
             final command = jsonEncode({
               'type': CustomCommandActionType.audienceApplyToBecomeCoHost,
-              'userID': ZegoSDKManager.shared.localUser?.userID ?? '',
+              'userID': ZEGOSDKManager.instance.localUser?.userID ?? '',
+              'targetID': getHostUser()?.userID ?? '',
             });
-            ZegoSDKManager.shared.expressService
-                .sendCommandMessage(command, [getHostUser()?.userID ?? '']).then((value) {
-              if (value.errorCode != 0) {
-                ScaffoldMessenger.of(context)
-                    .showSnackBar(SnackBar(content: Text('apply cohost failed: ${value.errorCode}')));
-              } else {
-                widget.applyState?.value = true;
-              }
+            ZEGOSDKManager.instance.zimService.sendRoomCustonCommand(command).then((value) {
+              widget.applyState?.value = false;
+            }).catchError((error) {
+              widget.applyState?.value = true;
+              ScaffoldMessenger.of(context)
+                  .showSnackBar(SnackBar(content: Text('apply cohost failed: ${error.code}, ${error.message}')));
             });
+
+            // ZEGOSDKManager.instance.expressService
+            //     .sendCommandMessage(command, [getHostUser()?.userID ?? '']).then((value) {
+            //   if (value.errorCode != 0) {
+            //     ScaffoldMessenger.of(context)
+            //         .showSnackBar(SnackBar(content: Text('apply cohost failed: ${value.errorCode}')));
+            //   } else {
+            //     widget.applyState?.value = true;
+            //   }
+            // });
           },
           child: const Text(
             'applyCohost',
@@ -163,17 +171,26 @@ class _ZegoLiveBottomBarState extends State<ZegoLiveBottomBar> {
           onPressed: () {
             final command = jsonEncode({
               'type': CustomCommandActionType.audienceCancelCoHostApply,
-              'userID': ZegoSDKManager.shared.localUser?.userID ?? '',
+              'userID': ZEGOSDKManager.instance.localUser?.userID ?? '',
+              'targetID': getHostUser()?.userID ?? '',
             });
-            ZegoSDKManager.shared.expressService
-                .sendCommandMessage(command, [getHostUser()?.userID ?? '']).then((value) {
-              if (value.errorCode != 0) {
-                ScaffoldMessenger.of(context)
-                    .showSnackBar(SnackBar(content: Text('cancel apply cohost failed: ${value.errorCode}')));
-              } else {
-                widget.applyState?.value = false;
-              }
+
+            ZEGOSDKManager.instance.zimService.sendRoomCustonCommand(command).then((value) {
+              widget.applyState?.value = false;
+            }).catchError((error) {
+              ScaffoldMessenger.of(context)
+                  .showSnackBar(SnackBar(content: Text('cancel apply cohost failed: ${error.code}, ${error.message}')));
             });
+
+            // ZEGOSDKManager.instance.expressService
+            //     .sendCommandMessage(command, [getHostUser()?.userID ?? '']).then((value) {
+            //   if (value.errorCode != 0) {
+            //     ScaffoldMessenger.of(context)
+            //         .showSnackBar(SnackBar(content: Text('cancel apply cohost failed: ${value.errorCode}')));
+            //   } else {
+            //     widget.applyState?.value = false;
+            //   }
+            // });
           },
           child: const Text(
             'cancelApplyCohost',
@@ -183,10 +200,10 @@ class _ZegoLiveBottomBarState extends State<ZegoLiveBottomBar> {
   }
 
   ZegoUserInfo? getHostUser() {
-    if (ZegoSDKManager.shared.localUser?.roleNotifier.value == ZegoLiveRole.host) {
-      return ZegoSDKManager.shared.localUser;
+    if (ZEGOSDKManager.instance.localUser?.roleNotifier.value == ZegoLiveRole.host) {
+      return ZEGOSDKManager.instance.localUser;
     } else {
-      for (var userInfo in ZegoSDKManager.shared.expressService.userInfoList) {
+      for (var userInfo in ZEGOSDKManager.instance.expressService.userInfoList) {
         if (userInfo.streamID != null) {
           if (userInfo.streamID!.endsWith('_host')) {
             return userInfo;
@@ -205,11 +222,11 @@ class _ZegoLiveBottomBarState extends State<ZegoLiveBottomBar> {
           style: OutlinedButton.styleFrom(side: const BorderSide(width: 1, color: Colors.white)),
           onPressed: () {
             widget.cohostStreamNotifier.removeWhere((element) {
-              return element == ZegoSDKManager.shared.localUser!.streamID;
+              return element == ZEGOSDKManager.instance.localUser!.streamID;
             });
-            ZegoSDKManager.shared.expressService.stopPreview();
-            ZegoSDKManager.shared.localUser?.roleNotifier.value = ZegoLiveRole.audience;
-            ZegoSDKManager.shared.expressService.stopPublishingStream();
+            ZEGOSDKManager.instance.expressService.stopPreview();
+            ZEGOSDKManager.instance.localUser?.roleNotifier.value = ZegoLiveRole.audience;
+            ZEGOSDKManager.instance.expressService.stopPublishingStream();
           },
           child: const Text(
             'end cohost',

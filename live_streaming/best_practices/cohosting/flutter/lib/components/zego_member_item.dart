@@ -32,9 +32,9 @@ class _ZegoMemberItemState extends State<ZegoMemberItem> {
                     onPressed: () {
                       final command = jsonEncode({
                         'type': CustomCommandActionType.hostRefuseAudienceCoHostApply,
-                        'userID': ZegoSDKManager.shared.localUser?.userID ?? '',
+                        'userID': ZEGOSDKManager.instance.localUser?.userID ?? '',
                       });
-                      ZegoSDKManager.shared.expressService.sendCommandMessage(command, [widget.userInfo.userID]);
+                      ZEGOSDKManager.instance.expressService.sendCommandMessage(command, [widget.userInfo.userID]);
                       widget.applyCohostList.value.removeWhere((element) {
                         return element == widget.userInfo.userID;
                       });
@@ -47,9 +47,9 @@ class _ZegoMemberItemState extends State<ZegoMemberItem> {
                     onPressed: () {
                       final command = jsonEncode({
                         'type': CustomCommandActionType.hostAcceptAudienceCoHostApply,
-                        'userID': ZegoSDKManager.shared.localUser?.userID ?? '',
+                        'userID': ZEGOSDKManager.instance.localUser?.userID ?? '',
                       });
-                      ZegoSDKManager.shared.expressService.sendCommandMessage(command, [widget.userInfo.userID]);
+                      ZEGOSDKManager.instance.expressService.sendCommandMessage(command, [widget.userInfo.userID]);
                       widget.applyCohostList.value.removeWhere((element) {
                         return element == widget.userInfo.userID;
                       });

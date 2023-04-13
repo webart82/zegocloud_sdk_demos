@@ -1,9 +1,13 @@
+import 'dart:async';
+import 'dart:math';
+
 import 'package:flutter/material.dart';
-import 'package:live_streaming_with_cohosting/pages/pages.dart';
 import 'package:live_streaming_with_cohosting/zego_sdk_key_center.dart';
 import 'package:live_streaming_with_cohosting/zego_sdk_manager.dart';
 
+import '../internal/zego_service_define.dart';
 import '../utils/permission.dart';
+import 'home_page.dart';
 
 class ZegoLoginPage extends StatefulWidget {
   const ZegoLoginPage({super.key, required this.title});
@@ -15,15 +19,38 @@ class ZegoLoginPage extends StatefulWidget {
 }
 
 class _ZegoLoginPageState extends State<ZegoLoginPage> {
-  final userIDController = TextEditingController();
+  final userIDController = TextEditingController(text: Random().nextInt(100000).toString());
   final userNameController = TextEditingController();
+
+  List<StreamSubscription> subscriptions = [];
 
   @override
   void initState() {
     super.initState();
+    userNameController.text = 'user_${userIDController.text}';
     // init SDK
-    ZegoSDKManager.shared.init(SDKKeyCenter.appID, SDKKeyCenter.appSign);
+    ZEGOSDKManager.instance.init(SDKKeyCenter.appID, SDKKeyCenter.appSign);
+    subscriptions.addAll([
+      ZEGOSDKManager.instance.zimService.connectionStateStreamCtrl.stream
+          .listen((ZIMServiceConnectionStateChangedEvent event) {
+        debugPrint('connectionStateStreamCtrl: $event');
+        if (event.state == ZIMConnectionState.connected) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const HomePage()),
+          );
+        }
+      })
+    ]);
     requestPermission();
+  }
+
+  @override
+  void dispose() {
+    for (var element in subscriptions) {
+      element.cancel();
+    }
+    super.dispose();
   }
 
   @override
@@ -49,12 +76,7 @@ class _ZegoLoginPageState extends State<ZegoLoginPage> {
               height: 40,
               child: OutlinedButton(
                 onPressed: () {
-                  ZegoSDKManager.shared.connectUser(userIDController.text, userNameController.text).then((value) {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const HomePage()),
-                    );
-                  });
+                  ZEGOSDKManager.instance.connectUser(userIDController.text, userNameController.text);
                 },
                 child: const Text('Login'),
               ),

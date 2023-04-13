@@ -39,16 +39,17 @@ class _ZegoLivePageState extends State<ZegoLivePage> {
     super.initState();
 
     subscriptions.addAll([
-      ZegoSDKManager.shared.expressService.streamListUpdateStreamCtrl.stream.listen(onStreamListUpdate),
-      ZegoSDKManager.shared.expressService.roomUserListUpdateStreamCtrl.stream.listen(onRoomUserListUpdate),
-      ZegoSDKManager.shared.expressService.customCommandStreamCtrl.stream.listen(onCustomCommandReceive),
-      ZegoSDKManager.shared.expressService.roomStateChangedStreamCtrl.stream.listen(onRoomStateChanged),
+      ZEGOSDKManager.instance.expressService.streamListUpdateStreamCtrl.stream.listen(onStreamListUpdate),
+      ZEGOSDKManager.instance.expressService.roomUserListUpdateStreamCtrl.stream.listen(onRoomUserListUpdate),
+      // ZEGOSDKManager.instance.expressService.customCommandStreamCtrl.stream.listen(onCustomCommandReceive),
+      ZEGOSDKManager.instance.zimService.receiveRoomCustomCommandStreamCtrl.stream.listen(onRoomCustomCommandReceived),
+      ZEGOSDKManager.instance.expressService.roomStateChangedStreamCtrl.stream.listen(onRoomStateChanged),
     ]);
 
     if (widget.role == ZegoLiveRole.audience) {
       //Join room
-      ZegoSDKManager.shared.localUser?.roleNotifier.value = ZegoLiveRole.audience;
-      ZegoSDKManager.shared.expressService.joinRoom(widget.roomID).then(
+      ZEGOSDKManager.instance.localUser?.roleNotifier.value = ZegoLiveRole.audience;
+      ZEGOSDKManager.instance.loginRoom(widget.roomID).then(
         (value) {
           if (value.errorCode != 0) {
             ScaffoldMessenger.of(context)
@@ -57,18 +58,19 @@ class _ZegoLivePageState extends State<ZegoLivePage> {
         },
       );
     } else if (widget.role == ZegoLiveRole.host) {
-      hostUserInfoNotifier.value = ZegoSDKManager.shared.localUser;
-      ZegoSDKManager.shared.localUser?.roleNotifier.value = ZegoLiveRole.host;
-      ZegoSDKManager.shared.expressService.turnCameraOn(true);
-      ZegoSDKManager.shared.expressService.turnMicrophoneOn(true);
-      ZegoSDKManager.shared.expressService.startPreview();
+      hostUserInfoNotifier.value = ZEGOSDKManager.instance.localUser;
+      ZEGOSDKManager.instance.localUser?.roleNotifier.value = ZegoLiveRole.host;
+      ZEGOSDKManager.instance.expressService.turnCameraOn(true);
+      ZEGOSDKManager.instance.expressService.turnMicrophoneOn(true);
+      ZEGOSDKManager.instance.expressService.startPreview();
     }
   }
 
   @override
   void dispose() {
     super.dispose();
-    ZegoSDKManager.shared.expressService.leaveRoom();
+    ZEGOSDKManager.instance.expressService.stopPreview();
+    ZEGOSDKManager.instance.logoutRoom();
     for (final subscription in subscriptions) {
       subscription?.cancel();
     }
@@ -132,9 +134,9 @@ class _ZegoLivePageState extends State<ZegoLivePage> {
 
   ZegoUserInfo? getHostUser() {
     if (widget.role == ZegoLiveRole.host) {
-      return ZegoSDKManager.shared.localUser;
+      return ZEGOSDKManager.instance.localUser;
     } else {
-      for (var userInfo in ZegoSDKManager.shared.expressService.userInfoList) {
+      for (var userInfo in ZEGOSDKManager.instance.expressService.userInfoList) {
         if (userInfo.streamID != null) {
           if (userInfo.streamID!.endsWith('_host')) {
             return userInfo;
@@ -183,10 +185,10 @@ class _ZegoLivePageState extends State<ZegoLivePage> {
   List<ZegoUserInfo> getCoHostList(List<String> cohost) {
     List<ZegoUserInfo> list = [];
     for (var streamID in cohost) {
-      if (streamID == ZegoSDKManager.shared.localUser?.streamID) {
-        list.add(ZegoSDKManager.shared.localUser!);
+      if (streamID == ZEGOSDKManager.instance.localUser?.streamID) {
+        list.add(ZEGOSDKManager.instance.localUser!);
       } else {
-        for (var user in ZegoSDKManager.shared.expressService.userInfoList) {
+        for (var user in ZEGOSDKManager.instance.expressService.userInfoList) {
           if (user.streamID != null && streamID == user.streamID) {
             list.add(user);
           }
@@ -221,14 +223,14 @@ class _ZegoLivePageState extends State<ZegoLivePage> {
 
   void startLive() {
     isLivingNotifier.value = true;
-    ZegoSDKManager.shared.expressService.joinRoom(widget.roomID).then(
+    ZEGOSDKManager.instance.expressService.loginRoom(widget.roomID).then(
       (value) {
         if (value.errorCode != 0) {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('login room failed: ${value.errorCode}')));
         } else {
-          final userID = ZegoSDKManager.shared.localUser?.userID;
+          final userID = ZEGOSDKManager.instance.localUser?.userID;
           final hostStreamID = '${widget.roomID}_${userID}_host';
-          ZegoSDKManager.shared.expressService.startPublishingStream(hostStreamID);
+          ZEGOSDKManager.instance.expressService.startPublishingStream(hostStreamID);
         }
       },
     );
@@ -312,14 +314,48 @@ class _ZegoLivePageState extends State<ZegoLivePage> {
     }
   }
 
+  void onRoomCustomCommandReceived(ZIMServiceReceiveRoomCustomCommandEvent event) {
+    Map<String, dynamic> commandMap = convert.jsonDecode(event.command);
+    String userID = commandMap['userID'];
+    if (commandMap['type'] == CustomCommandActionType.audienceApplyToBecomeCoHost) {
+      applyCohostList.add(userID);
+      // show dialog
+      if (ZEGOSDKManager.instance.getUser(userID) != null) {
+        showApplyCohostDialog(ZEGOSDKManager.instance.getUser(userID)!);
+      }
+    } else if (commandMap['type'] == CustomCommandActionType.audienceCancelCoHostApply) {
+      applyCohostList.removeWhere((element) {
+        return element == commandMap['userID'];
+      });
+      dismisApplyCohostDialog();
+    } else if (commandMap['type'] == CustomCommandActionType.hostAcceptAudienceCoHostApply) {
+      applyState.value = false;
+      applyCohostList.removeWhere((element) {
+        return element == commandMap['userID'];
+      });
+      becomeCoHost();
+    } else if (commandMap['type'] == CustomCommandActionType.hostRefuseAudienceCoHostApply) {
+      applyState.value = false;
+      applyCohostList.removeWhere((element) {
+        return element == commandMap['userID'];
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          duration: Duration(milliseconds: 1000),
+          content: Text('host refuse your apply'),
+        ),
+      );
+    }
+  }
+
   void onCustomCommandReceive(ZegoRoomCustomCommandEvent event) {
     Map<String, dynamic> commandMap = convert.jsonDecode(event.command);
     String userID = commandMap['userID'];
     if (commandMap['type'] == CustomCommandActionType.audienceApplyToBecomeCoHost) {
       applyCohostList.add(userID);
       // show dialog
-      if (ZegoSDKManager.shared.getUser(userID) != null) {
-        showApplyCohostDialog(ZegoSDKManager.shared.getUser(userID)!);
+      if (ZEGOSDKManager.instance.getUser(userID) != null) {
+        showApplyCohostDialog(ZEGOSDKManager.instance.getUser(userID)!);
       }
     } else if (commandMap['type'] == CustomCommandActionType.audienceCancelCoHostApply) {
       applyCohostList.removeWhere((element) {
@@ -347,14 +383,14 @@ class _ZegoLivePageState extends State<ZegoLivePage> {
   }
 
   void becomeCoHost() {
-    final roomID = ZegoSDKManager.shared.expressService.room;
-    final userID = ZegoSDKManager.shared.localUser!.userID;
+    final roomID = ZEGOSDKManager.instance.expressService.room;
+    final userID = ZEGOSDKManager.instance.localUser!.userID;
     final cohostStreamID = '${roomID}_${userID}_cohost';
-    ZegoSDKManager.shared.expressService.turnCameraOn(true);
-    ZegoSDKManager.shared.expressService.turnMicrophoneOn(true);
-    ZegoSDKManager.shared.expressService.startPreview();
-    ZegoSDKManager.shared.expressService.localUser!.roleNotifier.value = ZegoLiveRole.coHost;
-    ZegoSDKManager.shared.expressService.startPublishingStream(cohostStreamID);
+    ZEGOSDKManager.instance.expressService.turnCameraOn(true);
+    ZEGOSDKManager.instance.expressService.turnMicrophoneOn(true);
+    ZEGOSDKManager.instance.expressService.startPreview();
+    ZEGOSDKManager.instance.expressService.localUser!.roleNotifier.value = ZegoLiveRole.coHost;
+    ZEGOSDKManager.instance.expressService.startPublishingStream(cohostStreamID);
     cohostStreamNotifier.add(cohostStreamID);
   }
 
@@ -382,9 +418,9 @@ class _ZegoLivePageState extends State<ZegoLivePage> {
               onPressed: () {
                 final command = jsonEncode({
                   'type': CustomCommandActionType.hostRefuseAudienceCoHostApply,
-                  'userID': ZegoSDKManager.shared.localUser?.userID ?? '',
+                  'userID': ZEGOSDKManager.instance.localUser?.userID ?? '',
                 });
-                ZegoSDKManager.shared.expressService.sendCommandMessage(command, [userInfo.userID]).then((value) {
+                ZEGOSDKManager.instance.expressService.sendCommandMessage(command, [userInfo.userID]).then((value) {
                   if (value.errorCode != 0) {
                     ScaffoldMessenger.of(context)
                         .showSnackBar(SnackBar(content: Text('refuse cohost failed: ${value.errorCode}')));
@@ -398,9 +434,9 @@ class _ZegoLivePageState extends State<ZegoLivePage> {
               onPressed: () {
                 final command = jsonEncode({
                   'type': CustomCommandActionType.hostAcceptAudienceCoHostApply,
-                  'userID': ZegoSDKManager.shared.localUser?.userID ?? '',
+                  'userID': ZEGOSDKManager.instance.localUser?.userID ?? '',
                 });
-                ZegoSDKManager.shared.expressService.sendCommandMessage(command, [userInfo.userID]).then((value) {
+                ZEGOSDKManager.instance.expressService.sendCommandMessage(command, [userInfo.userID]).then((value) {
                   if (value.errorCode != 0) {
                     ScaffoldMessenger.of(context)
                         .showSnackBar(SnackBar(content: Text('accept apply cohost failed: ${value.errorCode}')));

@@ -10,7 +10,8 @@ export 'package:zego_express_engine/zego_express_engine.dart';
 
 class ZegoExpressService {
   ZegoExpressService._internal();
-  static final ZegoExpressService shared = ZegoExpressService._internal();
+  factory ZegoExpressService() => instance;
+  static final ZegoExpressService instance = ZegoExpressService._internal();
 
   String room = '';
   ZegoUserInfo? localUser;
@@ -42,6 +43,10 @@ class ZegoExpressService {
     localUser = ZegoUserInfo(userID: id, userName: name);
   }
 
+  void disconnectUser() {
+    localUser = null;
+  }
+
   ZegoUserInfo? getUserInfo(String userID) {
     for (var user in userInfoList) {
       if (user.userID == userID) {
@@ -51,20 +56,19 @@ class ZegoExpressService {
     return null;
   }
 
-  Future<ZegoRoomLoginResult> joinRoom(String roomID) async {
-    final joinRoomResult = await ZegoExpressEngine.instance.loginRoom(
+  Future<ZegoRoomLoginResult> loginRoom(String roomID) async {
+    final loginRoomResult = await ZegoExpressEngine.instance.loginRoom(
       roomID,
       ZegoUser(localUser?.userID ?? '', localUser?.userName ?? ''),
       config: ZegoRoomConfig(0, true, ''),
     );
-    if (joinRoomResult.errorCode == 0) {
+    if (loginRoomResult.errorCode == 0) {
       room = roomID;
     }
-    return joinRoomResult;
+    return loginRoomResult;
   }
 
-  Future<ZegoRoomLogoutResult> leaveRoom() async {
-    stopPreview();
+  Future<ZegoRoomLogoutResult> logoutRoom() async {
     room = '';
     userInfoList.clear();
     resertLocalUser();
@@ -77,7 +81,7 @@ class ZegoExpressService {
     localUser?.streamID = null;
     localUser?.isCamerOnNotifier.value = false;
     localUser?.isMicOnNotifier.value = false;
-    localUser?.canvasNotifier.value = null;
+    localUser?.videoViewNotifier.value = null;
     localUser?.viewID = -1;
     localUser?.roleNotifier.value = ZegoLiveRole.audience;
   }
@@ -120,7 +124,7 @@ class ZegoExpressService {
     String? userID = streamMap[streamID];
     ZegoUserInfo? userInfo = getUserInfo(userID ?? '');
     if (userInfo != null) {
-      userInfo.canvasNotifier.value = await ZegoExpressEngine.instance.createCanvasView((viewID) => {
+      userInfo.videoViewNotifier.value = await ZegoExpressEngine.instance.createCanvasView((viewID) => {
             userInfo.viewID = viewID,
           });
       ZegoCanvas canvas = ZegoCanvas(userInfo.viewID, viewMode: ZegoViewMode.AspectFill);
@@ -133,7 +137,7 @@ class ZegoExpressService {
     ZegoUserInfo? userInfo = getUserInfo(userID ?? '');
     if (userInfo != null) {
       userInfo.streamID = '';
-      userInfo.canvasNotifier.value = null;
+      userInfo.videoViewNotifier.value = null;
       userInfo.viewID = -1;
     }
     await ZegoExpressEngine.instance.stopPlayingStream(streamID);
@@ -141,7 +145,7 @@ class ZegoExpressService {
 
   Future<void> startPreview() async {
     if (localUser != null) {
-      localUser!.canvasNotifier.value = await ZegoExpressEngine.instance.createCanvasView((viewID) => {
+      localUser!.videoViewNotifier.value = await ZegoExpressEngine.instance.createCanvasView((viewID) => {
             localUser!.viewID = viewID,
           });
 
@@ -154,7 +158,7 @@ class ZegoExpressService {
   }
 
   Future<void> stopPreview() async {
-    localUser?.canvasNotifier.value = null;
+    localUser?.videoViewNotifier.value = null;
     localUser?.viewID = -1;
     await ZegoExpressEngine.instance.stopPreview();
   }
@@ -196,14 +200,14 @@ class ZegoExpressService {
   }
 
   void initEventHandle() {
-    ZegoExpressEngine.onRoomStreamUpdate = ZegoExpressService.shared.onRoomStreamUpdate;
+    ZegoExpressEngine.onRoomStreamUpdate = ZegoExpressService.instance.onRoomStreamUpdate;
 
-    ZegoExpressEngine.onRoomUserUpdate = ZegoExpressService.shared.onRoomUserUpdate;
+    ZegoExpressEngine.onRoomUserUpdate = ZegoExpressService.instance.onRoomUserUpdate;
 
-    ZegoExpressEngine.onIMRecvCustomCommand = ZegoExpressService.shared.onIMRecvCustomCommand;
+    ZegoExpressEngine.onIMRecvCustomCommand = ZegoExpressService.instance.onIMRecvCustomCommand;
 
-    ZegoExpressEngine.onRoomStreamExtraInfoUpdate = ZegoExpressService.shared.onRoomStreamExtraInfoUpdate;
-    ZegoExpressEngine.onRoomStateChanged = ZegoExpressService.shared.onRoomStateChanged;
+    ZegoExpressEngine.onRoomStreamExtraInfoUpdate = ZegoExpressService.instance.onRoomStreamExtraInfoUpdate;
+    ZegoExpressEngine.onRoomStateChanged = ZegoExpressService.instance.onRoomStateChanged;
   }
 
   Future<void> onRoomStreamUpdate(

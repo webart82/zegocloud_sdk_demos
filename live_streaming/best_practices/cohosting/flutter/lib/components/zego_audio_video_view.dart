@@ -69,7 +69,7 @@ class _ZegoAudioVideoViewState extends State<ZegoAudioVideoView> {
 
   Widget videoView() {
     return ValueListenableBuilder<Widget?>(
-      valueListenable: widget.userInfo.canvasNotifier,
+      valueListenable: widget.userInfo.videoViewNotifier,
       builder: (context, view, _) {
         if (view != null) {
           return view;

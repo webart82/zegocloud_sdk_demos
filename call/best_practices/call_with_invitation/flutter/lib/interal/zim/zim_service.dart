@@ -36,7 +36,7 @@ class ZIMService {
     await ZIM.getInstance()?.login(userInfo);
   }
 
-  Future<void> disConnectUser() async {
+  Future<void> disconnectUser() async {
     ZIM.getInstance()!.logout();
   }
 

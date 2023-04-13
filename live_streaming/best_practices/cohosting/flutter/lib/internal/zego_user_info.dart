@@ -13,7 +13,7 @@ class ZegoUserInfo {
   ValueNotifier<ZegoLiveRole> roleNotifier = ValueNotifier(ZegoLiveRole.audience);
   String? streamID;
   int viewID = -1;
-  ValueNotifier<Widget?> canvasNotifier = ValueNotifier(null);
+  ValueNotifier<Widget?> videoViewNotifier = ValueNotifier(null);
   ValueNotifier<bool> isCamerOnNotifier = ValueNotifier(false);
   ValueNotifier<bool> isMicOnNotifier = ValueNotifier(false);
 }

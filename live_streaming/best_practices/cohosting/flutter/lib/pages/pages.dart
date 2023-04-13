@@ -1,3 +1,3 @@
-export 'zego_join_live_page.dart';
-export 'zego_live_page.dart';
-export 'zego_login_page.dart';
+export 'home_page.dart';
+export 'live_page.dart';
+export 'login_page.dart';

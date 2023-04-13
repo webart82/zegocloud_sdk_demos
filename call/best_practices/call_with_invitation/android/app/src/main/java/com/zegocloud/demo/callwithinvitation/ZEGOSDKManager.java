@@ -46,7 +46,7 @@ public class ZEGOSDKManager {
 
     public void disconnectUser() {
         zimService.disconnectUser();
-        expressService.disConnectUser();
+        expressService.disconnectUser();
     }
 
     public void startCameraPreview(TextureView textureView, ZegoViewMode viewMode) {

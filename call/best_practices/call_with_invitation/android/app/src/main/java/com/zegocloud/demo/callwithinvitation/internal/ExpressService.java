@@ -204,7 +204,7 @@ public class ExpressService {
         localUser = new ZegoUser(userID, userName);
     }
 
-    public void disConnectUser() {
+    public void disconnectUser() {
         localUser = null;
     }
 

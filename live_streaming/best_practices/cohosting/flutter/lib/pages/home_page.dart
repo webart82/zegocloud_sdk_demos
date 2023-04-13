@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:live_streaming_with_cohosting/define.dart';
-import 'package:live_streaming_with_cohosting/pages/zego_live_page.dart';
+import 'package:live_streaming_with_cohosting/pages/live_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
