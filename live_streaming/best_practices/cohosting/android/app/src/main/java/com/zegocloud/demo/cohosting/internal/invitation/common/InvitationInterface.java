@@ -10,6 +10,10 @@ public interface InvitationInterface {
 
     void disconnectUser();
 
+    void joinRoom(String roomID);
+
+    void leaveRoom();
+
     void inviteUser(String userID, String extendedData, SendInvitationCallback invitationCallback);
 
     void acceptInvite(ZEGOInvitation invitation, AcceptInvitationCallback callback);

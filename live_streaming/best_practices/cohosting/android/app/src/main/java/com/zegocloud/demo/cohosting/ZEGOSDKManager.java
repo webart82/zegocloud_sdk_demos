@@ -38,11 +38,13 @@ public class ZEGOSDKManager {
 
     public void joinRTCRoom(String roomID, IZegoRoomLoginCallback callback) {
         rtcService.joinRoom(roomID, callback);
+        invitationService.joinRoom(roomID);
     }
 
     public void leaveRTCRoom() {
         setBusy(false);
         rtcService.leaveRoom();
+        invitationService.leaveRoom();
     }
 
     public void setBusy(boolean busy) {

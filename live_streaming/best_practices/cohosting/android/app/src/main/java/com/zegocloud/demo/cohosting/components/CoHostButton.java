@@ -190,14 +190,14 @@ public class CoHostButton extends ZEGOTextButton {
             CoHostProtocol protocol = CoHostProtocol.parse(mInvitationData.extendedData);
             if (protocol == null) {
                 protocol = new CoHostProtocol();
-            }
-            if (localUser.isAudience()) {
-                mInvitationData.invitees = Collections.singletonList(hostUser.userID);
                 protocol.setOperatorID(localUser.userID);
                 protocol.setTargetID(hostUser.userID);
                 protocol.setActionType(CoHostProtocol.AudienceApplyToBecomeCoHost);
                 mInvitationData.extendedData = protocol.toString();
+            } else {
+
             }
+            mInvitationData.invitees = Collections.singletonList(hostUser.userID);
 
             ZEGOInvitationService invitationService = ZEGOSDKManager.getInstance().invitationService;
             if (protocol.isRequest() || protocol.isInvite()) {

@@ -1,6 +1,5 @@
 package com.zegocloud.demo.cohosting.live;
 
-import android.graphics.Color;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -10,7 +9,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.RecyclerView.ViewHolder;
-import com.google.android.material.card.MaterialCardView;
 import com.zegocloud.demo.cohosting.R;
 import com.zegocloud.demo.cohosting.ZEGOSDKManager;
 import com.zegocloud.demo.cohosting.components.ZEGOVideoView;

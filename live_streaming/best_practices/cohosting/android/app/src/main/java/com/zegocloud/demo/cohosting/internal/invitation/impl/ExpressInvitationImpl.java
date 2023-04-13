@@ -74,6 +74,16 @@ public class ExpressInvitationImpl implements InvitationInterface {
     }
 
     @Override
+    public void joinRoom(String roomID) {
+
+    }
+
+    @Override
+    public void leaveRoom() {
+
+    }
+
+    @Override
     public void inviteUser(String userID, String extendedData, SendInvitationCallback invitationCallback) {
         ZEGOExpressService rtcService = ZEGOSDKManager.getInstance().rtcService;
         ZEGOLiveUser localUser = rtcService.getLocalUser();

@@ -16,6 +16,7 @@ import com.zegocloud.demo.cohosting.internal.invitation.common.ZEGOInvitation;
 import com.zegocloud.demo.cohosting.internal.invitation.common.ZEGOInvitationState;
 import com.zegocloud.demo.cohosting.internal.invitation.common.ZEGOInviteeState;
 import com.zegocloud.demo.cohosting.internal.invitation.impl.ExpressInvitationImpl;
+import com.zegocloud.demo.cohosting.internal.invitation.impl.ZIMInvitationImpl;
 import com.zegocloud.demo.cohosting.internal.rtc.ZEGOLiveUser;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -226,6 +227,14 @@ public class ZEGOInvitationService {
         clearInvitations();
         clearListeners();
         invitationInterface.disconnectUser();
+    }
+
+    public void joinRoom(String roomID) {
+        invitationInterface.joinRoom(roomID);
+    }
+
+    public void leaveRoom() {
+        invitationInterface.leaveRoom();
     }
 
     public void inviteUser(String userID, String extendedData, SendInvitationCallback callback) {

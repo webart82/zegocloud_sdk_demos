@@ -623,6 +623,10 @@ public class ZEGOExpressService {
         return null;
     }
 
+    public String getCurrentRoomID() {
+        return currentRoomID;
+    }
+
     public void audioRouteToSpeaker(boolean routeToSpeaker) {
         if (engine == null) {
             return;
