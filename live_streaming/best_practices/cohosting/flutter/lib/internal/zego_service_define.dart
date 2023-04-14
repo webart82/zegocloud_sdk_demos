@@ -38,16 +38,16 @@ class ZegoRoomStreamListUpdateEvent {
   }
 }
 
-class ZegoRoomCustomCommandEvent {
+class ZegoRoomCustomSignalingEvent {
   final String roomID;
   final ZegoUser fromUser;
-  final String command;
+  final String signaling;
 
-  ZegoRoomCustomCommandEvent(this.roomID, this.fromUser, this.command);
+  ZegoRoomCustomSignalingEvent(this.roomID, this.fromUser, this.signaling);
 
   @override
   String toString() {
-    return 'ZegoRoomCustomCommandEvent{roomID: $roomID, fromUser: $fromUser, command: $command}';
+    return 'ZegoRoomCustomSignalingEvent{roomID: $roomID, fromUser: $fromUser, command: $signaling}';
   }
 }
 
@@ -103,13 +103,13 @@ class ZIMServiceRoomStateChangedEvent {
   }
 }
 
-class ZIMServiceReceiveRoomCustomCommandEvent {
-  final String command;
+class ZIMServiceReceiveRoomCustomSignalingEvent {
+  final String signaling;
   final String senderUserID;
-  ZIMServiceReceiveRoomCustomCommandEvent({required this.command, required this.senderUserID});
+  ZIMServiceReceiveRoomCustomSignalingEvent({required this.signaling, required this.senderUserID});
 
   @override
   String toString() {
-    return 'ZIMServiceReceiveRoomCustomCommandEvent{command: $command, senderUserID: $senderUserID}';
+    return 'ZIMServiceReceiveRoomCustomSignalingEvent{signaling: $signaling, senderUserID: $senderUserID}';
   }
 }

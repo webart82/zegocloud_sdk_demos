@@ -50,7 +50,7 @@ class ExpressService {
       ..userName = name;
   }
 
-  Future<void> disconnectUser(String id, String name) async {
+  Future<void> disconnectUser() async {
     localUser
       ..userID = ''
       ..userName = '';

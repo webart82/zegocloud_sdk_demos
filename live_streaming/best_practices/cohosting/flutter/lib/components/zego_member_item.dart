@@ -31,8 +31,9 @@ class _ZegoMemberItemState extends State<ZegoMemberItem> {
                 OutlinedButton(
                     onPressed: () {
                       final command = jsonEncode({
-                        'type': CustomCommandActionType.hostRefuseAudienceCoHostApply,
-                        'userID': ZEGOSDKManager.instance.localUser?.userID ?? '',
+                        'type': CustomSignalingType.hostRefuseAudienceCoHostApply,
+                        'senderID': ZEGOSDKManager.instance.localUser!.userID,
+                        'receiverID': widget.userInfo.userID,
                       });
                       ZEGOSDKManager.instance.expressService.sendCommandMessage(command, [widget.userInfo.userID]);
                       widget.applyCohostList.value.removeWhere((element) {
@@ -46,8 +47,9 @@ class _ZegoMemberItemState extends State<ZegoMemberItem> {
                 OutlinedButton(
                     onPressed: () {
                       final command = jsonEncode({
-                        'type': CustomCommandActionType.hostAcceptAudienceCoHostApply,
-                        'userID': ZEGOSDKManager.instance.localUser?.userID ?? '',
+                        'type': CustomSignalingType.hostAcceptAudienceCoHostApply,
+                        'senderID': ZEGOSDKManager.instance.localUser!.userID,
+                        'receiverID': widget.userInfo.userID,
                       });
                       ZEGOSDKManager.instance.expressService.sendCommandMessage(command, [widget.userInfo.userID]);
                       widget.applyCohostList.value.removeWhere((element) {
@@ -58,9 +60,7 @@ class _ZegoMemberItemState extends State<ZegoMemberItem> {
               ],
             );
           } else {
-            return Container(
-              child: Text(widget.userInfo.userName),
-            );
+            return Text(widget.userInfo.userName);
           }
         });
   }

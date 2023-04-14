@@ -6,35 +6,22 @@ class ZEGOSDKManager {
   factory ZEGOSDKManager() => instance;
   static final ZEGOSDKManager instance = ZEGOSDKManager._internal();
 
-  ZegoExpressService expressService = ZegoExpressService.instance;
+  ExpressService expressService = ExpressService.instance;
   ZIMService zimService = ZIMService.instance;
 
-  ZegoUserInfo? get localUser {
-    return expressService.localUser;
-  }
-
-  void init(int appID, String appSign) {
-    expressService.init(appID: appID, appSign: appSign);
-    zimService.init(appID: appID, appSign: appSign);
+  Future<void> init(int appID, String appSign) async {
+    await expressService.init(appID: appID, appSign: appSign);
+    await zimService.init(appID: appID, appSign: appSign);
   }
 
   Future<void> connectUser(String userID, String userName) async {
-    expressService.connectUser(userID, userName);
-    zimService.connectUser(userID, userName);
+    await expressService.connectUser(userID, userName);
+    await zimService.connectUser(userID, userName);
   }
 
-  void disconnectUser() {
-    expressService.disconnectUser();
-    zimService.disconnectUser();
-  }
-
-  ZegoUserInfo? getUser(String userID) {
-    for (var user in expressService.userInfoList) {
-      if (userID == user.userID) {
-        return user;
-      }
-    }
-    return null;
+  Future<void> disconnectUser() async {
+    await expressService.disconnectUser();
+    await zimService.disconnectUser();
   }
 
   Future<ZegoRoomLoginResult> loginRoom(String roomID) async {
@@ -56,5 +43,15 @@ class ZEGOSDKManager {
   Future<void> logoutRoom() async {
     await expressService.logoutRoom();
     await zimService.logoutRoom();
+  }
+
+  ZegoUserInfo? get localUser => expressService.localUser;
+  ZegoUserInfo? getUser(String userID) {
+    for (var user in expressService.userInfoList) {
+      if (userID == user.userID) {
+        return user;
+      }
+    }
+    return null;
   }
 }

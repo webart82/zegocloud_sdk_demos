@@ -29,7 +29,7 @@ class _ZegoLivePageState extends State<ZegoLivePage> {
   ListNotifier<String> cohostStreamNotifier = ListNotifier([]);
   ValueNotifier<bool> isLivingNotifier = ValueNotifier(false);
   ListNotifier<String> applyCohostList = ListNotifier([]);
-  ValueNotifier<bool> applyState = ValueNotifier(false);
+  ValueNotifier<bool> applying = ValueNotifier(false);
   ValueNotifier<ZegoUserInfo?> hostUserInfoNotifier = ValueNotifier(null);
 
   bool showingDialog = false;
@@ -41,8 +41,10 @@ class _ZegoLivePageState extends State<ZegoLivePage> {
     subscriptions.addAll([
       ZEGOSDKManager.instance.expressService.streamListUpdateStreamCtrl.stream.listen(onStreamListUpdate),
       ZEGOSDKManager.instance.expressService.roomUserListUpdateStreamCtrl.stream.listen(onRoomUserListUpdate),
-      // ZEGOSDKManager.instance.expressService.customCommandStreamCtrl.stream.listen(onCustomCommandReceive),
-      ZEGOSDKManager.instance.zimService.receiveRoomCustomCommandStreamCtrl.stream.listen(onRoomCustomCommandReceived),
+      ZEGOSDKManager.instance.expressService.customCommandStreamCtrl.stream
+          .listen(onExperssRoomCustomSignalingReceived),
+      ZEGOSDKManager.instance.zimService.receiveRoomCustomSignalingStreamCtrl.stream
+          .listen(onZIMRoomCustomSignalingReceived),
       ZEGOSDKManager.instance.expressService.roomStateChangedStreamCtrl.stream.listen(onRoomStateChanged),
     ]);
 
@@ -105,7 +107,7 @@ class _ZegoLivePageState extends State<ZegoLivePage> {
           padding: EdgeInsets.only(left: 0, right: 0, top: containers.maxHeight - 70),
           child: ZegoLiveBottomBar(
             cohostStreamNotifier: cohostStreamNotifier,
-            applyState: applyState,
+            applying: applying,
           ),
         );
       },
@@ -263,7 +265,7 @@ class _ZegoLivePageState extends State<ZegoLivePage> {
           child: Text(
             'RoomID: ${widget.roomID}\n'
             'HostID: ${userInfo?.userName ?? ''}',
-            style: const TextStyle(fontSize: 16, color: Colors.white),
+            style: const TextStyle(fontSize: 16, color: Color.fromARGB(255, 104, 94, 94)),
           ),
         );
       },
@@ -314,30 +316,33 @@ class _ZegoLivePageState extends State<ZegoLivePage> {
     }
   }
 
-  void onRoomCustomCommandReceived(ZIMServiceReceiveRoomCustomCommandEvent event) {
-    Map<String, dynamic> commandMap = convert.jsonDecode(event.command);
-    String userID = commandMap['userID'];
-    if (commandMap['type'] == CustomCommandActionType.audienceApplyToBecomeCoHost) {
-      applyCohostList.add(userID);
+  void onZIMRoomCustomSignalingReceived(ZIMServiceReceiveRoomCustomSignalingEvent event) {
+    Map<String, dynamic> signalingMap = convert.jsonDecode(event.signaling);
+    String senderID = signalingMap['senderID'];
+    String receiverID = signalingMap['receiverID'];
+    final signalingType = signalingMap['type'];
+    if (receiverID != ZEGOSDKManager.instance.localUser!.userID) return;
+    if (signalingType == CustomSignalingType.audienceApplyToBecomeCoHost) {
+      applyCohostList.add(senderID);
       // show dialog
-      if (ZEGOSDKManager.instance.getUser(userID) != null) {
-        showApplyCohostDialog(ZEGOSDKManager.instance.getUser(userID)!);
+      if (ZEGOSDKManager.instance.getUser(senderID) != null) {
+        showApplyCohostDialog(ZEGOSDKManager.instance.getUser(senderID)!);
       }
-    } else if (commandMap['type'] == CustomCommandActionType.audienceCancelCoHostApply) {
+    } else if (signalingType == CustomSignalingType.audienceCancelCoHostApply) {
       applyCohostList.removeWhere((element) {
-        return element == commandMap['userID'];
+        return element == signalingMap['userID'];
       });
       dismisApplyCohostDialog();
-    } else if (commandMap['type'] == CustomCommandActionType.hostAcceptAudienceCoHostApply) {
-      applyState.value = false;
+    } else if (signalingType == CustomSignalingType.hostAcceptAudienceCoHostApply) {
+      applying.value = false;
       applyCohostList.removeWhere((element) {
-        return element == commandMap['userID'];
+        return element == signalingMap['userID'];
       });
       becomeCoHost();
-    } else if (commandMap['type'] == CustomCommandActionType.hostRefuseAudienceCoHostApply) {
-      applyState.value = false;
+    } else if (signalingType == CustomSignalingType.hostRefuseAudienceCoHostApply) {
+      applying.value = false;
       applyCohostList.removeWhere((element) {
-        return element == commandMap['userID'];
+        return element == signalingMap['userID'];
       });
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -348,30 +353,33 @@ class _ZegoLivePageState extends State<ZegoLivePage> {
     }
   }
 
-  void onCustomCommandReceive(ZegoRoomCustomCommandEvent event) {
-    Map<String, dynamic> commandMap = convert.jsonDecode(event.command);
-    String userID = commandMap['userID'];
-    if (commandMap['type'] == CustomCommandActionType.audienceApplyToBecomeCoHost) {
-      applyCohostList.add(userID);
+  void onExperssRoomCustomSignalingReceived(ZegoRoomCustomSignalingEvent event) {
+    Map<String, dynamic> signalingMap = convert.jsonDecode(event.signaling);
+    String senderID = signalingMap['senderID'];
+    String receiverID = signalingMap['receiverID'];
+    final signalingType = signalingMap['type'];
+    if (receiverID != ZEGOSDKManager.instance.localUser!.userID) return;
+    if (signalingType == CustomSignalingType.audienceApplyToBecomeCoHost) {
+      applyCohostList.add(senderID);
       // show dialog
-      if (ZEGOSDKManager.instance.getUser(userID) != null) {
-        showApplyCohostDialog(ZEGOSDKManager.instance.getUser(userID)!);
+      if (ZEGOSDKManager.instance.getUser(senderID) != null) {
+        showApplyCohostDialog(ZEGOSDKManager.instance.getUser(senderID)!);
       }
-    } else if (commandMap['type'] == CustomCommandActionType.audienceCancelCoHostApply) {
+    } else if (signalingType == CustomSignalingType.audienceCancelCoHostApply) {
       applyCohostList.removeWhere((element) {
-        return element == commandMap['userID'];
+        return element == signalingMap['userID'];
       });
       dismisApplyCohostDialog();
-    } else if (commandMap['type'] == CustomCommandActionType.hostAcceptAudienceCoHostApply) {
-      applyState.value = false;
+    } else if (signalingType == CustomSignalingType.hostAcceptAudienceCoHostApply) {
+      applying.value = false;
       applyCohostList.removeWhere((element) {
-        return element == commandMap['userID'];
+        return element == signalingMap['userID'];
       });
       becomeCoHost();
-    } else if (commandMap['type'] == CustomCommandActionType.hostRefuseAudienceCoHostApply) {
-      applyState.value = false;
+    } else if (signalingType == CustomSignalingType.hostRefuseAudienceCoHostApply) {
+      applying.value = false;
       applyCohostList.removeWhere((element) {
-        return element == commandMap['userID'];
+        return element == signalingMap['userID'];
       });
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -389,8 +397,8 @@ class _ZegoLivePageState extends State<ZegoLivePage> {
     ZEGOSDKManager.instance.expressService.turnCameraOn(true);
     ZEGOSDKManager.instance.expressService.turnMicrophoneOn(true);
     ZEGOSDKManager.instance.expressService.startPreview();
-    ZEGOSDKManager.instance.expressService.localUser!.roleNotifier.value = ZegoLiveRole.coHost;
     ZEGOSDKManager.instance.expressService.startPublishingStream(cohostStreamID);
+    ZEGOSDKManager.instance.expressService.localUser!.roleNotifier.value = ZegoLiveRole.coHost;
     cohostStreamNotifier.add(cohostStreamID);
   }
 
@@ -417,8 +425,9 @@ class _ZegoLivePageState extends State<ZegoLivePage> {
               child: const Text('Refuse'),
               onPressed: () {
                 final command = jsonEncode({
-                  'type': CustomCommandActionType.hostRefuseAudienceCoHostApply,
-                  'userID': ZEGOSDKManager.instance.localUser?.userID ?? '',
+                  'type': CustomSignalingType.hostRefuseAudienceCoHostApply,
+                  'senderID': ZEGOSDKManager.instance.localUser!.userID,
+                  'receiverID': userInfo.userID,
                 });
                 ZEGOSDKManager.instance.expressService.sendCommandMessage(command, [userInfo.userID]).then((value) {
                   if (value.errorCode != 0) {
@@ -433,8 +442,9 @@ class _ZegoLivePageState extends State<ZegoLivePage> {
               child: const Text('OK'),
               onPressed: () {
                 final command = jsonEncode({
-                  'type': CustomCommandActionType.hostAcceptAudienceCoHostApply,
-                  'userID': ZEGOSDKManager.instance.localUser?.userID ?? '',
+                  'type': CustomSignalingType.hostAcceptAudienceCoHostApply,
+                  'senderID': ZEGOSDKManager.instance.localUser!.userID,
+                  'receiverID': userInfo.userID,
                 });
                 ZEGOSDKManager.instance.expressService.sendCommandMessage(command, [userInfo.userID]).then((value) {
                   if (value.errorCode != 0) {

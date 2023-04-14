@@ -297,7 +297,7 @@ public class ZEGOExpressService {
         localUser = new ZEGOLiveUser(userID, userName);
     }
 
-    public void disConnectUser() {
+    public void disconnectUser() {
         localUser = null;
     }
 

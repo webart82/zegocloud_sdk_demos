@@ -8,10 +8,10 @@ export 'package:live_streaming_with_cohosting/define.dart';
 export 'zego_service_define.dart';
 export 'package:zego_express_engine/zego_express_engine.dart';
 
-class ZegoExpressService {
-  ZegoExpressService._internal();
-  factory ZegoExpressService() => instance;
-  static final ZegoExpressService instance = ZegoExpressService._internal();
+class ExpressService {
+  ExpressService._internal();
+  factory ExpressService() => instance;
+  static final ExpressService instance = ExpressService._internal();
 
   String room = '';
   ZegoUserInfo? localUser;
@@ -39,11 +39,11 @@ class ZegoExpressService {
     await ZegoExpressEngine.destroyEngine();
   }
 
-  void connectUser(String id, String name) {
+  Future<void> connectUser(String id, String name) async {
     localUser = ZegoUserInfo(userID: id, userName: name);
   }
 
-  void disconnectUser() {
+  Future<void> disconnectUser() async {
     localUser = null;
   }
 
@@ -124,9 +124,11 @@ class ZegoExpressService {
     String? userID = streamMap[streamID];
     ZegoUserInfo? userInfo = getUserInfo(userID ?? '');
     if (userInfo != null) {
-      userInfo.videoViewNotifier.value = await ZegoExpressEngine.instance.createCanvasView((viewID) => {
-            userInfo.viewID = viewID,
-          });
+      await ZegoExpressEngine.instance.createCanvasView((viewID) {
+        userInfo.viewID = viewID;
+      }).then((videoViewWidget) {
+        userInfo.videoViewNotifier.value = videoViewWidget;
+      });
       ZegoCanvas canvas = ZegoCanvas(userInfo.viewID, viewMode: ZegoViewMode.AspectFill);
       await ZegoExpressEngine.instance.startPlayingStream(streamID, canvas: canvas);
     }
@@ -145,9 +147,11 @@ class ZegoExpressService {
 
   Future<void> startPreview() async {
     if (localUser != null) {
-      localUser!.videoViewNotifier.value = await ZegoExpressEngine.instance.createCanvasView((viewID) => {
-            localUser!.viewID = viewID,
-          });
+      await ZegoExpressEngine.instance.createCanvasView((viewID) {
+        localUser!.viewID = viewID;
+      }).then((videoViewWidget) {
+        localUser!.videoViewNotifier.value = videoViewWidget;
+      });
 
       final previewCanvas = ZegoCanvas(
         localUser!.viewID,
@@ -187,7 +191,7 @@ class ZegoExpressService {
 
   final roomUserListUpdateStreamCtrl = StreamController<ZegoRoomUserListUpdateEvent>.broadcast();
   final streamListUpdateStreamCtrl = StreamController<ZegoRoomStreamListUpdateEvent>.broadcast();
-  final customCommandStreamCtrl = StreamController<ZegoRoomCustomCommandEvent>.broadcast();
+  final customCommandStreamCtrl = StreamController<ZegoRoomCustomSignalingEvent>.broadcast();
   final roomStreamExtraInfoStreamCtrl = StreamController<ZegoRoomStreamExtraInfoEvent>.broadcast();
   final roomStateChangedStreamCtrl = StreamController<ZegoRoomStateEvent>.broadcast();
 
@@ -200,14 +204,14 @@ class ZegoExpressService {
   }
 
   void initEventHandle() {
-    ZegoExpressEngine.onRoomStreamUpdate = ZegoExpressService.instance.onRoomStreamUpdate;
+    ZegoExpressEngine.onRoomStreamUpdate = ExpressService.instance.onRoomStreamUpdate;
 
-    ZegoExpressEngine.onRoomUserUpdate = ZegoExpressService.instance.onRoomUserUpdate;
+    ZegoExpressEngine.onRoomUserUpdate = ExpressService.instance.onRoomUserUpdate;
 
-    ZegoExpressEngine.onIMRecvCustomCommand = ZegoExpressService.instance.onIMRecvCustomCommand;
+    ZegoExpressEngine.onIMRecvCustomCommand = ExpressService.instance.onIMRecvCustomCommand;
 
-    ZegoExpressEngine.onRoomStreamExtraInfoUpdate = ZegoExpressService.instance.onRoomStreamExtraInfoUpdate;
-    ZegoExpressEngine.onRoomStateChanged = ZegoExpressService.instance.onRoomStateChanged;
+    ZegoExpressEngine.onRoomStreamExtraInfoUpdate = ExpressService.instance.onRoomStreamExtraInfoUpdate;
+    ZegoExpressEngine.onRoomStateChanged = ExpressService.instance.onRoomStateChanged;
   }
 
   Future<void> onRoomStreamUpdate(
@@ -266,7 +270,7 @@ class ZegoExpressService {
   }
 
   void onIMRecvCustomCommand(String roomID, ZegoUser fromUser, String command) {
-    customCommandStreamCtrl.add(ZegoRoomCustomCommandEvent(roomID, fromUser, command));
+    customCommandStreamCtrl.add(ZegoRoomCustomSignalingEvent(roomID, fromUser, command));
   }
 
   void onRoomStreamExtraInfoUpdate(String roomID, List<ZegoStream> streamList) {

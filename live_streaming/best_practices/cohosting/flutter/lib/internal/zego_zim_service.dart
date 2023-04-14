@@ -73,13 +73,14 @@ class ZIMService {
       currentRoomID = null;
       return ret;
     } else {
-      throw PlatformException(code: '-1', message: 'currentRoomID is null');
+      debugPrint('currentRoomID is null');
+      return ZIMRoomLeftResult(roomID: '');
     }
   }
 
-  Future<ZIMMessageSentResult> sendRoomCustonCommand(String command) {
+  Future<ZIMMessageSentResult> sendRoomCustonSignaling(String signaling) {
     return ZIM.getInstance()!.sendRoomMessage(
-          ZIMCommandMessage(message: Uint8List.fromList(utf8.encode(command))),
+          ZIMCommandMessage(message: Uint8List.fromList(utf8.encode(signaling))),
           currentRoomID!,
           ZIMMessageSendConfig(),
         );
@@ -94,10 +95,10 @@ class ZIMService {
   void onReceiveRoomMessage(ZIM zim, List<ZIMMessage> messageList, String fromRoomID) {
     for (var element in messageList) {
       if (element is ZIMCommandMessage) {
-        String command = utf8.decode(element.message);
-        debugPrint('onReceiveRoomCustomCommand: $command');
-        receiveRoomCustomCommandStreamCtrl.add(ZIMServiceReceiveRoomCustomCommandEvent(
-          command: command,
+        String signaling = utf8.decode(element.message);
+        debugPrint('onReceiveRoomCustomSignaling: $signaling');
+        receiveRoomCustomSignalingStreamCtrl.add(ZIMServiceReceiveRoomCustomSignalingEvent(
+          signaling: signaling,
           senderUserID: element.senderUserID,
         ));
       } else if (element is ZIMTextMessage) {
@@ -123,5 +124,5 @@ class ZIMService {
 
   final connectionStateStreamCtrl = StreamController<ZIMServiceConnectionStateChangedEvent>.broadcast();
   final roomStateChangedStreamCtrl = StreamController<ZIMServiceRoomStateChangedEvent>.broadcast();
-  final receiveRoomCustomCommandStreamCtrl = StreamController<ZIMServiceReceiveRoomCustomCommandEvent>.broadcast();
+  final receiveRoomCustomSignalingStreamCtrl = StreamController<ZIMServiceReceiveRoomCustomSignalingEvent>.broadcast();
 }

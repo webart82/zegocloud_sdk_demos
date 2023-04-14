@@ -24,8 +24,8 @@ class ZEGOSDKManager {
     await zimService.connectUser(userID, userName);
   }
 
-  Future<void> disconnectUser(String userID, String userName) async {
-    await expressService.disconnectUser(userID, userName);
+  Future<void> disconnectUser() async {
+    await expressService.disconnectUser();
     await zimService.disconnectUser();
   }
 
