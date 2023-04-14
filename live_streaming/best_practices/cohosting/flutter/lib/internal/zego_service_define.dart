@@ -38,19 +38,6 @@ class ZegoRoomStreamListUpdateEvent {
   }
 }
 
-class ZegoRoomCustomSignalingEvent {
-  final String roomID;
-  final ZegoUser fromUser;
-  final String signaling;
-
-  ZegoRoomCustomSignalingEvent(this.roomID, this.fromUser, this.signaling);
-
-  @override
-  String toString() {
-    return 'ZegoRoomCustomSignalingEvent{roomID: $roomID, fromUser: $fromUser, command: $signaling}';
-  }
-}
-
 class ZegoRoomStreamExtraInfoEvent {
   final String roomID;
   final List<ZegoStream> streamList;

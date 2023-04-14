@@ -179,39 +179,21 @@ class ExpressService {
     await ZegoExpressEngine.instance.stopPublishingStream();
   }
 
-  Future<ZegoExpressSendCustomSignalingResult> sendRoomCustonSignaling(
-      String signaling, List<String> toUserList) async {
-    List<ZegoUser> users = [];
-    for (var userID in toUserList) {
-      ZegoUser user = ZegoUser(userID, '');
-      users.add(user);
-    }
-    ZegoExpressSendCustomSignalingResult result =
-        await ZegoExpressEngine.instance.sendCustomCommand(room, signaling, users);
-    return result;
-  }
-
   final roomUserListUpdateStreamCtrl = StreamController<ZegoRoomUserListUpdateEvent>.broadcast();
   final streamListUpdateStreamCtrl = StreamController<ZegoRoomStreamListUpdateEvent>.broadcast();
-  final customCommandStreamCtrl = StreamController<ZegoRoomCustomSignalingEvent>.broadcast();
   final roomStreamExtraInfoStreamCtrl = StreamController<ZegoRoomStreamExtraInfoEvent>.broadcast();
   final roomStateChangedStreamCtrl = StreamController<ZegoRoomStateEvent>.broadcast();
 
   void uninitEventHandle() {
     ZegoExpressEngine.onRoomStreamUpdate = null;
     ZegoExpressEngine.onRoomUserUpdate = null;
-    ZegoExpressEngine.onIMRecvCustomCommand = null;
     ZegoExpressEngine.onRoomStreamExtraInfoUpdate = null;
     ZegoExpressEngine.onRoomStateChanged = null;
   }
 
   void initEventHandle() {
     ZegoExpressEngine.onRoomStreamUpdate = ExpressService.instance.onRoomStreamUpdate;
-
     ZegoExpressEngine.onRoomUserUpdate = ExpressService.instance.onRoomUserUpdate;
-
-    ZegoExpressEngine.onIMRecvCustomCommand = ExpressService.instance.onIMRecvCustomCommand;
-
     ZegoExpressEngine.onRoomStreamExtraInfoUpdate = ExpressService.instance.onRoomStreamExtraInfoUpdate;
     ZegoExpressEngine.onRoomStateChanged = ExpressService.instance.onRoomStateChanged;
   }
@@ -269,10 +251,6 @@ class ExpressService {
       }
     }
     roomUserListUpdateStreamCtrl.add(ZegoRoomUserListUpdateEvent(roomID, updateType, userList));
-  }
-
-  void onIMRecvCustomCommand(String roomID, ZegoUser fromUser, String command) {
-    customCommandStreamCtrl.add(ZegoRoomCustomSignalingEvent(roomID, fromUser, command));
   }
 
   void onRoomStreamExtraInfoUpdate(String roomID, List<ZegoStream> streamList) {

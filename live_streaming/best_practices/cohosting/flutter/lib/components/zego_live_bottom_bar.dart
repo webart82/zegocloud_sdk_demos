@@ -144,15 +144,15 @@ class _ZegoLiveBottomBarState extends State<ZegoLiveBottomBar> {
                   .showSnackBar(SnackBar(content: Text('apply cohost failed: ${error.code}, ${error.message}')));
             });
 
-            ZEGOSDKManager.instance.expressService
-                .sendRoomCustonSignaling(signaling, [getHostUser()?.userID ?? '']).then((value) {
-              if (value.errorCode == 0) {
-                widget.applying?.value = true;
-              } else {
-                ScaffoldMessenger.of(context)
-                    .showSnackBar(SnackBar(content: Text('apply cohost failed: ${value.errorCode}')));
-              }
-            });
+            // ZEGOSDKManager.instance.expressService
+            //     .sendRoomCustonSignaling(signaling, [getHostUser()?.userID ?? '']).then((value) {
+            //   if (value.errorCode == 0) {
+            //     widget.applying?.value = true;
+            //   } else {
+            //     ScaffoldMessenger.of(context)
+            //         .showSnackBar(SnackBar(content: Text('apply cohost failed: ${value.errorCode}')));
+            //   }
+            // });
           },
           child: const Text(
             'applyCoHost',
@@ -181,15 +181,15 @@ class _ZegoLiveBottomBarState extends State<ZegoLiveBottomBar> {
                   .showSnackBar(SnackBar(content: Text('cancel apply cohost failed: ${error.code}, ${error.message}')));
             });
 
-            ZEGOSDKManager.instance.expressService
-                .sendRoomCustonSignaling(signaling, [getHostUser()?.userID ?? '']).then((value) {
-              if (value.errorCode == 0) {
-                widget.applying?.value = false;
-              } else {
-                ScaffoldMessenger.of(context)
-                    .showSnackBar(SnackBar(content: Text('cancel apply cohost failed: ${value.errorCode}')));
-              }
-            });
+            // ZEGOSDKManager.instance.expressService
+            //     .sendRoomCustonSignaling(signaling, [getHostUser()?.userID ?? '']).then((value) {
+            //   if (value.errorCode == 0) {
+            //     widget.applying?.value = false;
+            //   } else {
+            //     ScaffoldMessenger.of(context)
+            //         .showSnackBar(SnackBar(content: Text('cancel apply cohost failed: ${value.errorCode}')));
+            //   }
+            // });
           },
           child: const Text(
             'cancelApplyCohost',

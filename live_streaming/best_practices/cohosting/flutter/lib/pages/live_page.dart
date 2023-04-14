@@ -41,7 +41,6 @@ class _ZegoLivePageState extends State<ZegoLivePage> {
     subscriptions.addAll([
       ZEGOSDKManager.instance.expressService.streamListUpdateStreamCtrl.stream.listen(onStreamListUpdate),
       ZEGOSDKManager.instance.expressService.roomUserListUpdateStreamCtrl.stream.listen(onRoomUserListUpdate),
-      ZEGOSDKManager.instance.expressService.customCommandStreamCtrl.stream.listen(onRoomCustomSignalingReceived),
       ZEGOSDKManager.instance.zimService.receiveRoomCustomSignalingStreamCtrl.stream
           .listen(onRoomCustomSignalingReceived),
       ZEGOSDKManager.instance.expressService.roomStateChangedStreamCtrl.stream.listen(onRoomStateChanged),
@@ -221,7 +220,7 @@ class _ZegoLivePageState extends State<ZegoLivePage> {
 
   void startLive() {
     isLivingNotifier.value = true;
-    ZEGOSDKManager.instance.expressService.loginRoom(widget.roomID).then(
+    ZEGOSDKManager.instance.loginRoom(widget.roomID).then(
       (value) {
         if (value.errorCode != 0) {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('login room failed: ${value.errorCode}')));
@@ -312,7 +311,7 @@ class _ZegoLivePageState extends State<ZegoLivePage> {
     }
   }
 
-  void onRoomCustomSignalingReceived(dynamic event) {
+  void onRoomCustomSignalingReceived(ZIMServiceReceiveRoomCustomSignalingEvent event) {
     Map<String, dynamic> signalingMap = convert.jsonDecode(event.signaling);
     String senderID = signalingMap['senderID'];
     String receiverID = signalingMap['receiverID'];
@@ -384,13 +383,11 @@ class _ZegoLivePageState extends State<ZegoLivePage> {
                   'senderID': ZEGOSDKManager.instance.localUser!.userID,
                   'receiverID': userInfo.userID,
                 });
-                ZEGOSDKManager.instance.expressService
-                    .sendRoomCustonSignaling(signaling, [userInfo.userID]).then((value) {
-                  if (value.errorCode != 0) {
-                    ScaffoldMessenger.of(context)
-                        .showSnackBar(SnackBar(content: Text('refuse cohost failed: ${value.errorCode}')));
-                  }
+                ZEGOSDKManager.instance.zimService.sendRoomCustonSignaling(signaling).then((value) {
                   Navigator.pop(context);
+                }).catchError((error) {
+                  ScaffoldMessenger.of(context)
+                      .showSnackBar(SnackBar(content: Text('refuse cohost failed: ${error.code},${error.message}')));
                 });
               },
             ),
@@ -402,13 +399,11 @@ class _ZegoLivePageState extends State<ZegoLivePage> {
                   'senderID': ZEGOSDKManager.instance.localUser!.userID,
                   'receiverID': userInfo.userID,
                 });
-                ZEGOSDKManager.instance.expressService
-                    .sendRoomCustonSignaling(signaling, [userInfo.userID]).then((value) {
-                  if (value.errorCode != 0) {
-                    ScaffoldMessenger.of(context)
-                        .showSnackBar(SnackBar(content: Text('accept apply cohost failed: ${value.errorCode}')));
-                  }
+                ZEGOSDKManager.instance.zimService.sendRoomCustonSignaling(signaling).then((value) {
                   Navigator.pop(context);
+                }).catchError((error) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('accept apply cohost failed: ${error.code},${error.message}')));
                 });
               },
             ),

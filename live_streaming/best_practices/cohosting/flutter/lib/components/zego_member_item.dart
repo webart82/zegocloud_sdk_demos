@@ -30,12 +30,12 @@ class _ZegoMemberItemState extends State<ZegoMemberItem> {
                 ),
                 OutlinedButton(
                     onPressed: () {
-                      final command = jsonEncode({
+                      final signaling = jsonEncode({
                         'type': CustomSignalingType.hostRefuseAudienceCoHostApply,
                         'senderID': ZEGOSDKManager.instance.localUser!.userID,
                         'receiverID': widget.userInfo.userID,
                       });
-                      ZEGOSDKManager.instance.expressService.sendRoomCustonSignaling(command, [widget.userInfo.userID]);
+                      ZEGOSDKManager.instance.zimService.sendRoomCustonSignaling(signaling);
                       widget.applyCohostList.value.removeWhere((element) {
                         return element == widget.userInfo.userID;
                       });
@@ -46,12 +46,12 @@ class _ZegoMemberItemState extends State<ZegoMemberItem> {
                 ),
                 OutlinedButton(
                     onPressed: () {
-                      final command = jsonEncode({
+                      final signaling = jsonEncode({
                         'type': CustomSignalingType.hostAcceptAudienceCoHostApply,
                         'senderID': ZEGOSDKManager.instance.localUser!.userID,
                         'receiverID': widget.userInfo.userID,
                       });
-                      ZEGOSDKManager.instance.expressService.sendRoomCustonSignaling(command, [widget.userInfo.userID]);
+                      ZEGOSDKManager.instance.zimService.sendRoomCustonSignaling(signaling);
                       widget.applyCohostList.value.removeWhere((element) {
                         return element == widget.userInfo.userID;
                       });
