@@ -35,7 +35,7 @@ class _ZegoMemberItemState extends State<ZegoMemberItem> {
                         'senderID': ZEGOSDKManager.instance.localUser!.userID,
                         'receiverID': widget.userInfo.userID,
                       });
-                      ZEGOSDKManager.instance.expressService.sendCommandMessage(command, [widget.userInfo.userID]);
+                      ZEGOSDKManager.instance.expressService.sendRoomCustonSignaling(command, [widget.userInfo.userID]);
                       widget.applyCohostList.value.removeWhere((element) {
                         return element == widget.userInfo.userID;
                       });
@@ -51,7 +51,7 @@ class _ZegoMemberItemState extends State<ZegoMemberItem> {
                         'senderID': ZEGOSDKManager.instance.localUser!.userID,
                         'receiverID': widget.userInfo.userID,
                       });
-                      ZEGOSDKManager.instance.expressService.sendCommandMessage(command, [widget.userInfo.userID]);
+                      ZEGOSDKManager.instance.expressService.sendRoomCustonSignaling(command, [widget.userInfo.userID]);
                       widget.applyCohostList.value.removeWhere((element) {
                         return element == widget.userInfo.userID;
                       });

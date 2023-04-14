@@ -179,13 +179,15 @@ class ExpressService {
     await ZegoExpressEngine.instance.stopPublishingStream();
   }
 
-  Future<ZegoIMSendCustomCommandResult> sendCommandMessage(String command, List<String> toUserList) async {
+  Future<ZegoExpressSendCustomSignalingResult> sendRoomCustonSignaling(
+      String signaling, List<String> toUserList) async {
     List<ZegoUser> users = [];
     for (var userID in toUserList) {
       ZegoUser user = ZegoUser(userID, '');
       users.add(user);
     }
-    ZegoIMSendCustomCommandResult result = await ZegoExpressEngine.instance.sendCustomCommand(room, command, users);
+    ZegoExpressSendCustomSignalingResult result =
+        await ZegoExpressEngine.instance.sendCustomCommand(room, signaling, users);
     return result;
   }
 

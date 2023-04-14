@@ -145,12 +145,12 @@ class _ZegoLiveBottomBarState extends State<ZegoLiveBottomBar> {
             });
 
             ZEGOSDKManager.instance.expressService
-                .sendCommandMessage(signaling, [getHostUser()?.userID ?? '']).then((value) {
-              if (value.errorCode != 0) {
+                .sendRoomCustonSignaling(signaling, [getHostUser()?.userID ?? '']).then((value) {
+              if (value.errorCode == 0) {
+                widget.applying?.value = true;
+              } else {
                 ScaffoldMessenger.of(context)
                     .showSnackBar(SnackBar(content: Text('apply cohost failed: ${value.errorCode}')));
-              } else {
-                widget.applying?.value = true;
               }
             });
           },
@@ -182,12 +182,12 @@ class _ZegoLiveBottomBarState extends State<ZegoLiveBottomBar> {
             });
 
             ZEGOSDKManager.instance.expressService
-                .sendCommandMessage(signaling, [getHostUser()?.userID ?? '']).then((value) {
-              if (value.errorCode != 0) {
+                .sendRoomCustonSignaling(signaling, [getHostUser()?.userID ?? '']).then((value) {
+              if (value.errorCode == 0) {
+                widget.applying?.value = false;
+              } else {
                 ScaffoldMessenger.of(context)
                     .showSnackBar(SnackBar(content: Text('cancel apply cohost failed: ${value.errorCode}')));
-              } else {
-                widget.applying?.value = false;
               }
             });
           },

@@ -79,9 +79,10 @@ class ZIMService {
   }
 
   Future<ZIMMessageSentResult> sendRoomCustonSignaling(String signaling) {
-    return ZIM.getInstance()!.sendRoomMessage(
+    return ZIM.getInstance()!.sendMessage(
           ZIMCommandMessage(message: Uint8List.fromList(utf8.encode(signaling))),
           currentRoomID!,
+          ZIMConversationType.room,
           ZIMMessageSendConfig(),
         );
   }

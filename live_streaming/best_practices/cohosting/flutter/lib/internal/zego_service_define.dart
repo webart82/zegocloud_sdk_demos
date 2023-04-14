@@ -113,3 +113,5 @@ class ZIMServiceReceiveRoomCustomSignalingEvent {
     return 'ZIMServiceReceiveRoomCustomSignalingEvent{signaling: $signaling, senderUserID: $senderUserID}';
   }
 }
+
+typedef ZegoExpressSendCustomSignalingResult = ZegoIMSendCustomCommandResult;

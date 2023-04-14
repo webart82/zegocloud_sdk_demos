@@ -41,10 +41,9 @@ class _ZegoLivePageState extends State<ZegoLivePage> {
     subscriptions.addAll([
       ZEGOSDKManager.instance.expressService.streamListUpdateStreamCtrl.stream.listen(onStreamListUpdate),
       ZEGOSDKManager.instance.expressService.roomUserListUpdateStreamCtrl.stream.listen(onRoomUserListUpdate),
-      ZEGOSDKManager.instance.expressService.customCommandStreamCtrl.stream
-          .listen(onExperssRoomCustomSignalingReceived),
+      ZEGOSDKManager.instance.expressService.customCommandStreamCtrl.stream.listen(onRoomCustomSignalingReceived),
       ZEGOSDKManager.instance.zimService.receiveRoomCustomSignalingStreamCtrl.stream
-          .listen(onZIMRoomCustomSignalingReceived),
+          .listen(onRoomCustomSignalingReceived),
       ZEGOSDKManager.instance.expressService.roomStateChangedStreamCtrl.stream.listen(onRoomStateChanged),
     ]);
 
@@ -115,14 +114,11 @@ class _ZegoLivePageState extends State<ZegoLivePage> {
   }
 
   Widget backgroundImage() {
-    return LayoutBuilder(
-      builder: (context, containers) {
-        return SizedBox(
-          width: containers.maxWidth,
-          height: containers.maxHeight,
-          child: Image.asset('assets/icons/bg.png', fit: BoxFit.fill),
-        );
-      },
+    return Image.asset(
+      'assets/icons/bg.png',
+      width: double.infinity,
+      height: double.infinity,
+      fit: BoxFit.fill,
     );
   }
 
@@ -316,7 +312,7 @@ class _ZegoLivePageState extends State<ZegoLivePage> {
     }
   }
 
-  void onZIMRoomCustomSignalingReceived(ZIMServiceReceiveRoomCustomSignalingEvent event) {
+  void onRoomCustomSignalingReceived(dynamic event) {
     Map<String, dynamic> signalingMap = convert.jsonDecode(event.signaling);
     String senderID = signalingMap['senderID'];
     String receiverID = signalingMap['receiverID'];
@@ -329,58 +325,17 @@ class _ZegoLivePageState extends State<ZegoLivePage> {
         showApplyCohostDialog(ZEGOSDKManager.instance.getUser(senderID)!);
       }
     } else if (signalingType == CustomSignalingType.audienceCancelCoHostApply) {
-      applyCohostList.removeWhere((element) {
-        return element == signalingMap['userID'];
-      });
+      applyCohostList.removeWhere((element) => element == receiverID);
       dismisApplyCohostDialog();
     } else if (signalingType == CustomSignalingType.hostAcceptAudienceCoHostApply) {
       applying.value = false;
-      applyCohostList.removeWhere((element) {
-        return element == signalingMap['userID'];
-      });
-      becomeCoHost();
-    } else if (signalingType == CustomSignalingType.hostRefuseAudienceCoHostApply) {
-      applying.value = false;
-      applyCohostList.removeWhere((element) {
-        return element == signalingMap['userID'];
-      });
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          duration: Duration(milliseconds: 1000),
-          content: Text('host refuse your apply'),
-        ),
-      );
-    }
-  }
+      applyCohostList.removeWhere((element) => element == receiverID);
 
-  void onExperssRoomCustomSignalingReceived(ZegoRoomCustomSignalingEvent event) {
-    Map<String, dynamic> signalingMap = convert.jsonDecode(event.signaling);
-    String senderID = signalingMap['senderID'];
-    String receiverID = signalingMap['receiverID'];
-    final signalingType = signalingMap['type'];
-    if (receiverID != ZEGOSDKManager.instance.localUser!.userID) return;
-    if (signalingType == CustomSignalingType.audienceApplyToBecomeCoHost) {
-      applyCohostList.add(senderID);
-      // show dialog
-      if (ZEGOSDKManager.instance.getUser(senderID) != null) {
-        showApplyCohostDialog(ZEGOSDKManager.instance.getUser(senderID)!);
-      }
-    } else if (signalingType == CustomSignalingType.audienceCancelCoHostApply) {
-      applyCohostList.removeWhere((element) {
-        return element == signalingMap['userID'];
-      });
-      dismisApplyCohostDialog();
-    } else if (signalingType == CustomSignalingType.hostAcceptAudienceCoHostApply) {
-      applying.value = false;
-      applyCohostList.removeWhere((element) {
-        return element == signalingMap['userID'];
-      });
       becomeCoHost();
     } else if (signalingType == CustomSignalingType.hostRefuseAudienceCoHostApply) {
       applying.value = false;
-      applyCohostList.removeWhere((element) {
-        return element == signalingMap['userID'];
-      });
+      applyCohostList.removeWhere((element) => element == receiverID);
+
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           duration: Duration(milliseconds: 1000),
@@ -424,12 +379,13 @@ class _ZegoLivePageState extends State<ZegoLivePage> {
             CupertinoDialogAction(
               child: const Text('Refuse'),
               onPressed: () {
-                final command = jsonEncode({
+                final signaling = jsonEncode({
                   'type': CustomSignalingType.hostRefuseAudienceCoHostApply,
                   'senderID': ZEGOSDKManager.instance.localUser!.userID,
                   'receiverID': userInfo.userID,
                 });
-                ZEGOSDKManager.instance.expressService.sendCommandMessage(command, [userInfo.userID]).then((value) {
+                ZEGOSDKManager.instance.expressService
+                    .sendRoomCustonSignaling(signaling, [userInfo.userID]).then((value) {
                   if (value.errorCode != 0) {
                     ScaffoldMessenger.of(context)
                         .showSnackBar(SnackBar(content: Text('refuse cohost failed: ${value.errorCode}')));
@@ -441,12 +397,13 @@ class _ZegoLivePageState extends State<ZegoLivePage> {
             CupertinoDialogAction(
               child: const Text('OK'),
               onPressed: () {
-                final command = jsonEncode({
+                final signaling = jsonEncode({
                   'type': CustomSignalingType.hostAcceptAudienceCoHostApply,
                   'senderID': ZEGOSDKManager.instance.localUser!.userID,
                   'receiverID': userInfo.userID,
                 });
-                ZEGOSDKManager.instance.expressService.sendCommandMessage(command, [userInfo.userID]).then((value) {
+                ZEGOSDKManager.instance.expressService
+                    .sendRoomCustonSignaling(signaling, [userInfo.userID]).then((value) {
                   if (value.errorCode != 0) {
                     ScaffoldMessenger.of(context)
                         .showSnackBar(SnackBar(content: Text('accept apply cohost failed: ${value.errorCode}')));

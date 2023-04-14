@@ -38,7 +38,12 @@ class _ZegoAudioVideoViewState extends State<ZegoAudioVideoView> {
   }
 
   Widget backGroundView() {
-    return Image.asset('assets/icons/bg.png');
+    return Image.asset(
+      'assets/icons/bg.png',
+      width: double.infinity,
+      height: double.infinity,
+      fit: BoxFit.fill,
+    );
   }
 
   Widget coHostNomalView() {
