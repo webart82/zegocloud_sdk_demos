@@ -40,12 +40,12 @@ class _HomePageState extends State<HomePage> {
   Widget roomIDTextField() {
     return SizedBox(
       width: 350,
-      height: 40,
       child: Row(
         children: [
           const Text('RoomID:'),
           const SizedBox(
             width: 10,
+            height: 20,
           ),
           Flexible(
             child: TextField(

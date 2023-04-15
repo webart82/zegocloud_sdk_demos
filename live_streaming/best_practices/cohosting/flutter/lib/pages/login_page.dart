@@ -35,7 +35,7 @@ class _ZegoLoginPageState extends State<ZegoLoginPage> {
           .listen((ZIMServiceConnectionStateChangedEvent event) {
         debugPrint('connectionStateStreamCtrl: $event');
         if (event.state == ZIMConnectionState.connected) {
-          Navigator.push(
+          Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => const HomePage()),
           );
