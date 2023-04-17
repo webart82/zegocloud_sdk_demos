@@ -45,9 +45,10 @@ public class ZEGOImageButton extends androidx.appcompat.widget.AppCompatImageVie
                 if (System.currentTimeMillis() - lastClickTime < CLICK_INTERVAL) {
                     return true;
                 }
-                beforeClick();
-                performClick();
-                afterClick();
+                if (beforeClick()) {
+                    performClick();
+                    afterClick();
+                }
                 lastClickTime = System.currentTimeMillis();
                 return true;
             }
@@ -55,7 +56,7 @@ public class ZEGOImageButton extends androidx.appcompat.widget.AppCompatImageVie
     }
 
     protected void afterClick() {
-
+        toggle();
     }
 
     protected boolean beforeClick() {

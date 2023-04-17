@@ -28,12 +28,6 @@ public class ToggleCameraButton extends ZEGOImageButton {
     }
 
     @Override
-    protected void afterClick() {
-        super.afterClick();
-        toggle();
-    }
-
-    @Override
     public void open() {
         super.open();
         ZEGOSDKManager.getInstance().rtcService.enableCamera(true);
