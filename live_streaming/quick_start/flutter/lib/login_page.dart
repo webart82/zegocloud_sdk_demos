@@ -80,7 +80,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
               decoration: const InputDecoration(labelText: 'your userName'),
             ),
             const SizedBox(height: 20),
-            // click me to navigate to CallPage
+            // click me to navigate to LivePage
             ElevatedButton(
               style: buttonStyle,
               child: const Text('Login'),

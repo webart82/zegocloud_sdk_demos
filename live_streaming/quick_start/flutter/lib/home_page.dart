@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'utils/permission.dart';
 
-import 'call_page.dart';
+import 'live_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key, required this.localUserID, required this.localUserName}) : super(key: key);
@@ -48,15 +48,31 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
               decoration: const InputDecoration(labelText: 'roomID'),
             ),
             const SizedBox(height: 20),
-            // click me to navigate to CallPage
-            ElevatedButton(
-              style: buttonStyle,
-              child: const Text('Call Page'),
-              onPressed: () => jumpToCallPage(
-                context,
-                localUserID: widget.localUserID,
-                localUserName: widget.localUserName,
-                roomID: roomTextCtrl.text,
+            Center(
+              child: ElevatedButton(
+                style: buttonStyle,
+                child: const Text('Start a Live'),
+                onPressed: () => jumpToLivePage(
+                  context,
+                  isHost: true,
+                  localUserID: widget.localUserID,
+                  localUserName: widget.localUserName,
+                  roomID: roomTextCtrl.text,
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            Center(
+              child: ElevatedButton(
+                style: buttonStyle,
+                child: const Text('Watch a Live'),
+                onPressed: () => jumpToLivePage(
+                  context,
+                  isHost: false,
+                  localUserID: widget.localUserID,
+                  localUserName: widget.localUserName,
+                  roomID: roomTextCtrl.text,
+                ),
               ),
             ),
           ],
@@ -65,12 +81,18 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     );
   }
 
-  void jumpToCallPage(BuildContext context,
-      {required String roomID, required String localUserID, required String localUserName}) {
+  void jumpToLivePage(
+    BuildContext context, {
+    required String roomID,
+    required bool isHost,
+    required String localUserID,
+    required String localUserName,
+  }) {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => CallPage(
+        builder: (context) => LivePage(
+          isHost: isHost,
           localUserID: localUserID,
           localUserName: localUserName,
           roomID: roomID,

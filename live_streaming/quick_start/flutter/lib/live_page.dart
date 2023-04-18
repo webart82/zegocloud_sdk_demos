@@ -5,18 +5,25 @@ import 'utils/zegocloud_token.dart';
 
 import 'key_center.dart';
 
-class CallPage extends StatefulWidget {
-  const CallPage({super.key, required this.localUserID, required this.localUserName, required this.roomID});
+class LivePage extends StatefulWidget {
+  const LivePage({
+    Key? key,
+    required this.isHost,
+    required this.localUserID,
+    required this.localUserName,
+    required this.roomID,
+  }) : super(key: key);
 
+  final bool isHost;
   final String localUserID;
   final String localUserName;
   final String roomID;
 
   @override
-  State<CallPage> createState() => _CallPageState();
+  State<LivePage> createState() => _LivePageState();
 }
 
-class _CallPageState extends State<CallPage> {
+class _LivePageState extends State<LivePage> {
   Widget? localView;
   int? localViewID;
   Widget? remoteView;
@@ -32,7 +39,6 @@ class _CallPageState extends State<CallPage> {
   @override
   void dispose() {
     stopListenEvent();
-
     logoutRoom();
     super.dispose();
   }
@@ -40,38 +46,23 @@ class _CallPageState extends State<CallPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Call Page")),
+      appBar: AppBar(title: const Text("Live page")),
       body: Stack(
         children: [
-          localView ?? Container(),
-          Positioned(
-            top: MediaQuery.of(context).size.height / 20,
-            right: MediaQuery.of(context).size.width / 20,
-            child: SizedBox(
-              width: MediaQuery.of(context).size.width / 3,
-              child: AspectRatio(
-                aspectRatio: 9.0 / 16.0,
-                child: remoteView ?? Container(color: Colors.transparent),
-              ),
-            ),
-          ),
+          (widget.isHost ? localView : remoteView) ?? Container(),
           Positioned(
             bottom: MediaQuery.of(context).size.height / 20,
             left: 0,
             right: 0,
-            child: SizedBox(
-              width: MediaQuery.of(context).size.width / 3,
-              height: MediaQuery.of(context).size.width / 3,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(shape: const CircleBorder(), backgroundColor: Colors.red),
-                    onPressed: () => Navigator.pop(context),
-                    child: const Center(child: Icon(Icons.call_end, size: 32)),
-                  ),
-                ],
+            child: Center(
+              child: SizedBox(
+                width: MediaQuery.of(context).size.width / 4,
+                height: MediaQuery.of(context).size.width / 7,
+                child: OutlinedButton(
+                  style: OutlinedButton.styleFrom(side: const BorderSide(color: Colors.white)),
+                  onPressed: () => Navigator.pop(context),
+                  child: Text(widget.isHost ? 'End Live' : 'Leave Live'),
+                ),
               ),
             ),
           ),
@@ -102,8 +93,10 @@ class _CallPageState extends State<CallPage> {
         .then((ZegoRoomLoginResult loginRoomResult) {
       debugPrint('loginRoom: errorCode:${loginRoomResult.errorCode}, extendedData:${loginRoomResult.extendedData}');
       if (loginRoomResult.errorCode == 0) {
-        startPreview();
-        startPublish();
+        if (widget.isHost) {
+          startPreview();
+          startPublish();
+        }
       } else {
         ScaffoldMessenger.of(context)
             .showSnackBar(SnackBar(content: Text('loginRoom failed: ${loginRoomResult.errorCode}')));
