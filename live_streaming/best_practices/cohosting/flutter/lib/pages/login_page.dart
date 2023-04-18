@@ -9,16 +9,16 @@ import '../internal/zego_service_define.dart';
 import '../utils/permission.dart';
 import 'home_page.dart';
 
-class ZegoLoginPage extends StatefulWidget {
-  const ZegoLoginPage({super.key, required this.title});
+class LoginPage extends StatefulWidget {
+  const LoginPage({super.key, required this.title});
 
   final String title;
 
   @override
-  State<ZegoLoginPage> createState() => _ZegoLoginPageState();
+  State<LoginPage> createState() => _LoginPageState();
 }
 
-class _ZegoLoginPageState extends State<ZegoLoginPage> {
+class _LoginPageState extends State<LoginPage> {
   final userIDController = TextEditingController(text: Random().nextInt(100000).toString());
   final userNameController = TextEditingController();
 

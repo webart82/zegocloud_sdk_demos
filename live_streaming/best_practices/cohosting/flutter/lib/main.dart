@@ -28,7 +28,7 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.blue,
       ),
-      home: const ZegoLoginPage(title: 'Login Page'),
+      home: const LoginPage(title: 'Login Page'),
     );
   }
 }
