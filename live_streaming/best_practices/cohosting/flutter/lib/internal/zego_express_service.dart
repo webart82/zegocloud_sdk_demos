@@ -124,13 +124,13 @@ class ExpressService {
     String? userID = streamMap[streamID];
     ZegoUserInfo? userInfo = getUserInfo(userID ?? '');
     if (userInfo != null) {
-      await ZegoExpressEngine.instance.createCanvasView((viewID) {
+      await ZegoExpressEngine.instance.createCanvasView((viewID) async {
         userInfo.viewID = viewID;
+        ZegoCanvas canvas = ZegoCanvas(userInfo.viewID, viewMode: ZegoViewMode.AspectFill);
+        await ZegoExpressEngine.instance.startPlayingStream(streamID, canvas: canvas);
       }).then((videoViewWidget) {
         userInfo.videoViewNotifier.value = videoViewWidget;
       });
-      ZegoCanvas canvas = ZegoCanvas(userInfo.viewID, viewMode: ZegoViewMode.AspectFill);
-      await ZegoExpressEngine.instance.startPlayingStream(streamID, canvas: canvas);
     }
   }
 
@@ -147,17 +147,16 @@ class ExpressService {
 
   Future<void> startPreview() async {
     if (localUser != null) {
-      await ZegoExpressEngine.instance.createCanvasView((viewID) {
+      await ZegoExpressEngine.instance.createCanvasView((viewID) async {
         localUser!.viewID = viewID;
+        final previewCanvas = ZegoCanvas(
+          localUser!.viewID,
+          viewMode: ZegoViewMode.AspectFill,
+        );
+        await ZegoExpressEngine.instance.startPreview(canvas: previewCanvas);
       }).then((videoViewWidget) {
         localUser!.videoViewNotifier.value = videoViewWidget;
       });
-
-      final previewCanvas = ZegoCanvas(
-        localUser!.viewID,
-        viewMode: ZegoViewMode.AspectFill,
-      );
-      ZegoExpressEngine.instance.startPreview(canvas: previewCanvas);
     }
   }
 
