@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 
 import '../../zego_user_Info.dart';
 
@@ -21,11 +22,13 @@ class ExpressService {
   ValueNotifier<Widget?> remoteVideoView = ValueNotifier<Widget?>(null);
   int remoteViewID = 0;
 
+  List<String> playingStreams = [];
+
   bool isInit = false;
 
   Future<void> init({
     required int appID,
-    String appSign = '',
+    String? appSign,
     ZegoScenario scenario = ZegoScenario.StandardVideoCall,
   }) async {
     isInit = true;
@@ -44,7 +47,7 @@ class ExpressService {
     await ZegoExpressEngine.destroyEngine();
   }
 
-  Future<void> connectUser(String id, String name) async {
+  Future<void> connectUser(String id, String name, {String? token}) async {
     localUser
       ..userID = id
       ..userName = name;
@@ -65,11 +68,12 @@ class ExpressService {
     ZegoExpressEngine.instance.stopPublishingStream();
   }
 
-  Future<ZegoRoomLoginResult> loginRoom(String roomID) async {
+  Future<ZegoRoomLoginResult> loginRoom(String roomID, {String? token}) async {
+    assert(!kIsWeb || token != null, 'token is required for web platform!');
     final joinRoomResult = await ZegoExpressEngine.instance.loginRoom(
       roomID,
       ZegoUser(localUser.userID, localUser.userName),
-      config: ZegoRoomConfig(0, true, ''),
+      config: ZegoRoomConfig(0, true, token ?? ''),
     );
     if (joinRoomResult.errorCode == 0) {
       currentRoomID = roomID;
@@ -100,8 +104,18 @@ class ExpressService {
     );
   }
 
+  void muteAllPlayStreamAudio(bool mute) {
+    for (var streamID in playingStreams) {
+      ZegoExpressEngine.instance.mutePlayStreamAudio(streamID, mute);
+    }
+  }
+
   void setAudioOutputToSpeaker(bool useSpeaker) {
-    ZegoExpressEngine.instance.setAudioRouteToSpeaker(useSpeaker);
+    if (kIsWeb) {
+      muteAllPlayStreamAudio(!useSpeaker);
+    } else {
+      ZegoExpressEngine.instance.setAudioRouteToSpeaker(useSpeaker);
+    }
   }
 
   void turnCameraOn(bool isOn) {
@@ -109,32 +123,33 @@ class ExpressService {
   }
 
   void turnMicrophoneOn(bool isOn) {
-    ZegoExpressEngine.instance.muteMicrophone(!isOn);
+    ZegoExpressEngine.instance.mutePublishStreamAudio(!isOn);
   }
 
   Future<void> startPlayingStream(String streamID) async {
-    remoteVideoView.value = await ZegoExpressEngine.instance.createCanvasView((viewID) => {
-          remoteViewID = viewID,
-        });
-    ZegoCanvas canvas = ZegoCanvas(remoteViewID, viewMode: ZegoViewMode.AspectFill);
-    ZegoExpressEngine.instance.startPlayingStream(streamID, canvas: canvas);
+    playingStreams.add(streamID);
+    remoteVideoView.value = await ZegoExpressEngine.instance.createCanvasView((viewID) async {
+      remoteViewID = viewID;
+      ZegoCanvas canvas = ZegoCanvas(remoteViewID, viewMode: ZegoViewMode.AspectFill);
+      await ZegoExpressEngine.instance.startPlayingStream(streamID, canvas: canvas);
+    });
   }
 
   void stopPlayingStream(String streamID) async {
+    playingStreams.remove(streamID);
     ZegoExpressEngine.instance.stopPlayingStream(streamID);
   }
 
   Future<void> startPreview() async {
-    localVideoView.value = await ZegoExpressEngine.instance.createCanvasView((viewID) {
+    localVideoView.value = await ZegoExpressEngine.instance.createCanvasView((viewID) async {
       localViewID = viewID;
+      final previewCanvas = ZegoCanvas(
+        localViewID,
+        viewMode: ZegoViewMode.AspectFill,
+      );
+
+      await ZegoExpressEngine.instance.startPreview(canvas: previewCanvas);
     });
-
-    final previewCanvas = ZegoCanvas(
-      localViewID,
-      viewMode: ZegoViewMode.AspectFill,
-    );
-
-    await ZegoExpressEngine.instance.startPreview(canvas: previewCanvas);
   }
 
   Future<void> stopPreview() async {

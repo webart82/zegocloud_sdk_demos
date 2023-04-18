@@ -14,12 +14,12 @@ class ZIMService {
   factory ZIMService() => instance;
   static final ZIMService instance = ZIMService._internal();
 
-  Future<void> init({required int appID, String appSign = ''}) async {
+  Future<void> init({required int appID, String? appSign}) async {
     initEventHandle();
     ZIM.create(
       ZIMAppConfig()
         ..appID = appID
-        ..appSign = appSign,
+        ..appSign = appSign ?? '',
     );
   }
 
@@ -28,12 +28,12 @@ class ZIMService {
     ZIM.getInstance()?.destroy();
   }
 
-  Future<void> connectUser(String userID, String userName) async {
+  Future<void> connectUser(String userID, String userName, {String? token}) async {
     ZIMUserInfo userInfo = ZIMUserInfo();
     userInfo.userID = userID;
     userInfo.userName = userName;
     zimUserInfo = userInfo;
-    await ZIM.getInstance()?.login(userInfo);
+    await ZIM.getInstance()!.login(userInfo, token);
   }
 
   Future<void> disconnectUser() async {
@@ -190,7 +190,7 @@ class ZIMService {
   }
 
   void onConnectionStateChanged(ZIM zim, ZIMConnectionState state, ZIMConnectionEvent event, Map extendedData) {
-    zimConnectionStateStreamCtrl.add(ZIMServiceConnectionStateChangedEvent(state, event));
+    connectionStateStreamCtrl.add(ZIMServiceConnectionStateChangedEvent(state, event, extendedData));
   }
 
   void uninitEventHandle() {
@@ -204,34 +204,21 @@ class ZIMService {
   }
 
   void initEventHandle() {
-    ZIMEventHandler.onCallInvitationReceived =
-        (zim, info, callID) => ZIMService.instance.onCallInvitationReceived(zim, info, callID);
-    ZIMEventHandler.onCallInvitationAccepted =
-        (zim, info, callID) => ZIMService.instance.onCallInvitationAccepted(zim, info, callID);
-    ZIMEventHandler.onCallInvitationCancelled =
-        (zim, info, callID) => ZIMService.instance.onCallInvitationCancelled(zim, info, callID);
-    ZIMEventHandler.onCallInvitationRejected =
-        (zim, info, callID) => ZIMService.instance.onCallInvitationRejected(zim, info, callID);
-    ZIMEventHandler.onCallInvitationTimeout = (zim, callID) => ZIMService.instance.onCallInvitationTimeout(zim, callID);
-    ZIMEventHandler.onCallInviteesAnsweredTimeout =
-        (zim, invitees, callID) => ZIMService.instance.onCallInviteesAnsweredTimeout(zim, invitees, callID);
-    ZIMEventHandler.onConnectionStateChanged = (zim, state, event, extendedData) =>
-        ZIMService.instance.onConnectionStateChanged(zim, state, event, extendedData);
+    ZIMEventHandler.onCallInvitationReceived = onCallInvitationReceived;
+    ZIMEventHandler.onCallInvitationAccepted = onCallInvitationAccepted;
+    ZIMEventHandler.onCallInvitationCancelled = onCallInvitationCancelled;
+    ZIMEventHandler.onCallInvitationRejected = onCallInvitationRejected;
+    ZIMEventHandler.onCallInvitationTimeout = onCallInvitationTimeout;
+    ZIMEventHandler.onCallInviteesAnsweredTimeout = onCallInviteesAnsweredTimeout;
+    ZIMEventHandler.onConnectionStateChanged = onConnectionStateChanged;
   }
 
   ZIMUserInfo? zimUserInfo;
-  StreamController<IncomingCallInvitationReveivedEvent> incomingCallInvitationReceivedStreamCtrl =
-      StreamController<IncomingCallInvitationReveivedEvent>.broadcast();
-  StreamController<OutgoingCallInvitationAcceptedEvent> outgoingCallInvitationAcceptedStreamCtrl =
-      StreamController<OutgoingCallInvitationAcceptedEvent>.broadcast();
-  StreamController<IncomingCallInvitationCanceledEvent> incomingCallInvitationCanceledStreamCtrl =
-      StreamController<IncomingCallInvitationCanceledEvent>.broadcast();
-  StreamController<OutgoingCallInvitationRejectedEvent> outgoingCallInvitationRejectedStreamCtrl =
-      StreamController<OutgoingCallInvitationRejectedEvent>.broadcast();
-  StreamController<IncomingCallInvitationTimeoutEvent> incomingCallInvitationTimeoutStreamCtrl =
-      StreamController<IncomingCallInvitationTimeoutEvent>.broadcast();
-  StreamController<OutgoingCallInvitationTimeoutEvent> outgoingCallInvitationTimeoutStreamCtrl =
-      StreamController<OutgoingCallInvitationTimeoutEvent>.broadcast();
-  StreamController<ZIMServiceConnectionStateChangedEvent> zimConnectionStateStreamCtrl =
-      StreamController<ZIMServiceConnectionStateChangedEvent>.broadcast();
+  final incomingCallInvitationReceivedStreamCtrl = StreamController<IncomingCallInvitationReveivedEvent>.broadcast();
+  final outgoingCallInvitationAcceptedStreamCtrl = StreamController<OutgoingCallInvitationAcceptedEvent>.broadcast();
+  final incomingCallInvitationCanceledStreamCtrl = StreamController<IncomingCallInvitationCanceledEvent>.broadcast();
+  final outgoingCallInvitationRejectedStreamCtrl = StreamController<OutgoingCallInvitationRejectedEvent>.broadcast();
+  final incomingCallInvitationTimeoutStreamCtrl = StreamController<IncomingCallInvitationTimeoutEvent>.broadcast();
+  final outgoingCallInvitationTimeoutStreamCtrl = StreamController<OutgoingCallInvitationTimeoutEvent>.broadcast();
+  final connectionStateStreamCtrl = StreamController<ZIMServiceConnectionStateChangedEvent>.broadcast();
 }

@@ -10,17 +10,17 @@ import 'zego_user_Info.dart';
 import 'components/zego_call_invitation_dialog.dart';
 import 'interal/zim/call_data_manager.dart';
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key, required this.localUserID, required this.localUserName}) : super(key: key);
+class HomePage extends StatefulWidget {
+  const HomePage({Key? key, required this.localUserID, required this.localUserName}) : super(key: key);
 
   final String localUserID;
   final String localUserName;
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<HomePage> createState() => _HomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _HomePageState extends State<HomePage> {
   List<StreamSubscription<dynamic>?> subscriptions = [];
   final myController = TextEditingController();
 

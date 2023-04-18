@@ -1,5 +1,6 @@
 import 'package:flutter/services.dart';
 import 'package:zego_zim/zego_zim.dart';
+export 'package:zego_zim/zego_zim.dart';
 
 enum ZegoCallUserState {
   inviting,
@@ -127,6 +128,11 @@ class OutgoingCallInvitationTimeoutEvent {
 class ZIMServiceConnectionStateChangedEvent {
   final ZIMConnectionState state;
   final ZIMConnectionEvent event;
+  final Map extendedData;
 
-  ZIMServiceConnectionStateChangedEvent(this.state, this.event);
+  ZIMServiceConnectionStateChangedEvent(this.state, this.event, this.extendedData);
+  @override
+  String toString() {
+    return 'ZIMServiceConnectionStateChangedEvent{state: ${state.name}, event: ${event.name}, extendedData: $extendedData}';
+  }
 }
