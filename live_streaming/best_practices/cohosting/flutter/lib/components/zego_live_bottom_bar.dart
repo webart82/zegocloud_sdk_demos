@@ -137,7 +137,7 @@ class _ZegoLiveBottomBarState extends State<ZegoLiveBottomBar> {
               'senderID': ZEGOSDKManager.instance.localUser!.userID,
               'receiverID': getHostUser()?.userID ?? '',
             });
-            ZEGOSDKManager.instance.zimService.sendRoomCustonSignaling(signaling).then((value) {
+            ZEGOSDKManager.instance.zimService.sendRoomCustomSignaling(signaling).then((value) {
               widget.applying?.value = true;
             }).catchError((error) {
               ScaffoldMessenger.of(context)
@@ -164,7 +164,7 @@ class _ZegoLiveBottomBarState extends State<ZegoLiveBottomBar> {
               'receiverID': getHostUser()?.userID ?? '',
             });
 
-            ZEGOSDKManager.instance.zimService.sendRoomCustonSignaling(signaling).then((value) {
+            ZEGOSDKManager.instance.zimService.sendRoomCustomSignaling(signaling).then((value) {
               widget.applying?.value = false;
             }).catchError((error) {
               ScaffoldMessenger.of(context)

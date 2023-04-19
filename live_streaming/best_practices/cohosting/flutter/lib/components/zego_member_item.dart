@@ -35,7 +35,7 @@ class _ZegoMemberItemState extends State<ZegoMemberItem> {
                         'senderID': ZEGOSDKManager.instance.localUser!.userID,
                         'receiverID': widget.userInfo.userID,
                       });
-                      ZEGOSDKManager.instance.zimService.sendRoomCustonSignaling(signaling);
+                      ZEGOSDKManager.instance.zimService.sendRoomCustomSignaling(signaling);
                       widget.applyCohostList.value.removeWhere((element) {
                         return element == widget.userInfo.userID;
                       });
@@ -51,7 +51,7 @@ class _ZegoMemberItemState extends State<ZegoMemberItem> {
                         'senderID': ZEGOSDKManager.instance.localUser!.userID,
                         'receiverID': widget.userInfo.userID,
                       });
-                      ZEGOSDKManager.instance.zimService.sendRoomCustonSignaling(signaling);
+                      ZEGOSDKManager.instance.zimService.sendRoomCustomSignaling(signaling);
                       widget.applyCohostList.value.removeWhere((element) {
                         return element == widget.userInfo.userID;
                       });

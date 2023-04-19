@@ -383,7 +383,7 @@ class _ZegoLivePageState extends State<ZegoLivePage> {
                   'senderID': ZEGOSDKManager.instance.localUser!.userID,
                   'receiverID': userInfo.userID,
                 });
-                ZEGOSDKManager.instance.zimService.sendRoomCustonSignaling(signaling).then((value) {
+                ZEGOSDKManager.instance.zimService.sendRoomCustomSignaling(signaling).then((value) {
                   Navigator.pop(context);
                 }).catchError((error) {
                   ScaffoldMessenger.of(context)
@@ -399,7 +399,7 @@ class _ZegoLivePageState extends State<ZegoLivePage> {
                   'senderID': ZEGOSDKManager.instance.localUser!.userID,
                   'receiverID': userInfo.userID,
                 });
-                ZEGOSDKManager.instance.zimService.sendRoomCustonSignaling(signaling).then((value) {
+                ZEGOSDKManager.instance.zimService.sendRoomCustomSignaling(signaling).then((value) {
                   Navigator.pop(context);
                 }).catchError((error) {
                   ScaffoldMessenger.of(context).showSnackBar(
