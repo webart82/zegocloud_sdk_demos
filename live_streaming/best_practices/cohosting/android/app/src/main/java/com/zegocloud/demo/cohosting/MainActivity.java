@@ -13,8 +13,6 @@ import com.permissionx.guolindev.PermissionX;
 import com.permissionx.guolindev.callback.RequestCallback;
 import com.zegocloud.demo.cohosting.databinding.ActivityMainBinding;
 import com.zegocloud.demo.cohosting.live.LiveStreamingActivity;
-import com.zegocloud.demo.cohosting.utils.ToastUtil;
-import im.zego.zim.enums.ZIMErrorCode;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -85,10 +83,10 @@ public class MainActivity extends AppCompatActivity {
 
     private void initAndSignInZEGOSDK() {
         ZEGOSDKManager.getInstance().initSDK(getApplication(), ZEGOSDKKeyCenter.appID, ZEGOSDKKeyCenter.appSign);
-        ZEGOSDKManager.getInstance().connectUser(userID, userName, errorInfo -> {
-            if (errorInfo.getCode() == ZIMErrorCode.SUCCESS) {
+        ZEGOSDKManager.getInstance().connectUser(userID, userName, (errorCode, message) -> {
+            if (errorCode == 0) {
             } else {
-                ToastUtil.show(MainActivity.this, "loginZIMSDK failed,errorCode: " + errorInfo.getCode());
+
             }
         });
     }

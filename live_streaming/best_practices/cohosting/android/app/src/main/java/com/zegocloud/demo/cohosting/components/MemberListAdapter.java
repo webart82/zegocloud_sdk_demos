@@ -1,16 +1,28 @@
 package com.zegocloud.demo.cohosting.components;
 
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AlertDialog.Builder;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.RecyclerView.ViewHolder;
 import com.zegocloud.demo.cohosting.R;
 import com.zegocloud.demo.cohosting.ZEGOSDKManager;
+import com.zegocloud.demo.cohosting.internal.ZEGOInvitationService;
+import com.zegocloud.demo.cohosting.internal.invitation.common.AcceptInvitationCallback;
+import com.zegocloud.demo.cohosting.internal.invitation.common.RejectInvitationCallback;
+import com.zegocloud.demo.cohosting.internal.invitation.common.SendInvitationCallback;
+import com.zegocloud.demo.cohosting.internal.invitation.common.ZEGOInvitation;
+import com.zegocloud.demo.cohosting.internal.invitation.impl.CoHostProtocol;
 import com.zegocloud.demo.cohosting.internal.rtc.ZEGOLiveUser;
+import com.zegocloud.demo.cohosting.utils.ToastUtil;
 import com.zegocloud.demo.cohosting.utils.Utils;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +30,7 @@ import java.util.Objects;
 
 public class MemberListAdapter extends RecyclerView.Adapter<ViewHolder> {
 
-    private List<ZEGOLiveUser> userList = new ArrayList<>();
+    private List<ZEGOLiveUser> adapterUserList = new ArrayList<>();
 
     @NonNull
     @Override
@@ -30,9 +42,12 @@ public class MemberListAdapter extends RecyclerView.Adapter<ViewHolder> {
         };
     }
 
+    private static final String TAG = "MemberListAdapter";
+
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        ZEGOLiveUser liveUser = userList.get(position);
+        ZEGOLiveUser liveUser = adapterUserList.get(position);
+        Log.d(TAG, "onBindViewHolder: liveUser: " + liveUser);
         ImageView customAvatar = holder.itemView.findViewById(R.id.live_member_item_custom);
         TextView memberName = holder.itemView.findViewById(R.id.live_member_item_name);
         TextView tag = holder.itemView.findViewById(R.id.live_member_item_tag);
@@ -70,7 +85,8 @@ public class MemberListAdapter extends RecyclerView.Adapter<ViewHolder> {
         }
         tag.setText(builder.toString());
 
-        boolean userCoHostRequestExisted = ZEGOSDKManager.getInstance().imService.isUserInviteExisted(liveUser.userID);
+        ZEGOInvitationService invitationService = ZEGOSDKManager.getInstance().invitationService;
+        boolean userCoHostRequestExisted = invitationService.isOtherUserInviteExisted(liveUser.userID);
         if (isYou) {
             agree.setVisibility(View.GONE);
             disagree.setVisibility(View.GONE);
@@ -100,48 +116,140 @@ public class MemberListAdapter extends RecyclerView.Adapter<ViewHolder> {
         }
 
         agree.setOnClickListener(v -> {
-            //            invitationService.acceptInvitation(uiKitUser, null);
-            //            dismiss();
+            ZEGOInvitation userInvitation = invitationService.getUserInvitation(liveUser.userID);
+            if (userInvitation != null) {
+                invitationService.acceptInvite(userInvitation, new AcceptInvitationCallback() {
+                    @Override
+                    public void onResult(int errorCode, String invitationID) {
+                    }
+                });
+            } else {
+                ToastUtil.show(holder.itemView.getContext(), "userInvitation not existed");
+            }
         });
         disagree.setOnClickListener(v -> {
-            //            invitationService.refuseInvitation(uiKitUser, null);
-            //            dismiss();
+            ZEGOInvitation userInvitation = invitationService.getUserInvitation(liveUser.userID);
+            if (userInvitation != null) {
+                invitationService.rejectInvite(userInvitation, new RejectInvitationCallback() {
+                    @Override
+                    public void onResult(int errorCode, String invitationID) {
+
+                    }
+                });
+            } else {
+                ToastUtil.show(holder.itemView.getContext(), "userInvitation not existed");
+            }
         });
         more.setOnClickListener(v -> {
-            //            if (memberListConfig != null && memberListConfig.memberListMoreButtonPressedListener != null) {
-            //                memberListConfig.memberListMoreButtonPressedListener.onMemberListMoreButtonPressed((ViewGroup) view,
-            //                    uiKitUser);
-            //            } else {
-            //                if (seatLocked) {
-            //                    if (!isUserSpeaker) {
-            //                        showMoreOperationDialog(uiKitUser);
-            //                        dismiss();
-            //                    }
-            //                }
-            //            }
+            if (liveUser.isAudience()) {
+                AlertDialog.Builder alertBuilder = new Builder(more.getContext());
+                alertBuilder.setTitle("Invite CoHost");
+                alertBuilder.setMessage("Are you sure to invite " + liveUser.userName + " to CoHost?");
+                alertBuilder.setPositiveButton(R.string.ok, new OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        CoHostProtocol protocol = new CoHostProtocol();
+                        protocol.setActionType(CoHostProtocol.HostInviteAudienceToBecomeCoHost);
+                        protocol.setTargetID(liveUser.userID);
+                        protocol.setOperatorID(localUser.userID);
+                        invitationService.inviteUser(liveUser.userID, protocol.toString(),
+                            new SendInvitationCallback() {
+                                @Override
+                                public void onResult(int errorCode, String invitationID, List<String> errorInvitees) {
+
+                                }
+                            });
+                        dialog.dismiss();
+                    }
+                });
+                alertBuilder.setNegativeButton(R.string.cancel, new OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+                AlertDialog alertDialog = alertBuilder.create();
+                alertDialog.show();
+            }
         });
     }
 
     @Override
     public int getItemCount() {
-        return userList.size();
+        return adapterUserList.size();
     }
 
     public void addUserList(List<ZEGOLiveUser> userList) {
-        if (this.userList.isEmpty()) {
-            this.userList.addAll(userList);
-            notifyDataSetChanged();
-        } else {
-            int index = this.userList.size();
-            this.userList.addAll(userList);
-            notifyItemRangeInserted(index, userList.size());
-        }
+        this.adapterUserList.addAll(userList);
+        sortList(this.adapterUserList);
+        notifyDataSetChanged();
+    }
 
+    private void sortList(List<ZEGOLiveUser> userList) {
+        List<ZEGOLiveUser> result = new ArrayList<>();
+        List<ZEGOLiveUser> speaker = new ArrayList<>();
+        List<ZEGOLiveUser> audience = new ArrayList<>();
+        List<ZEGOLiveUser> requested = new ArrayList<>();
+        List<ZEGOLiveUser> host = new ArrayList<>();
+        ZEGOLiveUser localUser = ZEGOSDKManager.getInstance().rtcService.getLocalUser();
+
+        for (ZEGOLiveUser liveUser : userList) {
+            boolean isYou = Objects.equals(liveUser, localUser);
+            if (liveUser.isHost()) {
+                host.add(liveUser);
+            } else {
+                if (isYou) {
+
+                } else {
+                    if (liveUser.isCoHost()) {
+                        speaker.add(liveUser);
+                    } else {
+                        boolean isRequested = ZEGOSDKManager.getInstance().invitationService.isOtherUserInviteExisted(
+                            liveUser.userID);
+                        if (isRequested) {
+                            requested.add(liveUser);
+                        } else {
+                            audience.add(liveUser);
+                        }
+                    }
+                }
+            }
+        }
+        Log.d(TAG, "sortList,result00: " + result);
+        Log.d(TAG, "sortList,host00: " + host);
+        if (localUser != null) {
+            if (!host.contains(localUser)) {
+                Log.d(TAG, "sortList: 111");
+                if (!host.isEmpty()) {
+                    result.addAll(host);
+                }
+                result.add(localUser);
+            } else {
+                Log.d(TAG, "sortList: 222");
+                host.remove(localUser);
+                host.add(0, localUser);
+                result.addAll(host);
+            }
+        } else {
+            result.addAll(host);
+        }
+        Log.d(TAG, "sortList,result11: " + result);
+        result.addAll(speaker);
+        result.addAll(requested);
+        result.addAll(audience);
+
+        Log.d(TAG, "sortList,host: " + host);
+        Log.d(TAG, "sortList,speaker: " + speaker);
+        Log.d(TAG, "sortList,requested: " + requested);
+        Log.d(TAG, "sortList,audience: " + audience);
+        Log.d(TAG, "sortList,result: " + result);
+        userList.clear();
+        userList.addAll(result);
     }
 
     public void removeUserList(List<ZEGOLiveUser> userList) {
-        int index = this.userList.size();
-        this.userList.removeAll(userList);
+        int index = this.adapterUserList.size();
+        this.adapterUserList.removeAll(userList);
         notifyItemRangeRemoved(index - userList.size(), userList.size());
     }
 }

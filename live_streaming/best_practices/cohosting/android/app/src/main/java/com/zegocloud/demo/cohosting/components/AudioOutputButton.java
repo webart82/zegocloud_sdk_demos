@@ -28,12 +28,6 @@ public class AudioOutputButton extends ZEGOImageButton {
     }
 
     @Override
-    protected void afterClick() {
-        super.afterClick();
-        toggle();
-    }
-
-    @Override
     public void open() {
         super.open();
         ZEGOSDKManager.getInstance().rtcService.audioRouteToSpeaker(true);
@@ -43,11 +37,5 @@ public class AudioOutputButton extends ZEGOImageButton {
     public void close() {
         super.close();
         ZEGOSDKManager.getInstance().rtcService.audioRouteToSpeaker(false);
-    }
-
-    @Override
-    public void setState(boolean state) {
-        super.setState(state);
-        ZEGOSDKManager.getInstance().rtcService.audioRouteToSpeaker(state);
     }
 }

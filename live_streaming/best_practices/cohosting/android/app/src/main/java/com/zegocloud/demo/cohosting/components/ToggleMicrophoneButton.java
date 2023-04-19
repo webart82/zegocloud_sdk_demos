@@ -28,12 +28,6 @@ public class ToggleMicrophoneButton extends ZEGOImageButton {
     }
 
     @Override
-    protected void afterClick() {
-        super.afterClick();
-        toggle();
-    }
-
-    @Override
     public void open() {
         super.open();
         ZEGOSDKManager.getInstance().rtcService.openMicrophone(true);
@@ -43,11 +37,5 @@ public class ToggleMicrophoneButton extends ZEGOImageButton {
     public void close() {
         super.close();
         ZEGOSDKManager.getInstance().rtcService.openMicrophone(false);
-    }
-
-    @Override
-    public void setState(boolean state) {
-        super.setState(state);
-        ZEGOSDKManager.getInstance().rtcService.openMicrophone(state);
     }
 }

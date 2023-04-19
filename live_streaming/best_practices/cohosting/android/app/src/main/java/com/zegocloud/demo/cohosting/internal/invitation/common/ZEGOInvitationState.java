@@ -1,6 +1,6 @@
-package com.zegocloud.demo.cohosting.internal.zim;
+package com.zegocloud.demo.cohosting.internal.invitation.common;
 
-public enum ZEGOInviteState {
+public enum ZEGOInvitationState {
     /**
      * send new invitation
      */

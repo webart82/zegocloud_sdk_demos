@@ -1,13 +1,15 @@
-package com.zegocloud.demo.cohosting.live;
+package com.zegocloud.demo.cohosting.components;
 
-import android.graphics.Color;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.RecyclerView.ViewHolder;
-import com.google.android.material.card.MaterialCardView;
+import com.zegocloud.demo.cohosting.R;
 import com.zegocloud.demo.cohosting.ZEGOSDKManager;
 import com.zegocloud.demo.cohosting.components.ZEGOVideoView;
 import com.zegocloud.demo.cohosting.internal.rtc.ZEGOLiveUser;
@@ -24,24 +26,25 @@ public class CoHostAdapter extends RecyclerView.Adapter<ViewHolder> {
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        MaterialCardView cardView = new MaterialCardView(parent.getContext());
-        DisplayMetrics displayMetrics = parent.getContext().getResources().getDisplayMetrics();
-        cardView.setRadius(Utils.dp2px(8f, displayMetrics));
-        cardView.setCardBackgroundColor(Color.GREEN);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.layout_cohost_video, parent, false);
 
-        MaterialCardView.LayoutParams params = new MaterialCardView.LayoutParams(Utils.dp2px(93, displayMetrics),
+        DisplayMetrics displayMetrics = parent.getContext().getResources().getDisplayMetrics();
+        ViewGroup.LayoutParams params = new ViewGroup.LayoutParams(Utils.dp2px(93, displayMetrics),
             Utils.dp2px(124, displayMetrics));
-        cardView.addView(new ZEGOVideoView(parent.getContext()), params);
-        return new ViewHolder(cardView) {
+        view.setLayoutParams(params);
+        return new ViewHolder(view) {
         };
     }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         String userID = userIDList.get(position);
-        ZEGOLiveUser userInfo = ZEGOSDKManager.getInstance().rtcService.getUser(userID);
-        ZEGOVideoView videoView = (ZEGOVideoView) ((MaterialCardView) holder.itemView).getChildAt(0);
+        ZEGOLiveUser liveUser = ZEGOSDKManager.getInstance().rtcService.getUser(userID);
+        ZEGOVideoView videoView = holder.itemView.findViewById(R.id.cohost_video_view);
+        TextView textView = holder.itemView.findViewById(R.id.cohost_video_name);
         videoView.setUserID(userID);
+        videoView.setVisibility(liveUser.isCameraOpen() ? View.VISIBLE : View.GONE);
+        textView.setText(liveUser.userName);
     }
 
     @Override
@@ -50,9 +53,15 @@ public class CoHostAdapter extends RecyclerView.Adapter<ViewHolder> {
     }
 
     public void addUserIDList(List<String> list) {
-        int position = userIDList.size();
         userIDList.addAll(list);
-        notifyItemRangeInserted(position, userIDList.size());
+        notifyDataSetChanged();
         Log.d(TAG, "addUserIDList() after with: userIDList = [" + this.userIDList + "]");
+    }
+
+    public void removeUserIDList(List<String> list) {
+        Log.d(TAG, "removeUserIDList() after with: list = [" + list + "]");
+        userIDList.removeAll(list);
+        notifyDataSetChanged();
+        Log.d(TAG, "removeUserIDList() after with: userIDList = [" + this.userIDList + "]");
     }
 }

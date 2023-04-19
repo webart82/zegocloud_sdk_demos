@@ -3,6 +3,7 @@ package com.zegocloud.demo.cohosting.components;
 import android.content.Context;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.TextureView;
 import android.widget.FrameLayout;
 import androidx.annotation.NonNull;
@@ -10,13 +11,8 @@ import androidx.annotation.Nullable;
 import com.zegocloud.demo.cohosting.ZEGOSDKManager;
 import com.zegocloud.demo.cohosting.internal.ZEGOExpressService;
 import com.zegocloud.demo.cohosting.internal.rtc.ZEGOLiveUser;
-import im.zego.zegoexpress.constants.ZegoRemoteDeviceState;
-import im.zego.zegoexpress.constants.ZegoUpdateType;
 import im.zego.zegoexpress.constants.ZegoViewMode;
-import im.zego.zegoexpress.entity.ZegoStream;
-import java.util.ArrayList;
 import java.util.Objects;
-import org.json.JSONObject;
 
 /**
  * if mUserID is set to local,will preview camera and publish.
@@ -31,6 +27,7 @@ public class ZEGOVideoView extends FrameLayout {
     private TextureView textureView;
     private ZEGOExpressService rtcService;
     private ZegoViewMode zegoViewMode = ZegoViewMode.ASPECT_FILL;
+    private boolean start = false;
 
     public ZEGOVideoView(@NonNull Context context) {
         super(context);
@@ -61,9 +58,19 @@ public class ZEGOVideoView extends FrameLayout {
         ZEGOSDKManager.getInstance().rtcService.startCameraPreview(textureView, zegoViewMode);
     }
 
+    private static final String TAG = "ZEGOVideoView";
+
     public void setUserID(String userID) {
+        Log.d(TAG, "setUserID() called with: userID = [" + userID + "]");
+        if (Objects.equals(mUserID, userID) && start) {
+            return;
+        }
         this.mUserID = userID;
-        startAudioVideo();
+        if (!TextUtils.isEmpty(mUserID)) {
+            startAudioVideo();
+        } else {
+            stopAudioVideo();
+        }
     }
 
     public String getUserID() {
@@ -74,6 +81,7 @@ public class ZEGOVideoView extends FrameLayout {
         if (TextUtils.isEmpty(mUserID)) {
             return;
         }
+        start = true;
         if (rtcService.isLocalUser(mUserID)) {
             ZEGOSDKManager.getInstance().rtcService.startCameraPreview(textureView, zegoViewMode);
             ZEGOSDKManager.getInstance().rtcService.startPublishLocalAudioVideo();
@@ -90,41 +98,13 @@ public class ZEGOVideoView extends FrameLayout {
         if (TextUtils.isEmpty(mUserID)) {
             return;
         }
+        start = false;
         if (rtcService.isLocalUser(mUserID)) {
             ZEGOSDKManager.getInstance().rtcService.stopCameraPreview();
             ZEGOSDKManager.getInstance().rtcService.stopPublishLocalAudioVideo();
         } else {
             String streamID = rtcService.generateStream(mUserID);
             ZEGOSDKManager.getInstance().rtcService.stopPlayRemoteAudioVideo(streamID);
-        }
-    }
-
-    public void onRoomStreamUpdate(String roomID, ZegoUpdateType updateType, ArrayList<ZegoStream> streamList,
-        JSONObject extendedData) {
-        for (ZegoStream stream : streamList) {
-            if (stream.user.userID.equals(mUserID)) {
-                if (updateType == ZegoUpdateType.ADD) {
-                    ZEGOSDKManager.getInstance().rtcService.startPlayRemoteAudioVideo(textureView, stream.streamID,
-                        zegoViewMode);
-                } else {
-                    ZEGOSDKManager.getInstance().rtcService.stopPlayRemoteAudioVideo(stream.streamID);
-                }
-                break;
-            }
-        }
-    }
-
-    public void onRemoteCameraStateUpdate(String streamID, ZegoRemoteDeviceState state) {
-        String mStreamID = rtcService.generateStream(mUserID);
-        if (Objects.equals(streamID, mStreamID)) {
-
-        }
-    }
-
-    public void onRemoteMicStateUpdate(String streamID, ZegoRemoteDeviceState state) {
-        String mStreamID = rtcService.generateStream(mUserID);
-        if (Objects.equals(mStreamID, streamID)) {
-
         }
     }
 }

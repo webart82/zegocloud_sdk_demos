@@ -24,13 +24,7 @@ public class SwitchCameraButton extends ZEGOImageButton {
     @Override
     protected void initView() {
         super.initView();
-        setImageResource(R.drawable.call_icon_camera_flip);
-    }
-
-    @Override
-    protected void afterClick() {
-        super.afterClick();
-        toggle();
+        setImageResource(R.drawable.call_icon_camera_flip, R.drawable.call_icon_camera_flip);
     }
 
     @Override
@@ -43,11 +37,5 @@ public class SwitchCameraButton extends ZEGOImageButton {
     public void close() {
         super.close();
         ZEGOSDKManager.getInstance().rtcService.useFrontCamera(false);
-    }
-
-    @Override
-    public void setState(boolean state) {
-        super.setState(state);
-        ZEGOSDKManager.getInstance().rtcService.useFrontCamera(state);
     }
 }
