@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:zego_express_engine/zego_express_engine.dart';
@@ -31,7 +33,7 @@ class _LivePageState extends State<LivePage> {
   int? hostScreenViewID;
 
   bool isCameraEnabled = true;
-  bool isScreenSharingEnabled = false;
+  bool isSharingScreen = false;
   ZegoScreenCaptureSource? screenSharingController;
 
   @override
@@ -48,6 +50,9 @@ class _LivePageState extends State<LivePage> {
     super.dispose();
   }
 
+  Widget get screenView => isSharingScreen ? (hostScreenView ?? const SizedBox()) : const SizedBox();
+  Widget get cameraView => isCameraEnabled ? (hostCameraView ?? const SizedBox()) : const SizedBox();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -55,8 +60,22 @@ class _LivePageState extends State<LivePage> {
       body: Stack(
         children: [
           Expanded(flex: 1, child: Container(color: Colors.black)),
-          isCameraEnabled ? (hostCameraView ?? const SizedBox()) : const SizedBox(),
-          isScreenSharingEnabled ? (hostScreenView ?? const SizedBox()) : const SizedBox(),
+          Builder(builder: (context) {
+            if (!isSharingScreen) return cameraView;
+            if (!widget.isHost) return screenView;
+            return const Center(child: Text('You are sharing your screen', style: TextStyle(color: Colors.white)));
+          }),
+          Positioned(
+            bottom: 150,
+            right: 20,
+            child: SizedBox(
+              width: MediaQuery.of(context).size.width / 4,
+              child: AspectRatio(
+                aspectRatio: 9.0 / 16.0,
+                child: (isSharingScreen ? cameraView : screenView),
+              ),
+            ),
+          ),
           Positioned(
             bottom: MediaQuery.of(context).size.height / 20,
             left: 0,
@@ -74,22 +93,27 @@ class _LivePageState extends State<LivePage> {
                     text: isCameraEnabled ? 'DisableCamera' : 'EnableCamera',
                     onPressed: () {
                       setState(() {
-                        ZegoExpressEngine.instance.enableCamera(!isCameraEnabled);
                         isCameraEnabled = !isCameraEnabled;
+                        ZegoExpressEngine.instance.setStreamExtraInfo(jsonEncode({'isCameraEnabled': isCameraEnabled}));
+                        ZegoExpressEngine.instance.enableCamera(isCameraEnabled);
                       });
                     },
                   ),
                   DemoButton(
-                    text: isScreenSharingEnabled ? 'StartScreenSharing' : 'StopScreenSharing',
-                    onPressed: () {
+                    text: isSharingScreen ? 'StopScreenSharing' : 'StartScreenSharing',
+                    onPressed: () async {
+                      if (isSharingScreen) {
+                        await stopScreenSharing();
+                      } else {
+                        await startScreenSharing();
+                      }
                       setState(() {
-                        ZegoExpressEngine.instance.enableCamera(!isCameraEnabled);
-                        isCameraEnabled = !isCameraEnabled;
+                        isSharingScreen = !isSharingScreen;
                       });
                     },
                   ),
                 ] else
-                  const SizedBox.shrink(),
+                  ...[]
               ],
             ),
           ),
@@ -117,11 +141,11 @@ class _LivePageState extends State<LivePage> {
     // Users must log in to the same room to call each other.
     return ZegoExpressEngine.instance
         .loginRoom(roomID, user, config: roomConfig)
-        .then((ZegoRoomLoginResult loginRoomResult) {
+        .then((ZegoRoomLoginResult loginRoomResult) async {
       debugPrint('loginRoom: errorCode:${loginRoomResult.errorCode}, extendedData:${loginRoomResult.extendedData}');
       if (loginRoomResult.errorCode == 0) {
         if (widget.isHost) {
-          enableScreenSharing();
+          await enableScreenSharing();
           startPreview();
           startPublish();
         }
@@ -171,6 +195,25 @@ class _LivePageState extends State<LivePage> {
       debugPrint(
           'onPublisherStateUpdate: streamID: $streamID, state: ${state.name}, errorCode: $errorCode, extendedData: $extendedData');
     };
+    ZegoExpressEngine.onPublisherStateUpdate = (streamID, state, errorCode, extendedData) {
+      debugPrint(
+          'onPublisherStateUpdate: streamID: $streamID, state: ${state.name}, errorCode: $errorCode, extendedData: $extendedData');
+    };
+
+    ZegoExpressEngine.onRoomStreamExtraInfoUpdate = (String roomID, List<ZegoStream> streamList) {
+      for (ZegoStream stream in streamList) {
+        try {
+          Map<String, dynamic> extraInfoMap = jsonDecode(stream.extraInfo);
+          if (extraInfoMap['isCameraEnabled'] is bool) {
+            setState(() {
+              isCameraEnabled = extraInfoMap['isCameraEnabled'];
+            });
+          }
+        } catch (e) {
+          debugPrint('streamExtraInfo is not json');
+        }
+      }
+    };
   }
 
   void stopListenEvent() {
@@ -181,17 +224,43 @@ class _LivePageState extends State<LivePage> {
   }
 
   Future<void> enableScreenSharing() async {
+    ZegoExpressEngine.instance.setVideoConfig(
+      ZegoVideoConfig.preset(ZegoVideoConfigPreset.Preset540P)..fps = 10,
+      channel: ZegoPublishChannel.Aux,
+    );
     ZegoExpressEngine.instance.setVideoSource(ZegoVideoSourceType.ScreenCapture, channel: ZegoPublishChannel.Aux);
-    ZegoExpressEngine.instance.setAudioSource(ZegoAudioSourceType.ScreenCapture, channel: ZegoPublishChannel.Aux);
     screenSharingController = (await ZegoExpressEngine.instance.createScreenCaptureSource())!;
   }
 
   Future<void> startScreenSharing() async {
     screenSharingController?.startCapture();
+    if (hostScreenViewID == null) {
+      await ZegoExpressEngine.instance.createCanvasView((viewID) {
+        hostScreenViewID = viewID;
+        ZegoCanvas previewCanvas = ZegoCanvas(viewID, viewMode: ZegoViewMode.AspectFill);
+        // preview
+        ZegoExpressEngine.instance.startPreview(canvas: previewCanvas, channel: ZegoPublishChannel.Aux);
+        String streamID = '${widget.roomID}_${widget.localUserID}_screen';
+
+        // publish
+        ZegoExpressEngine.instance.startPublishingStream(streamID, channel: ZegoPublishChannel.Aux);
+      }).then((canvasViewWidget) {
+        setState(() => hostScreenView = canvasViewWidget);
+      });
+    }
   }
 
   Future<void> stopScreenSharing() async {
     screenSharingController?.stopCapture();
+    ZegoExpressEngine.instance.stopPreview(channel: ZegoPublishChannel.Aux);
+    ZegoExpressEngine.instance.stopPublishingStream(channel: ZegoPublishChannel.Aux);
+    if (hostScreenViewID != null) {
+      await ZegoExpressEngine.instance.destroyCanvasView(hostScreenViewID!);
+      setState(() {
+        hostScreenViewID = null;
+        hostScreenView = null;
+      });
+    }
   }
 
   Future<void> startPreview() async {
@@ -215,19 +284,12 @@ class _LivePageState extends State<LivePage> {
         hostCameraView = null;
       });
     }
-    if (hostScreenViewID != null) {
-      await ZegoExpressEngine.instance.destroyCanvasView(hostScreenViewID!);
-      setState(() {
-        hostScreenViewID = null;
-        hostScreenView = null;
-      });
-    }
   }
 
   Future<void> startPublish() async {
     // After calling the `loginRoom` method, call this method to publish streams.
     // The StreamID must be unique in the room.
-    String streamID = '${widget.roomID}_${widget.localUserID}_call';
+    String streamID = '${widget.roomID}_${widget.localUserID}_live';
     return ZegoExpressEngine.instance.startPublishingStream(streamID);
   }
 
@@ -237,36 +299,46 @@ class _LivePageState extends State<LivePage> {
 
   Future<void> startPlayStream(String streamID) async {
     // Start to play streams. Set the view for rendering the remote streams.
-    await ZegoExpressEngine.instance.createCanvasView((viewID) {
-      hostCameraViewID = viewID;
-      ZegoCanvas canvas = ZegoCanvas(viewID, viewMode: ZegoViewMode.AspectFill);
-      ZegoExpressEngine.instance.startPlayingStream(streamID, canvas: canvas);
-    }).then((canvasViewWidget) {
-      setState(() => hostCameraView = canvasViewWidget);
-    });
-  }
-
-  Future<void> stopPlayStream(String streamID) async {
-    ZegoExpressEngine.instance.stopPlayingStream(streamID);
-    if (hostCameraViewID != null) {
-      ZegoExpressEngine.instance.destroyCanvasView(hostCameraViewID!);
-      setState(() {
-        hostCameraViewID = null;
-        hostCameraView = null;
+    if (streamID.endsWith('_screen')) {
+      isSharingScreen = true;
+      await ZegoExpressEngine.instance.createCanvasView((viewID) {
+        hostScreenViewID = viewID;
+        ZegoCanvas canvas = ZegoCanvas(viewID, viewMode: ZegoViewMode.AspectFit);
+        ZegoExpressEngine.instance.startPlayingStream(streamID, canvas: canvas);
+      }).then((canvasViewWidget) {
+        setState(() => hostScreenView = canvasViewWidget);
+      });
+    } else {
+      await ZegoExpressEngine.instance.createCanvasView((viewID) {
+        hostCameraViewID = viewID;
+        ZegoCanvas canvas = ZegoCanvas(viewID, viewMode: ZegoViewMode.AspectFill);
+        ZegoExpressEngine.instance.startPlayingStream(streamID, canvas: canvas);
+      }).then((canvasViewWidget) {
+        setState(() => hostCameraView = canvasViewWidget);
       });
     }
   }
 
-  // startPreviewScreenSharing
-  Future<void> startPreviewScreenSharing() async {
-    // screenSharingView
-    await ZegoExpressEngine.instance.createCanvasView((viewID) {
-      hostScreenViewID = viewID;
-      ZegoCanvas previewCanvas = ZegoCanvas(viewID, viewMode: ZegoViewMode.AspectFill);
-      ZegoExpressEngine.instance.startPreview(canvas: previewCanvas, channel: ZegoPublishChannel.Aux);
-    }).then((canvasViewWidget) {
-      setState(() => hostScreenView = canvasViewWidget);
-    });
+  Future<void> stopPlayStream(String streamID) async {
+    ZegoExpressEngine.instance.stopPlayingStream(streamID);
+    if (streamID.endsWith('_screen')) {
+      isSharingScreen = false;
+      if (hostScreenViewID != null) {
+        ZegoExpressEngine.instance.destroyCanvasView(hostScreenViewID!);
+        setState(() {
+          hostScreenViewID = null;
+          hostScreenView = null;
+        });
+      }
+    } else {
+      if (hostCameraViewID != null) {
+        ZegoExpressEngine.instance.destroyCanvasView(hostCameraViewID!);
+        setState(() {
+          hostCameraViewID = null;
+          hostCameraView = null;
+        });
+      }
+    }
   }
 }
 
@@ -285,11 +357,7 @@ class DemoButton extends StatelessWidget {
     return SizedBox(
       width: MediaQuery.of(context).size.width / 4,
       height: MediaQuery.of(context).size.width / 7,
-      child: OutlinedButton(
-        style: OutlinedButton.styleFrom(side: const BorderSide(color: Colors.white)),
-        onPressed: onPressed,
-        child: Text(text),
-      ),
+      child: ElevatedButton(onPressed: onPressed, child: Text(text)),
     );
   }
 }
