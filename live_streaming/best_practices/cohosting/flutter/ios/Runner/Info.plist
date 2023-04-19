@@ -27,9 +27,9 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string>We need to use your camera to help you join the call.</string>
+	<string>Please allow access to the camera for live streaming.</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>We need to use your mic to help you join the live.</string>
+	<string>Please allow access to the microphone for live streaming.</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>
