@@ -20,7 +20,7 @@ class ExpressService {
 
   Future<void> init({
     required int appID,
-    String appSign = '',
+    String? appSign,
     ZegoScenario scenario = ZegoScenario.Broadcast,
   }) async {
     final profile = ZegoEngineProfile(appID, scenario, appSign: appSign);
@@ -39,7 +39,7 @@ class ExpressService {
     await ZegoExpressEngine.destroyEngine();
   }
 
-  Future<void> connectUser(String id, String name) async {
+  Future<void> connectUser(String id, String name, {String? token}) async {
     localUser = ZegoUserInfo(userID: id, userName: name);
   }
 

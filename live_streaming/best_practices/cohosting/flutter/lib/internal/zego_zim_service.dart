@@ -12,12 +12,12 @@ class ZIMService {
   factory ZIMService() => instance;
   static final ZIMService instance = ZIMService._internal();
 
-  Future<void> init({required int appID, String appSign = ''}) async {
+  Future<void> init({required int appID, String? appSign}) async {
     initEventHandle();
     ZIM.create(
       ZIMAppConfig()
         ..appID = appID
-        ..appSign = appSign,
+        ..appSign = appSign ?? '',
     );
   }
 
@@ -26,12 +26,12 @@ class ZIMService {
     ZIM.getInstance()?.destroy();
   }
 
-  Future<void> connectUser(String userID, String userName) async {
+  Future<void> connectUser(String userID, String userName, {String? token}) async {
     ZIMUserInfo userInfo = ZIMUserInfo();
     userInfo.userID = userID;
     userInfo.userName = userName;
     zimUserInfo = userInfo;
-    await ZIM.getInstance()!.login(userInfo);
+    await ZIM.getInstance()!.login(userInfo, token);
   }
 
   Future<void> disconnectUser() async {

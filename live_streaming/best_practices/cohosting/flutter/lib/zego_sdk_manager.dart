@@ -9,14 +9,14 @@ class ZEGOSDKManager {
   ExpressService expressService = ExpressService.instance;
   ZIMService zimService = ZIMService.instance;
 
-  Future<void> init(int appID, String appSign) async {
+  Future<void> init(int appID, String? appSign) async {
     await expressService.init(appID: appID, appSign: appSign);
     await zimService.init(appID: appID, appSign: appSign);
   }
 
-  Future<void> connectUser(String userID, String userName) async {
-    await expressService.connectUser(userID, userName);
-    await zimService.connectUser(userID, userName);
+  Future<void> connectUser(String userID, String userName, {String? token}) async {
+    await expressService.connectUser(userID, userName, token: token);
+    await zimService.connectUser(userID, userName, token: token);
   }
 
   Future<void> disconnectUser() async {
