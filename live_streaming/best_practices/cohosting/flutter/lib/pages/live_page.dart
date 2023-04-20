@@ -103,10 +103,7 @@ class _ZegoLivePageState extends State<ZegoLivePage> {
       builder: (context, containers) {
         return Padding(
           padding: EdgeInsets.only(left: 0, right: 0, top: containers.maxHeight - 70),
-          child: ZegoLiveBottomBar(
-            cohostStreamNotifier: cohostStreamNotifier,
-            applying: applying,
-          ),
+          child: ZegoLiveBottomBar(cohostStreamNotifier: cohostStreamNotifier, applying: applying),
         );
       },
     );
@@ -204,14 +201,10 @@ class _ZegoLivePageState extends State<ZegoLivePage> {
             width: 100,
             height: 40,
             child: OutlinedButton(
-                style: OutlinedButton.styleFrom(side: const BorderSide(width: 1, color: Colors.white)),
-                onPressed: startLive,
-                child: const Text(
-                  'Start Live',
-                  style: TextStyle(
-                    color: Colors.white,
-                  ),
-                )),
+              style: OutlinedButton.styleFrom(side: const BorderSide(width: 1, color: Colors.white)),
+              onPressed: startLive,
+              child: const Text('Start Live', style: TextStyle(color: Colors.white)),
+            ),
           ),
         );
       },
@@ -301,9 +294,8 @@ class _ZegoLivePageState extends State<ZegoLivePage> {
   void onRoomUserListUpdate(ZegoRoomUserListUpdateEvent event) {
     for (var user in event.userList) {
       if (event.updateType == ZegoUpdateType.Delete) {
-        if (cohostStreamNotifier.value.contains(user.userID)) {
-          cohostStreamNotifier.remove(user.userID);
-        }
+        final streamIDPrefix = '${event.roomID}_${user.userID}_';
+        cohostStreamNotifier.removeWhere((streamID) => streamID.startsWith(streamIDPrefix));
         if (hostUserInfoNotifier.value?.userID == user.userID) {
           hostUserInfoNotifier.value = null;
         }
