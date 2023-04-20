@@ -200,8 +200,7 @@ class _ZegoLivePageState extends State<ZegoLivePage> {
           child: SizedBox(
             width: 100,
             height: 40,
-            child: OutlinedButton(
-              style: OutlinedButton.styleFrom(side: const BorderSide(width: 1, color: Colors.white)),
+            child: ElevatedButton(
               onPressed: startLive,
               child: const Text('Start Live', style: TextStyle(color: Colors.white)),
             ),
@@ -330,7 +329,7 @@ class _ZegoLivePageState extends State<ZegoLivePage> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           duration: Duration(milliseconds: 1000),
-          content: Text('host refuse your apply'),
+          content: Text('Your request to co-host with the host has been refused.'),
         ),
       );
     }
@@ -364,11 +363,11 @@ class _ZegoLivePageState extends State<ZegoLivePage> {
       context: context,
       builder: (context) {
         return CupertinoAlertDialog(
-          title: const Text('apply become cohost'),
-          content: Text('${userInfo.userName} apply become cohost'),
+          title: const Text('Co-host request'),
+          content: Text('${userInfo.userName} wants to co-host with you.'),
           actions: [
             CupertinoDialogAction(
-              child: const Text('Refuse'),
+              child: const Text('Disagree'),
               onPressed: () {
                 final signaling = jsonEncode({
                   'type': CustomSignalingType.hostRefuseAudienceCoHostApply,
@@ -379,12 +378,12 @@ class _ZegoLivePageState extends State<ZegoLivePage> {
                   Navigator.pop(context);
                 }).catchError((error) {
                   ScaffoldMessenger.of(context)
-                      .showSnackBar(SnackBar(content: Text('refuse cohost failed: ${error.code},${error.message}')));
+                      .showSnackBar(SnackBar(content: Text('Disagree cohost failed: ${error.code},${error.message}')));
                 });
               },
             ),
             CupertinoDialogAction(
-              child: const Text('OK'),
+              child: const Text('Agree'),
               onPressed: () {
                 final signaling = jsonEncode({
                   'type': CustomSignalingType.hostAcceptAudienceCoHostApply,
@@ -394,8 +393,8 @@ class _ZegoLivePageState extends State<ZegoLivePage> {
                 ZEGOSDKManager.instance.zimService.sendRoomCustomSignaling(signaling).then((value) {
                   Navigator.pop(context);
                 }).catchError((error) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('accept apply cohost failed: ${error.code},${error.message}')));
+                  ScaffoldMessenger.of(context)
+                      .showSnackBar(SnackBar(content: Text('Agree cohost failed: ${error.code},${error.message}')));
                 });
               },
             ),

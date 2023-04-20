@@ -63,26 +63,26 @@ class _HomePageState extends State<HomePage> {
   Widget hostJoinLivePageButton() {
     return SizedBox(
       width: 200,
-      height: 30,
-      child: OutlinedButton(
-          onPressed: () {
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => ZegoLivePage(
-                          roomID: roomIDController.text,
-                          role: ZegoLiveRole.host,
-                        )));
-          },
-          child: const Text('host Join Live')),
+      height: 50,
+      child: ElevatedButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ZegoLivePage(roomID: roomIDController.text, role: ZegoLiveRole.host),
+            ),
+          );
+        },
+        child: const Text('Start a Live Streaming'),
+      ),
     );
   }
 
   Widget audienceJoinLivePageButton() {
     return SizedBox(
       width: 200,
-      height: 30,
-      child: OutlinedButton(
+      height: 50,
+      child: ElevatedButton(
           onPressed: () {
             Navigator.push(
                 context,
@@ -92,7 +92,7 @@ class _HomePageState extends State<HomePage> {
                           role: ZegoLiveRole.audience,
                         )));
           },
-          child: const Text('audience Join Live')),
+          child: const Text('Watch a Live Streaming')),
     );
   }
 }

@@ -61,9 +61,14 @@ class _ZegoLiveBottomBarState extends State<ZegoLiveBottomBar> {
       return ValueListenableBuilder<bool>(
         valueListenable: widget.applying!,
         builder: (context, state, _) {
-          return Container(
-            alignment: Alignment.centerRight,
-            child: state ? cancelApplyCohostButton() : applyCoHostButton(),
+          return Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              const SizedBox(width: 50, height: 50),
+              const SizedBox(width: 50, height: 50),
+              const SizedBox(width: 50, height: 50),
+              state ? cancelApplyCohostButton() : applyCoHostButton(),
+            ],
           );
         },
       );
@@ -141,11 +146,11 @@ class _ZegoLiveBottomBarState extends State<ZegoLiveBottomBar> {
               widget.applying?.value = true;
             }).catchError((error) {
               ScaffoldMessenger.of(context)
-                  .showSnackBar(SnackBar(content: Text('apply cohost failed: ${error.code}, ${error.message}')));
+                  .showSnackBar(SnackBar(content: Text('apply to co-host failed: ${error.code}, ${error.message}')));
             });
           },
           child: const Text(
-            'applyCoHost',
+            'Apply to co-host',
             style: TextStyle(color: Colors.white),
           )),
     );
@@ -167,12 +172,12 @@ class _ZegoLiveBottomBarState extends State<ZegoLiveBottomBar> {
             ZEGOSDKManager.instance.zimService.sendRoomCustomSignaling(signaling).then((value) {
               widget.applying?.value = false;
             }).catchError((error) {
-              ScaffoldMessenger.of(context)
-                  .showSnackBar(SnackBar(content: Text('cancel apply cohost failed: ${error.code}, ${error.message}')));
+              ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Cancel the application failed: ${error.code}, ${error.message}')));
             });
           },
           child: const Text(
-            'cancelApplyCohost',
+            'Cancel the application',
             style: TextStyle(color: Colors.white),
           )),
     );
@@ -207,7 +212,7 @@ class _ZegoLiveBottomBarState extends State<ZegoLiveBottomBar> {
           ZEGOSDKManager.instance.expressService.stopPublishingStream();
           ZEGOSDKManager.instance.localUser?.roleNotifier.value = ZegoLiveRole.audience;
         },
-        child: const Text('end cohost', style: TextStyle(color: Colors.white)),
+        child: const Text('End co-host', style: TextStyle(color: Colors.white)),
       ),
     );
   }

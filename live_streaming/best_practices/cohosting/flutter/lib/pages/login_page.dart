@@ -74,7 +74,7 @@ class _LoginPageState extends State<LoginPage> {
             SizedBox(
               width: 200,
               height: 40,
-              child: OutlinedButton(
+              child: ElevatedButton(
                 onPressed: () {
                   ZEGOSDKManager.instance.connectUser(userIDController.text, userNameController.text);
                 },
