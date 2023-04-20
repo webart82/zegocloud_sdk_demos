@@ -93,7 +93,7 @@ class ZIMService {
     ZIMEventHandler.onReceiveRoomMessage = onReceiveRoomMessage;
   }
 
-  void onReceiveRoomMessage(ZIM zim, List<ZIMMessage> messageList, String fromRoomID) {
+  void onReceiveRoomMessage(_, List<ZIMMessage> messageList, String fromRoomID) {
     for (var element in messageList) {
       if (element is ZIMCommandMessage) {
         String signaling = utf8.decode(element.message);
@@ -108,11 +108,11 @@ class ZIMService {
     }
   }
 
-  void onConnectionStateChanged(ZIM zim, ZIMConnectionState state, ZIMConnectionEvent event, Map extendedData) {
+  void onConnectionStateChanged(_, ZIMConnectionState state, ZIMConnectionEvent event, Map extendedData) {
     connectionStateStreamCtrl.add(ZIMServiceConnectionStateChangedEvent(state, event, extendedData));
   }
 
-  void onRoomStateChanged(ZIM zim, ZIMRoomState state, ZIMRoomEvent event, Map extendedData, String roomID) {
+  void onRoomStateChanged(_, ZIMRoomState state, ZIMRoomEvent event, Map extendedData, String roomID) {
     roomStateChangedStreamCtrl.add(ZIMServiceRoomStateChangedEvent(roomID, state, event, extendedData));
   }
 
