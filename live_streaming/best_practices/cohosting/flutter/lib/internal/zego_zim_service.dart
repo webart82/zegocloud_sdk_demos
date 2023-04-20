@@ -54,15 +54,16 @@ class ZIMService {
         .enterRoom(
             ZIMRoomInfo()
               ..roomID = roomID
-              ..roomName = roomName??roomID,
+              ..roomName = roomName ?? '',
             ZIMRoomAdvancedConfig()
               ..roomAttributes = roomAttributes
               ..roomDestroyDelayTime = roomDestroyDelayTime)
         .then((value) {
       result.errorCode = 0;
     }).catchError((error) {
-      result.errorCode = int.parse(error.code);
+      result.errorCode = int.tryParse(error.code) ?? -1;
       result.extendedData['errorMessage'] = error.message;
+      result.extendedData['error'] = error;
     });
     return result;
   }

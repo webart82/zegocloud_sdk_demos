@@ -120,7 +120,7 @@ class ExpressService {
     localUser?.isCamerOnNotifier.value = isOn;
     final extraInfo = jsonEncode({
       'mic': localUser?.isMicOnNotifier.value ?? false ? 'on' : 'off',
-      'cam': isOn ? 'on' : 'off',
+      'cam': localUser?.isCamerOnNotifier.value ?? false ? 'on' : 'off',
     });
     ZegoExpressEngine.instance.setStreamExtraInfo(extraInfo);
     ZegoExpressEngine.instance.enableCamera(isOn);
@@ -129,7 +129,7 @@ class ExpressService {
   void turnMicrophoneOn(bool isOn) {
     localUser?.isMicOnNotifier.value = isOn;
     final extraInfo = jsonEncode({
-      'mic': isOn ? 'on' : 'off',
+      'mic': localUser?.isMicOnNotifier.value ?? false ? 'on' : 'off',
       'cam': localUser?.isCamerOnNotifier.value ?? false ? 'on' : 'off',
     });
     ZegoExpressEngine.instance.setStreamExtraInfo(extraInfo);
@@ -184,7 +184,12 @@ class ExpressService {
 
   Future<void> startPublishingStream(String streamID) async {
     localUser?.streamID = streamID;
+    final extraInfo = jsonEncode({
+      'mic': localUser?.isMicOnNotifier.value ?? false ? 'on' : 'off',
+      'cam': localUser?.isCamerOnNotifier.value ?? false ? 'on' : 'off',
+    });
     await ZegoExpressEngine.instance.startPublishingStream(streamID);
+    await ZegoExpressEngine.instance.setStreamExtraInfo(extraInfo);
   }
 
   Future<void> stopPublishingStream() async {
@@ -224,11 +229,16 @@ class ExpressService {
           userInfoList.add(userInfo);
         }
         userInfo.streamID = stream.streamID;
-        Map<String, dynamic> extraInfoMap = convert.jsonDecode(stream.extraInfo);
-        bool isMicOn = (extraInfoMap['mic'] == 'on') ? true : false;
-        bool isCameraOn = (extraInfoMap['cam'] == 'on') ? true : false;
-        userInfo.isCamerOnNotifier.value = isCameraOn;
-        userInfo.isMicOnNotifier.value = isMicOn;
+        try {
+          Map<String, dynamic> extraInfoMap = convert.jsonDecode(stream.extraInfo);
+          bool isMicOn = (extraInfoMap['mic'] == 'on') ? true : false;
+          bool isCameraOn = (extraInfoMap['cam'] == 'on') ? true : false;
+          userInfo.isCamerOnNotifier.value = isCameraOn;
+          userInfo.isMicOnNotifier.value = isMicOn;
+        } catch (e) {
+          debugPrint('stream.extraInfo: ${stream.extraInfo}.');
+        }
+
         startPlayingStream(stream.streamID);
       } else {
         streamMap[stream.streamID] = '';
@@ -272,11 +282,15 @@ class ExpressService {
     for (var user in userInfoList) {
       for (ZegoStream stream in streamList) {
         if (stream.streamID == user.streamID) {
-          Map<String, dynamic> extraInfoMap = convert.jsonDecode(stream.extraInfo);
-          bool isMicOn = (extraInfoMap['mic'] == 'on') ? true : false;
-          bool isCameraOn = (extraInfoMap['cam'] == 'on') ? true : false;
-          user.isCamerOnNotifier.value = isCameraOn;
-          user.isMicOnNotifier.value = isMicOn;
+          try {
+            Map<String, dynamic> extraInfoMap = convert.jsonDecode(stream.extraInfo);
+            bool isMicOn = (extraInfoMap['mic'] == 'on') ? true : false;
+            bool isCameraOn = (extraInfoMap['cam'] == 'on') ? true : false;
+            user.isCamerOnNotifier.value = isCameraOn;
+            user.isMicOnNotifier.value = isMicOn;
+          } catch (e) {
+            debugPrint('stream.extraInfo: ${stream.extraInfo}.');
+          }
         }
       }
     }
