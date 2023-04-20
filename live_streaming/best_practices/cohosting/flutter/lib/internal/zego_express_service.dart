@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:convert' as convert;
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
+
 import 'zego_service_define.dart';
 
 export 'package:live_streaming_with_cohosting/define.dart';
@@ -13,7 +15,7 @@ class ExpressService {
   factory ExpressService() => instance;
   static final ExpressService instance = ExpressService._internal();
 
-  String room = '';
+  String currentRoomID = '';
   ZegoUserInfo? localUser;
   List<ZegoUserInfo> userInfoList = [];
   Map<String, String> streamMap = {};
@@ -56,24 +58,28 @@ class ExpressService {
     return null;
   }
 
-  Future<ZegoRoomLoginResult> loginRoom(String roomID) async {
-    final loginRoomResult = await ZegoExpressEngine.instance.loginRoom(
+  Future<ZegoRoomLoginResult> loginRoom(String roomID, {String? token}) async {
+    assert(!kIsWeb || token != null, 'token is required for web platform!');
+    final joinRoomResult = await ZegoExpressEngine.instance.loginRoom(
       roomID,
-      ZegoUser(localUser?.userID ?? '', localUser?.userName ?? ''),
-      config: ZegoRoomConfig(0, true, ''),
+      ZegoUser(localUser!.userID, localUser!.userName),
+      config: ZegoRoomConfig(0, true, token ?? ''),
     );
-    if (loginRoomResult.errorCode == 0) {
-      room = roomID;
+    if (joinRoomResult.errorCode == 0) {
+      currentRoomID = roomID;
     }
-    return loginRoomResult;
+    return joinRoomResult;
   }
 
-  Future<ZegoRoomLogoutResult> logoutRoom() async {
-    room = '';
-    userInfoList.clear();
-    resertLocalUser();
-    streamMap.clear();
-    final leaveResult = await ZegoExpressEngine.instance.logoutRoom();
+  Future<ZegoRoomLogoutResult> logoutRoom([String roomID = '']) async {
+    if (roomID.isEmpty) roomID = currentRoomID;
+    final leaveResult = await ZegoExpressEngine.instance.logoutRoom(roomID);
+    if (leaveResult.errorCode == 0) {
+      currentRoomID = '';
+      userInfoList.clear();
+      resertLocalUser();
+      streamMap.clear();
+    }
     return leaveResult;
   }
 
@@ -96,8 +102,18 @@ class ExpressService {
     );
   }
 
+  void muteAllPlayStreamAudio(bool mute) {
+    for (var streamID in streamMap.keys) {
+      ZegoExpressEngine.instance.mutePlayStreamAudio(streamID, mute);
+    }
+  }
+
   void setAudioOutputToSpeaker(bool useSpeaker) {
-    ZegoExpressEngine.instance.setAudioRouteToSpeaker(useSpeaker);
+    if (kIsWeb) {
+      muteAllPlayStreamAudio(!useSpeaker);
+    } else {
+      ZegoExpressEngine.instance.setAudioRouteToSpeaker(useSpeaker);
+    }
   }
 
   void turnCameraOn(bool isOn) {
@@ -117,7 +133,7 @@ class ExpressService {
       'cam': localUser?.isCamerOnNotifier.value ?? false ? 'on' : 'off',
     });
     ZegoExpressEngine.instance.setStreamExtraInfo(extraInfo);
-    ZegoExpressEngine.instance.muteMicrophone(!isOn);
+    ZegoExpressEngine.instance.mutePublishStreamAudio(!isOn);
   }
 
   Future<void> startPlayingStream(String streamID) async {

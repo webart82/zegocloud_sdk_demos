@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:live_streaming_with_cohosting/pages/login_page.dart';
-import 'package:live_streaming_with_cohosting/utils/permission.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 void main() {
   runApp(const MyApp());

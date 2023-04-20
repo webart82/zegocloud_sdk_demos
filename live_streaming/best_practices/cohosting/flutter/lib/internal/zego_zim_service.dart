@@ -41,7 +41,7 @@ class ZIMService {
   String? currentRoomID;
   Future<ZegoRoomLoginResult> loginRoom(
     String roomID, {
-    String roomName = '',
+    String? roomName,
     Map<String, String> roomAttributes = const {},
     int roomDestroyDelayTime = 0,
   }) async {
@@ -54,7 +54,7 @@ class ZIMService {
         .enterRoom(
             ZIMRoomInfo()
               ..roomID = roomID
-              ..roomName = roomName,
+              ..roomName = roomName??roomID,
             ZIMRoomAdvancedConfig()
               ..roomAttributes = roomAttributes
               ..roomDestroyDelayTime = roomDestroyDelayTime)

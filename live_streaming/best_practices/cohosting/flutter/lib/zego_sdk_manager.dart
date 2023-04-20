@@ -24,9 +24,9 @@ class ZEGOSDKManager {
     await zimService.disconnectUser();
   }
 
-  Future<ZegoRoomLoginResult> loginRoom(String roomID) async {
+  Future<ZegoRoomLoginResult> loginRoom(String roomID, {String? token}) async {
     // await these two methods
-    final expressResult = await expressService.loginRoom(roomID);
+    final expressResult = await expressService.loginRoom(roomID, token: token);
     if (expressResult.errorCode != 0) {
       return expressResult;
     }
