@@ -17,6 +17,8 @@ public class CoHostProtocol {
     public static final int AudienceRefuseCoHostInvitation = 10102;
     public static final int AudienceAcceptCoHostInvitation = 10103;
 
+    //
+
     private int actionType;
     private String operatorID;
     private String targetID;

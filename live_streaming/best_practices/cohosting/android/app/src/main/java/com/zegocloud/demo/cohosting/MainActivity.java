@@ -3,7 +3,6 @@ package com.zegocloud.demo.cohosting;
 import android.Manifest.permission;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import androidx.annotation.NonNull;
@@ -16,13 +15,10 @@ import com.zegocloud.demo.cohosting.live.LiveStreamingActivity;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
 
     private ActivityMainBinding binding;
-    private String userID = generateUserID();
-    private String userName = userID + "_" + Build.MANUFACTURER.toLowerCase();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,31 +59,6 @@ public class MainActivity extends AppCompatActivity {
             intent.putExtra("host", false);
             intent.putExtra("liveID", liveID);
             startActivity(intent);
-        });
-
-        initAndSignInZEGOSDK();
-    }
-
-    private static String generateUserID() {
-        StringBuilder builder = new StringBuilder();
-        Random random = new Random();
-        while (builder.length() < 6) {
-            int nextInt = random.nextInt(10);
-            if (builder.length() == 0 && nextInt == 0) {
-                continue;
-            }
-            builder.append(nextInt);
-        }
-        return builder.toString();
-    }
-
-    private void initAndSignInZEGOSDK() {
-        ZEGOSDKManager.getInstance().initSDK(getApplication(), ZEGOSDKKeyCenter.appID, ZEGOSDKKeyCenter.appSign);
-        ZEGOSDKManager.getInstance().connectUser(userID, userName, (errorCode, message) -> {
-            if (errorCode == 0) {
-            } else {
-
-            }
         });
     }
 
