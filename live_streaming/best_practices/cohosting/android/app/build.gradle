@@ -44,5 +44,5 @@ dependencies {
 
     implementation 'im.zego:zim:2.7.1'
     implementation 'im.zego:express-video:3.3.1'
-    api 'com.guolindev.permissionx:permissionx:1.6.4'
+    api 'com.guolindev.permissionx:permissionx:1.7.1'
 }

@@ -33,7 +33,7 @@ public class ZEGOSDKManager {
 
     public void disconnectUser() {
         invitationService.disconnectUser();
-        rtcService.disConnectUser();
+        rtcService.disconnectUser();
     }
 
     public void joinRTCRoom(String roomID, IZegoRoomLoginCallback callback) {
