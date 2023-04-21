@@ -26,8 +26,6 @@ public class MainActivity extends AppCompatActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        binding.liveEntry.liveId.getEditText().setText("324324");
-
         binding.liveEntry.startLive.setOnClickListener(v -> {
             String liveID = binding.liveEntry.liveId.getEditText().getText().toString();
             if (TextUtils.isEmpty(liveID)) {
