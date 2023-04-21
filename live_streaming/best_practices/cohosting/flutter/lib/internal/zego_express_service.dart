@@ -25,9 +25,8 @@ class ExpressService {
     String? appSign,
     ZegoScenario scenario = ZegoScenario.Broadcast,
   }) async {
-    final profile = ZegoEngineProfile(appID, scenario, appSign: appSign);
     initEventHandle();
-
+    final profile = ZegoEngineProfile(appID, scenario, appSign: appSign);
     await ZegoExpressEngine.createEngineWithProfile(profile);
     ZegoExpressEngine.setEngineConfig(ZegoEngineConfig(advancedConfig: {
       'notify_remote_device_unknown_status': 'true',
